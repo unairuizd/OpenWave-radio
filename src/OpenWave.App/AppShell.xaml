@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="OpenWave.App.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:OpenWave.App.Views"
+    Title="OpenWave"
+    FlyoutBehavior="Disabled">
+
+    <TabBar>
+        <ShellContent
+            Title="Inicio"
+            Route="inicio"
+            ContentTemplate="{DataTemplate views:InicioPage}" />
+        <ShellContent
+            Title="Reproductor"
+            Route="reproductor"
+            ContentTemplate="{DataTemplate views:ReproductorPage}" />
+        <ShellContent
+            Title="Favoritos"
+            Route="favoritos"
+            ContentTemplate="{DataTemplate views:FavoritosPage}" />
+    </TabBar>
+
+</Shell>

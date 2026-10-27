@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OpenWave.App.Views.InicioPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:contracts="clr-namespace:OpenWave.Contracts;assembly=OpenWave.Contracts"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
+    x:DataType="vm:InicioViewModel"
+    x:Name="InicioRoot"
+    Title="Inicio">
+
+    <Grid Padding="16" RowDefinitions="Auto,Auto,*" RowSpacing="12">
+
+        <Label
+            Grid.Row="0"
+            Style="{StaticResource PageTitleLabel}"
+            Text="Inicio" />
+
+        <Entry
+            Grid.Row="1"
+            Placeholder="Buscar emisora..."
+            ReturnType="Search" />
+
+        <Grid Grid.Row="2">
+
+            <CollectionView
+                ItemsSource="{Binding Stations}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="contracts:StationDto">
+                        <Border Margin="0,0,0,8" Style="{StaticResource StationCard}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding BindingContext.SelectStationCommand, Source={x:Reference InicioRoot}}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="2">
+                                <Label
+                                    Style="{StaticResource StationNameLabel}"
+                                    Text="{Binding Name}" />
+                                <Label Style="{StaticResource SecondaryLabel}">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0} · {1}">
+                                            <Binding Path="Country" />
+                                            <Binding Path="Language" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsLoading}"
+                Spacing="8"
+                VerticalOptions="Center">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                <Label Style="{StaticResource SecondaryLabel}" Text="Cargando emisoras..." />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding HasError}"
+                Spacing="12"
+                VerticalOptions="Center">
+                <Label
+                    HorizontalTextAlignment="Center"
+                    Style="{StaticResource ErrorLabel}"
+                    Text="{Binding ErrorMessage}" />
+                <Button
+                    Command="{Binding LoadStationsCommand}"
+                    HorizontalOptions="Center"
+                    Text="Reintentar" />
+            </VerticalStackLayout>
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

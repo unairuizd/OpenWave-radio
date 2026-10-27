@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OpenWave.App.Views.FavoritosPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Favoritos">
+
+    <VerticalStackLayout Padding="16" Spacing="8">
+        <Label Style="{StaticResource PageTitleLabel}" Text="Favoritos" />
+        <Label Text="Aún no tienes emisoras favoritas." />
+        <Label
+            Style="{StaticResource SecondaryLabel}"
+            Text="Esta sección aún no está conectada; llegará en una fase posterior." />
+    </VerticalStackLayout>
+
+</ContentPage>

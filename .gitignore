@@ -1,0 +1,45 @@
+# .NET build output
+bin/
+obj/
+artifacts/
+*.dll
+*.pdb
+*.exe
+*.nupkg
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Secrets and local configuration
+appsettings.Development.json
+secrets.json
+*.secrets.json
+.env
+.env.*
+*.pfx
+*.keystore
+*.jks
+
+# MAUI / Android local output
+*.apk
+*.aab
+*.binlog
+*.log
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~

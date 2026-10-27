@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OpenWave.App.Views.ReproductorPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
+    x:DataType="vm:ReproductorViewModel"
+    Title="Reproductor">
+
+    <VerticalStackLayout Padding="16" Spacing="16">
+
+        <Label Style="{StaticResource PageTitleLabel}" Text="Reproductor" />
+
+        <VerticalStackLayout IsVisible="{Binding HasStation}" Spacing="12">
+            <Label Style="{StaticResource PageTitleLabel}" Text="{Binding CurrentStation.Name}" />
+            <Label Style="{StaticResource SecondaryLabel}" Text="{Binding CurrentStation.Country}" />
+            <Label Style="{StaticResource StationNameLabel}" Text="{Binding StatusText}" />
+            <Button
+                Command="{Binding ToggleCommand}"
+                HorizontalOptions="Start"
+                Text="{Binding ToggleButtonText}" />
+        </VerticalStackLayout>
+
+        <Label
+            IsVisible="{Binding HasNoStation}"
+            Style="{StaticResource SecondaryLabel}"
+            Text="Selecciona una emisora en Inicio" />
+
+    </VerticalStackLayout>
+
+</ContentPage>
