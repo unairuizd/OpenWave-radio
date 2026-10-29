@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Supplies the app with the catalogue of radio stations to display. In this phase the catalogue is fixed test data served by the API, so the app can be built and demonstrated without external dependencies.
+Supplies the app with the live Radio Browser catalogue of radio stations, including search filters and a bounded result size, so the app can list and search real stations.
 
 ## Requirements
 
