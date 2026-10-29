@@ -51,4 +51,5 @@ Do not run any git command during this change. Stop after each group, run the gr
 - [ ] 5.4 Run the full Android emulator flow with the API running and `$env:ANDROID_HOME="$env:LOCALAPPDATA\Android\Sdk"`: the same catalogue/search/playback/error checks; report the commands and observed results.
 - [ ] 5.5 Run `dotnet build OpenWave.sln` with `ANDROID_HOME` set and confirm 0 warnings and 0 errors for both target frameworks; report the actual output.
 - [ ] 5.6 Re-read the README against the implemented behavior and the task list; correct any stale phase-1 text, commands or strings and verify the corrected commands.
-- [ ] 5.7 Report the final files changed, commands run and manual checks performed, then stop. Do not start another change or run any git command.
+- [ ] 5.7 Update the `## Purpose` lines of `openspec/specs/station-catalog/spec.md` (live Radio Browser catalogue with search filters and a bounded result size) and `openspec/specs/station-browsing/spec.md` (browse, search and select real stations, including empty-search state), because delta specs cannot change a main spec's Purpose.
+- [ ] 5.8 Report the final files changed, commands run and manual checks performed, then stop. Do not start another change or run any git command.

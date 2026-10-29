@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace OpenWave.App;
+﻿namespace OpenWave.App;
 
 public partial class App : Application
 {

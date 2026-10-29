@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Supplies the app with the live Radio Browser catalogue of radio stations, including search filters and a bounded result size, so the app can list and search real stations.
+Supplies the app with a fixed, in-memory catalogue of plausible test stations, so the app can list stations without depending on external services.
 
 ## Requirements
 

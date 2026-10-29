@@ -41,8 +41,8 @@
                                 <Label Style="{StaticResource SecondaryLabel}">
                                     <Label.Text>
                                         <MultiBinding StringFormat="{}{0} · {1}">
-                                            <Binding Path="Country" />
-                                            <Binding Path="Language" />
+                                            <Binding Path="Country" TargetNullValue="Desconocido" />
+                                            <Binding Path="Language" TargetNullValue="Desconocido" />
                                         </MultiBinding>
                                     </Label.Text>
                                 </Label>

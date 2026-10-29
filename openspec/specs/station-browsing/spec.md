@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Lets the user browse, search and select real stations in Inicio and understand what the app is doing while the list loads, when a search is empty or when the backend cannot be reached.
+Lets the user browse and select stations in Inicio and understand what the app is doing while the list loads or when the backend cannot be reached.
 
 ## Requirements
 
