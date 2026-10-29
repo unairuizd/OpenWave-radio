@@ -9,6 +9,9 @@
     <x:Double x:Key="BodyFontSize">16</x:Double>
     <x:Double x:Key="CaptionFontSize">13</x:Double>
 
+    <!-- Size tokens -->
+    <x:Double x:Key="PlayerArtworkSize">200</x:Double>
+
     <!-- Implicit styles -->
     <Style TargetType="Page" ApplyToDerivedTypes="True">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource PageBackgroundColor}, Dark={StaticResource PageBackgroundColorDark}}" />
@@ -88,6 +91,19 @@
         <Setter Property="StrokeShape">
             <Setter.Value>
                 <RoundRectangle CornerRadius="12" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PlayerArtwork" TargetType="Border">
+        <Setter Property="WidthRequest" Value="{StaticResource PlayerArtworkSize}" />
+        <Setter Property="HeightRequest" Value="{StaticResource PlayerArtworkSize}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceColor}, Dark={StaticResource SurfaceColorDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource DividerColor}, Dark={StaticResource DividerColorDark}}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="16" />
             </Setter.Value>
         </Setter>
     </Style>

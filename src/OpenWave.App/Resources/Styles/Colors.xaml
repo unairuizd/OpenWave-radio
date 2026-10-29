@@ -28,4 +28,7 @@
     <Color x:Key="DividerColor">#DADAE2</Color>
     <Color x:Key="DividerColorDark">#34343D</Color>
 
+    <Color x:Key="SelectedSurfaceColor">#E4E9FB</Color>
+    <Color x:Key="SelectedSurfaceColorDark">#252D4A</Color>
+
 </ResourceDictionary>

@@ -3,10 +3,8 @@
     x:Class="OpenWave.App.Views.InicioPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:contracts="clr-namespace:OpenWave.Contracts;assembly=OpenWave.Contracts"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:InicioViewModel"
-    x:Name="InicioRoot"
     Title="Inicio">
 
     <Grid Padding="16" RowDefinitions="Auto,Auto,*" RowSpacing="12">
@@ -16,10 +14,22 @@
             Style="{StaticResource PageTitleLabel}"
             Text="Inicio" />
 
-        <Entry
-            Grid.Row="1"
-            Placeholder="Buscar emisora..."
-            ReturnType="Search" />
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <Entry
+                Grid.Column="0"
+                Placeholder="Buscar emisora..."
+                ReturnCommand="{Binding SearchCommand}"
+                ReturnType="Search"
+                Text="{Binding SearchText}" />
+            <Button
+                Grid.Column="1"
+                Command="{Binding SearchCommand}"
+                Text="Buscar" />
+            <Button
+                Grid.Column="2"
+                Command="{Binding ClearSearchCommand}"
+                Text="Limpiar" />
+        </Grid>
 
         <Grid Grid.Row="2">
 
@@ -27,22 +37,31 @@
                 ItemsSource="{Binding Stations}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="contracts:StationDto">
+                    <DataTemplate x:DataType="vm:StationListItem">
                         <Border Margin="0,0,0,8" Style="{StaticResource StationCard}">
+                            <Border.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsSelected}"
+                                    TargetType="Border"
+                                    Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SelectedSurfaceColor}, Dark={StaticResource SelectedSurfaceColorDark}}" />
+                                    <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentColor}, Dark={StaticResource AccentColorDark}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer
-                                    Command="{Binding BindingContext.SelectStationCommand, Source={x:Reference InicioRoot}}"
+                                    Command="{Binding SelectStationCommand, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="2">
                                 <Label
                                     Style="{StaticResource StationNameLabel}"
-                                    Text="{Binding Name}" />
+                                    Text="{Binding Station.Name}" />
                                 <Label Style="{StaticResource SecondaryLabel}">
                                     <Label.Text>
                                         <MultiBinding StringFormat="{}{0} · {1}">
-                                            <Binding Path="Country" TargetNullValue="Desconocido" />
-                                            <Binding Path="Language" TargetNullValue="Desconocido" />
+                                            <Binding Path="Station.Country" TargetNullValue="Desconocido" />
+                                            <Binding Path="Station.Language" TargetNullValue="Desconocido" />
                                         </MultiBinding>
                                     </Label.Text>
                                 </Label>
@@ -61,6 +80,14 @@
                 <Label Style="{StaticResource SecondaryLabel}" Text="Cargando emisoras..." />
             </VerticalStackLayout>
 
+            <Label
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                IsVisible="{Binding IsEmpty}"
+                Style="{StaticResource SecondaryLabel}"
+                Text="No se encontraron emisoras."
+                VerticalOptions="Center" />
+
             <VerticalStackLayout
                 HorizontalOptions="Center"
                 IsVisible="{Binding HasError}"
@@ -71,7 +98,7 @@
                     Style="{StaticResource ErrorLabel}"
                     Text="{Binding ErrorMessage}" />
                 <Button
-                    Command="{Binding LoadStationsCommand}"
+                    Command="{Binding RetryCommand}"
                     HorizontalOptions="Center"
                     Text="Reintentar" />
             </VerticalStackLayout>

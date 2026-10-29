@@ -3,6 +3,7 @@
     x:Class="OpenWave.App.Views.ReproductorPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:ReproductorViewModel"
     Title="Reproductor">
@@ -11,20 +12,49 @@
 
         <Label Style="{StaticResource PageTitleLabel}" Text="Reproductor" />
 
+        <Border HorizontalOptions="Start" Style="{StaticResource PlayerArtwork}">
+            <Grid>
+                <Image Aspect="AspectFit" Source="station_placeholder.png" />
+                <Image Aspect="AspectFit" Source="{Binding LogoUrl}" />
+            </Grid>
+        </Border>
+
         <VerticalStackLayout IsVisible="{Binding HasStation}" Spacing="12">
-            <Label Style="{StaticResource PageTitleLabel}" Text="{Binding CurrentStation.Name}" />
-            <Label Style="{StaticResource SecondaryLabel}" Text="{Binding CurrentStation.Country}" />
+            <Label Style="{StaticResource PageTitleLabel}" Text="{Binding StationName}" />
+            <Label
+                IsVisible="{Binding HasCountry}"
+                Style="{StaticResource SecondaryLabel}"
+                Text="{Binding Country}" />
             <Label Style="{StaticResource StationNameLabel}" Text="{Binding StatusText}" />
+            <Label
+                IsVisible="{Binding HasError}"
+                Style="{StaticResource ErrorLabel}"
+                Text="{Binding ErrorMessage}" />
             <Button
                 Command="{Binding ToggleCommand}"
                 HorizontalOptions="Start"
+                IsVisible="{Binding ShowPlayerControls}"
                 Text="{Binding ToggleButtonText}" />
+            <Button
+                Command="{Binding RetryCommand}"
+                HorizontalOptions="Start"
+                IsVisible="{Binding HasError}"
+                Text="Reintentar" />
         </VerticalStackLayout>
 
         <Label
             IsVisible="{Binding HasNoStation}"
             Style="{StaticResource SecondaryLabel}"
             Text="Selecciona una emisora en Inicio" />
+
+        <!--  Audio-only player: 1x1 and outside the artwork, so its platform view can never draw over the logo.
+              It is never collapsed, so the platform player stays alive while audio plays.  -->
+        <toolkit:MediaElement
+            x:Name="Player"
+            HeightRequest="1"
+            HorizontalOptions="Start"
+            ShouldShowPlaybackControls="False"
+            WidthRequest="1" />
 
     </VerticalStackLayout>
 

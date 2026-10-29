@@ -5,7 +5,26 @@ Accept: application/json
 
 ###
 
+# Top 50 stations by popularity
 GET {{OpenWave.Api_HostAddress}}/api/stations
+Accept: application/json
+
+###
+
+# Stations whose name contains "jazz" (case-insensitive)
+GET {{OpenWave.Api_HostAddress}}/api/stations?name=jazz
+Accept: application/json
+
+###
+
+# At most 5 stations (values above 100 are capped at 100)
+GET {{OpenWave.Api_HostAddress}}/api/stations?limit=5
+Accept: application/json
+
+###
+
+# Optional filters forwarded to Radio Browser
+GET {{OpenWave.Api_HostAddress}}/api/stations?country=Spain&language=spanish&tag=jazz&limit=10
 Accept: application/json
 
 ###

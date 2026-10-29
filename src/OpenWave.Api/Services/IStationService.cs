@@ -7,5 +7,6 @@ namespace OpenWave.Api.Services;
 /// </summary>
 public interface IStationService
 {
-    Task<IReadOnlyList<StationDto>> GetStationsAsync(CancellationToken cancellationToken = default);
+    /// <exception cref="RadioBrowserUnavailableException">The catalogue could not be reached.</exception>
+    Task<IReadOnlyList<StationDto>> GetStationsAsync(StationQuery query, CancellationToken cancellationToken = default);
 }

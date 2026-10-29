@@ -15,6 +15,8 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            // No Android foreground service: background playback is out of scope.
+            .UseMauiCommunityToolkitMediaElement(false)
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -29,6 +31,8 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromSeconds(10);
         });
 
+        builder.Services.AddSingleton<MediaElementAudioPlayer>();
+        builder.Services.AddSingleton<IAudioPlayer>(services => services.GetRequiredService<MediaElementAudioPlayer>());
         builder.Services.AddSingleton<PlaybackService>();
 
         builder.Services.AddSingleton<InicioViewModel>();

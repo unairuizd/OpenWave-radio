@@ -107,7 +107,8 @@ Playback architecture:
 - `PlaybackService` is a singleton and the only owner of `CurrentStation`, `State`, `ErrorMessage` and the computed Spanish `StatusText`. It exposes async `SelectStationAsync`, `PlayAsync`, `StopAsync`, `RetryAsync` and `ToggleAsync`.
 - `IAudioPlayer` is the small adapter between the service and the MediaElement. `MediaElementAudioPlayer` is a singleton that attaches to the `MediaElement` hosted by `ReproductorPage`, subscribes to `StateChanged` and `MediaFailed`, maps `MediaElementState` to `PlaybackState`, and raises state/failure events.
 - If a station is selected before the page has attached, the adapter stores the pending URL. `Attach` starts it when the `MediaElement` is loaded. This is required because selecting in `Inicio` sets the station before Shell navigates to `Reproductor`.
-- The adapter uses a `UriMediaSource` with a `User-Agent: OpenWave/1.0` HTTP header. On Windows this routes the toolkit through its adaptive/HLS path, which is important because popular Radio Browser stations can return `.m3u8` streams; on Android the header is forwarded to ExoPlayer. A plain URI source remains the fallback behavior of the toolkit if adaptive creation fails.
+- The adapter uses a plain `UriMediaSource` without HTTP headers. With headers, MediaElement on Windows reads the source through a HEAD request and HTTP Range requests, which never starts a live radio stream because it has no content length (found during verification of task 4.8).
+- The adapter handles `MediaElement` events on the main thread. `Paused` before the stream has reached `Playing` is part of opening (Windows reports `Opening` → `Paused` before auto-play starts) and is ignored; `Paused` after `Playing` means the platform paused the stream and is treated as a stop.
 - Start a 15-second watchdog when a stream starts. If the player has not reached `Playing`, stop it and raise a failure. Cancel the watchdog on `Playing`, `Stopped` or `MediaFailed`.
 - `SelectStationAsync`:
   - If the same station is already buffering or playing, do nothing.
@@ -116,7 +117,7 @@ Playback architecture:
 - `PlaybackService` maps adapter failures to `Error` and the exact Spanish message `No se pudo reproducir esta emisora.` The technical `ErrorMessage` from MediaElement is logged, not shown to the user.
 - All observable property updates are marshalled to the main thread. The adapter is responsible for marshalling its events; the service does not update UI-bound state from a background thread.
 
-`ReproductorPage` hosts a `MediaElement` in the artwork area, behind an opaque semantic surface and the logo images. It is never collapsed, so the platform player remains alive while audio-only playback runs. `OnAppearing` attaches it; `OnDisappearing` detaches it, which stops audio and clears pending playback. `App.OnSleep` also asks `PlaybackService` to stop, so backgrounding the app cannot leave audio running. This implements the page-scoped playback decision: no mini-player and no background playback.
+`ReproductorPage` hosts a 1×1 `MediaElement` at the end of the page, outside the artwork area, so the platform player view (a `SurfaceView` on Android) can never draw over the station logo or the placeholder. It is never collapsed, so the platform player remains alive while audio-only playback runs. `OnAppearing` attaches it; `OnDisappearing` detaches it, which stops audio and clears pending playback. `App.OnSleep` also asks `PlaybackService` to stop, so backgrounding the app cannot leave audio running. This implements the page-scoped playback decision: no mini-player and no background playback.
 
 Alternatives considered: putting MediaElement playback logic in `ReproductorViewModel` would couple the view model to a control and make it hard to keep state consistent from `Inicio`; a page-only code-behind player would make `PlaybackService` a second source of truth. The adapter keeps the state in the service and the control in the view.
 
@@ -131,7 +132,7 @@ The page shows:
 - `Reproducir`/`Detener` for the normal toggle, and `Reintentar` in the error state.
 - `No se pudo reproducir esta emisora.` below the status in the error state.
 
-The logo fallback is a local `station_placeholder.svg` in `Resources/Images`, with the remote logo stacked above it. If the URL is empty or the image fails to load, the placeholder remains visible; no image-failure event is required. The artwork grid has a semantic surface background so the MediaElement's video surface does not show through transparent artwork.
+The logo fallback is a local `station_placeholder.svg` in `Resources/Images`, with the remote logo stacked above it. If the URL is empty or the image fails to load, the placeholder remains visible; no image-failure event is required. The artwork area uses the semantic surface background of the `PlayerArtwork` style.
 
 New semantic style keys:
 
@@ -148,9 +149,9 @@ The change sets `retire_capabilities: true` in `.openspec.yaml`. The `simulated-
 
 - **Mirror hosts can change or disappear** → Keep the list in `RadioBrowser:Servers`, verify the live hosts at implementation time, log each failed mirror, and return a clear 502 when all fail. The current list uses `de1` and `all`.
 - **Radio Browser rate limits or rejects the client** → Always send `User-Agent: OpenWave/1.0`, do not poll in a loop, and surface a 502 instead of crashing. No caching in this phase.
-- **Streams are unreliable or use HLS** → Attach a benign `User-Agent` header so Windows uses its adaptive-streaming path, test both an MP3/AAC stream and an HLS stream, and show the Spanish error with retry when playback fails.
+- **Streams are unreliable or use HLS** → Use a plain URI source (no custom headers, see above), test both an MP3/AAC stream and an HLS stream, and show the Spanish error with retry when playback fails.
 - **MediaElement package/Android setup mismatch** → Add the package unpinned, call `UseMauiCommunityToolkitMediaElement()`, update `MainActivity` to `SingleTask` and `ResizeableActivity`, and build both target frameworks before UI verification.
-- **Audio-only MediaElement layout** → Host it behind the artwork surface rather than collapsing it; verify audio still plays on Windows and Android and that no unwanted video/black rectangle is visible.
+- **Audio-only MediaElement layout** → Host it as a 1×1 element outside the artwork rather than collapsing it; verify audio still plays on Windows and Android and that no unwanted video/black rectangle is visible.
 - **Page-scoped playback makes the “switch while playing” UI path narrow** → The service still stops the previous stream before starting a new one, and leaving `Reproductor` stops audio. The README documents this limitation; a persistent mini-player is deliberately out of scope.
 - **Name post-filtering can return fewer results** → Accept the stricter, predictable search in this phase; later preferences can use the country/language/tag filters directly.
 - **Search races** → Cancel the previous request and ignore stale results; only the latest request may update `IsLoading`, the list or the error.
