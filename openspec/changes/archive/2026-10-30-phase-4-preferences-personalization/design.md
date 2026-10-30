@@ -140,11 +140,32 @@ Top-level entries override the defaults in the merged `Styles.xaml`, and every `
   - Pixelify Sans: `PixelifySans[wght].ttf` saved as `PixelifySans-Variable.ttf`.
 - **Registration:** `ConfigureFonts` registers each file with its display name as alias (`"Ubuntu"`, `"Cormorant Garamond"`, …).
 - **Csproj:** the `MauiFont` include becomes `Resources\Fonts\*.ttf`, so the licence files are not treated as fonts. They are added as plain content, so they ship with the app.
-- **Bold:** texts marked bold use `FontAttributes="Bold"`, which renders the variable fonts' bold axis or a synthesised bold. Group 3 verifies regular and bold text for all six fonts on Windows and Android. Pixelify Sans is a pixel-style display font and Cormorant Garamond has small letterforms; both are checked for readability at `Normal` and `Pequeño`.
+- **Bold (updated during group 3):**
+  - On Windows, Ubuntu (static Regular only) showed no bold, and Cormorant Garamond's variable file rendered light with no bold. With the developer's approval, two static fonts now bundle a bold file:
+    - Ubuntu: `Ubuntu-Bold.ttf`, from `google/fonts` `ufl/ubuntu/`.
+    - Cormorant Garamond: the official static `CormorantGaramond-Regular.ttf` and `-Bold.ttf`, from `CatharsisFonts/Cormorant` (`fonts/ttf/`). Its OFL text is identical to the bundled one. They replace the variable file.
+  - A font with a bold file registers a second alias (`"Ubuntu Bold"`, `"Cormorant Garamond Bold"`).
+  - `AppearanceService` sets a second resource, `AppFontFamilyBold`: the bold alias when the font has one, otherwise the same font. The variable fonts render their own bold weight on both platforms.
+  - The bold styles (`PageTitleLabel`, `StationNameLabel`, `HeaderTitleLabel`) use `AppFontFamilyBold` together with `FontAttributes="Bold"`.
+  - Pixelify Sans is a pixel-style display font and Cormorant Garamond has small letterforms; both are checked for readability at `Normal` and `Pequeño`.
 - **Fallbacks:**
   - If a variable font renders wrongly, implementation stops and asks before using upstream static files.
   - If the download fails, implementation stops and lists the exact files and destinations. No font is substituted.
   - The Open Sans registrations and the two `OpenSans-*.ttf` files are removed, because no option uses them any more.
+
+### 6b. Header title and tab labels follow the font and size
+
+Shell draws the page header title and the tab labels natively, so styles do not reach them. The developer chose to make them follow the font and size too:
+
+- **Header:** `ShellChrome.EnsureTitleView` gives each page a `Shell.TitleView` label styled by `HeaderTitleLabel` (bold family, `FontSizeSubtitle`, `PrimaryTextColor`). It is shared code, with no platform specifics.
+- **Tabs:** `ShellChrome.ApplyTabFonts` reads `AppFontFamily` and `FontSizeCaption` and calls a partial method implemented per platform, using MAUI's `IFontManager` to resolve the alias:
+  - Windows (`Platforms/Windows/ShellChrome.Windows.cs`): sets `FontFamily` and `FontSize` on every `NavigationViewItem`.
+  - Android (`Platforms/Android/ShellChrome.Android.cs`): sets the typeface and size of the label `TextView`s inside the Material `BottomNavigationView`.
+- **When:** `AppShell` calls both when it loads, after every navigation, and whenever `AppearanceService` changes. The tab update runs 100 ms later, so the platform can rebuild its tab views first.
+- **Radio buttons on Android (found in group 7):**
+  - Android paints the native radio circles once, with the theme the activity started with. After a live theme switch they became invisible: white circles on Blanco, dark circles on Negro. Android also drew a white block behind each option in Negro.
+  - `ShellChrome.ApplyRadioColors` now sets every radio button's tint from the theme (`SecondaryTextColor` unselected, `AccentColor` selected), at the same moments as the tab fonts. The `RadioButton` style also takes `PageBackgroundColor` as its background.
+  - Windows needs neither change, since its native radio buttons follow the theme switch.
 
 ### 7. Personalización page
 

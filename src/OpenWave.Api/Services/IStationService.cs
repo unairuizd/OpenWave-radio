@@ -7,6 +7,9 @@ namespace OpenWave.Api.Services;
 /// </summary>
 public interface IStationService
 {
+    /// <summary>
+    /// Returns the matching stations. Fails with <see cref="ServiceError.Invalid"/> for an unknown content type.
+    /// </summary>
     /// <exception cref="RadioBrowserUnavailableException">The catalogue could not be reached.</exception>
-    Task<IReadOnlyList<StationDto>> GetStationsAsync(StationQuery query, CancellationToken cancellationToken = default);
+    Task<ServiceResult<IReadOnlyList<StationDto>>> GetStationsAsync(StationQuery query, CancellationToken cancellationToken = default);
 }

@@ -19,15 +19,38 @@ public sealed class RadioBrowserClient(
 
     private static readonly TimeSpan MirrorTimeout = TimeSpan.FromSeconds(5);
 
+    // The country, language and tag lists, counted without broken stations.
+    private const string CountriesPath = "json/countries?hidebroken=true";
+    private const string TopListQuery = "?hidebroken=true&order=stationcount&reverse=true&limit=100";
+
     public async Task<IReadOnlyList<StationDto>> SearchAsync(
-        string? name,
-        string? country,
-        string? language,
-        string? tag,
-        int limit,
+        RadioBrowserSearch search,
         CancellationToken cancellationToken = default)
     {
-        var path = BuildSearchPath(name, country, language, tag, limit);
+        var stations = await GetFromMirrorsAsync<RadioBrowserStation>(BuildSearchPath(search), cancellationToken);
+        return Map(stations);
+    }
+
+    public Task<IReadOnlyList<RadioBrowserNamedCount>> GetCountriesAsync(CancellationToken cancellationToken = default)
+    {
+        return GetFromMirrorsAsync<RadioBrowserNamedCount>(CountriesPath, cancellationToken);
+    }
+
+    public Task<IReadOnlyList<RadioBrowserNamedCount>> GetLanguagesAsync(CancellationToken cancellationToken = default)
+    {
+        return GetFromMirrorsAsync<RadioBrowserNamedCount>("json/languages" + TopListQuery, cancellationToken);
+    }
+
+    public Task<IReadOnlyList<RadioBrowserNamedCount>> GetTagsAsync(CancellationToken cancellationToken = default)
+    {
+        return GetFromMirrorsAsync<RadioBrowserNamedCount>("json/tags" + TopListQuery, cancellationToken);
+    }
+
+    /// <summary>
+    /// Requests a JSON array from each mirror in order, with its own timeout, and returns the first success.
+    /// </summary>
+    private async Task<IReadOnlyList<T>> GetFromMirrorsAsync<T>(string path, CancellationToken cancellationToken)
+    {
         Exception? lastFailure = null;
 
         foreach (var server in GetServers())
@@ -42,10 +65,8 @@ public sealed class RadioBrowserClient(
                 using var response = await httpClient.GetAsync(requestUri, timeout.Token);
                 response.EnsureSuccessStatusCode();
 
-                var stations = await response.Content.ReadFromJsonAsync<List<RadioBrowserStation>>(timeout.Token)
+                return await response.Content.ReadFromJsonAsync<List<T>>(timeout.Token)
                     ?? throw new JsonException("The response body was null instead of a JSON array.");
-
-                return Map(stations);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -96,30 +117,53 @@ public sealed class RadioBrowserClient(
         return result;
     }
 
-    private static string BuildSearchPath(string? name, string? country, string? language, string? tag, int limit)
+    private static string BuildSearchPath(RadioBrowserSearch search)
     {
         var query = new List<KeyValuePair<string, string?>>
         {
             new("hidebroken", "true"),
             new("order", "clickcount"),
             new("reverse", "true"),
-            new("limit", limit.ToString(CultureInfo.InvariantCulture))
+            new("limit", search.Limit.ToString(CultureInfo.InvariantCulture))
         };
 
-        AddIfPresent(query, "name", name);
-        AddIfPresent(query, "country", country);
-        AddIfPresent(query, "language", language);
-        AddIfPresent(query, "tag", tag);
+        AddIfPresent(query, "name", search.Name);
+
+        // Exact matching is case-sensitive in Radio Browser: the values must already be canonical.
+        if (AddIfPresent(query, "country", search.Country))
+        {
+            query.Add(new("countryExact", "true"));
+        }
+
+        if (AddIfPresent(query, "language", search.Language))
+        {
+            query.Add(new("languageExact", "true"));
+        }
+
+        var tags = search.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t.Trim()).ToList();
+        if (tags.Count == 1)
+        {
+            query.Add(new("tag", tags[0]));
+            query.Add(new("tagExact", "true"));
+        }
+        else if (tags.Count > 1)
+        {
+            // tagList requires every tag but matches substrings; the caller filters the exact tags.
+            query.Add(new("tagList", string.Join(',', tags)));
+        }
 
         return QueryHelpers.AddQueryString("json/stations/search", query);
     }
 
-    private static void AddIfPresent(List<KeyValuePair<string, string?>> query, string key, string? value)
+    private static bool AddIfPresent(List<KeyValuePair<string, string?>> query, string key, string? value)
     {
-        if (!string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrWhiteSpace(value))
         {
-            query.Add(new(key, value.Trim()));
+            return false;
         }
+
+        query.Add(new(key, value.Trim()));
+        return true;
     }
 
     private static List<StationDto> Map(IEnumerable<RadioBrowserStation> stations)

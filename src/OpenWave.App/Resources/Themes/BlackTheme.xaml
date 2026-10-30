@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    "Negro" theme: true black background, near-white text. Defines exactly the same colour keys as
+    WhiteTheme.xaml; the accent is lighter so it keeps its contrast on black.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.BlackTheme"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Pages and surfaces -->
+    <Color x:Key="PageBackgroundColor">#000000</Color>
+    <Color x:Key="SurfaceColor">#121214</Color>
+    <Color x:Key="InputBackgroundColor">#1C1C20</Color>
+    <Color x:Key="DividerColor">#34343C</Color>
+    <Color x:Key="SelectedItemBackgroundColor">#1E2A55</Color>
+
+    <!-- Text -->
+    <Color x:Key="PrimaryTextColor">#F2F2F5</Color>
+    <Color x:Key="SecondaryTextColor">#B4B4BF</Color>
+    <Color x:Key="ErrorTextColor">#FF8A80</Color>
+
+    <!-- Accent: buttons, selection outline, heart -->
+    <Color x:Key="AccentColor">#8FA6FF</Color>
+    <Color x:Key="AccentTextColor">#000000</Color>
+    <Color x:Key="FavoriteIconColor">#8FA6FF</Color>
+
+    <!-- Tab bar -->
+    <Color x:Key="TabBarBackgroundColor">#0A0A0C</Color>
+    <Color x:Key="TabBarSelectedColor">#8FA6FF</Color>
+    <Color x:Key="TabBarUnselectedColor">#9A9AA6</Color>
+
+</ResourceDictionary>

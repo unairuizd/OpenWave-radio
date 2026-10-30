@@ -1,6 +1,6 @@
 # OpenWave
 
-Cross-platform online radio player for the DEIN course project. An ASP.NET Core API serves the live Radio Browser catalogue and stores user accounts and favourite stations in a remote MySQL database. A .NET MAUI app (Windows and Android) lets you browse, search and listen to stations, create an account, log in and keep your favourites.
+Cross-platform online radio player for the DEIN course project. An ASP.NET Core API serves the live Radio Browser catalogue and stores user accounts and favourite stations in a remote MySQL database. A .NET MAUI app (Windows and Android) lets you browse, search and listen to stations, create an account, log in and keep your favourites. In `Ajustes` you can save default station filters (country, language, genre and content type) for Inicio, and change the theme, font and text size; both are stored on the device.
 
 ## Requirements
 
@@ -70,10 +70,28 @@ Invoke-RestMethod "http://localhost:5080/api/stations?name=jazz&limit=5"
 | Query parameter | Meaning |
 |---|---|
 | `name` | Text the station name must contain (case-insensitive) |
-| `country`, `language`, `tag` | Optional filters forwarded to Radio Browser |
+| `country` | Exact country name, ignoring case (for example `Spain`) |
+| `language` | Exact language, ignoring case; matches when it is one of the station's languages (for example `spanish`) |
+| `tag` | Exact genre tag, ignoring case (for example `jazz`; `pop` does not match `k-pop`) |
+| `contentType` | `music`, `news`, `talk` or `sports`; any other value gives `400` `Tipo de contenido no válido.` |
 | `limit` | Maximum number of stations: 50 by default, at most 100 |
 
+Every filter given must match. When both `tag` and `contentType` are given, each station has both tags. The values for `country`, `language` and `tag` come from the catalogue option lists below; the API looks them up ignoring case and sends Radio Browser its own spelling, because Radio Browser's exact matching is case-sensitive.
+
 The mirrors are tried in the order listed in `RadioBrowser:Servers` in `appsettings.json`, with a 5-second timeout each. If every mirror fails, the API returns `502` with a ProblemDetails body whose `detail` is `No se pudo obtener el catálogo de emisoras.` and logs the technical cause. `OpenWave.Api.http` has ready-made example requests.
+
+### Catalogue options
+
+These lists feed the app's `Preferencias` page. Each option is `{"value": "...", "label": "...", "stationCount": 123}`: `value` is what you send to `/api/stations`, `label` is what the app shows.
+
+| Endpoint | Contents |
+|---|---|
+| `GET /api/catalog/countries` | Every country with working stations; `value` and `label` are the country name |
+| `GET /api/catalog/languages` | The 100 languages with the most stations; `label` is the name with a capital first letter (`spanish` → `Spanish`) |
+| `GET /api/catalog/genres` | The 100 tags with the most stations, without single-character tags; `label` capitalised like languages |
+| `GET /api/catalog/content-types` | Always `music`/`Música`, `news`/`Noticias`, `talk`/`Charlas`, `sports`/`Deportes`; never contacts Radio Browser |
+
+The lists are sorted by `label`, ignoring case and accents. Countries, languages and genres are kept in memory for 60 minutes after the first successful load, and a failed load is not kept, so the next request tries Radio Browser again. If every mirror fails they return `502` with `No se pudo obtener el catálogo de emisoras.`
 
 ### Authentication
 
@@ -138,7 +156,7 @@ Cleartext HTTP is allowed in `Platforms/Android/AndroidManifest.xml` for develop
 
 ## Changing the API base URL
 
-The app reads the base URL from the MAUI `Preferences` key `api_base_url`. With no override it uses the platform default (`http://localhost:5080` on Windows, `http://10.0.2.2:5080` on Android). There is no settings screen in this phase; set the value programmatically when needed:
+The app reads the base URL from the MAUI `Preferences` key `api_base_url`. With no override it uses the platform default (`http://localhost:5080` on Windows, `http://10.0.2.2:5080` on Android). `Ajustes` has no option for it; set the value programmatically when needed:
 
 ```csharp
 Preferences.Default.Set("api_base_url", "http://192.168.1.10:5080");
@@ -148,11 +166,19 @@ Preferences.Default.Set("api_base_url", "http://192.168.1.10:5080");
 
 - Type a name in the search box and press Enter or `Buscar`: Inicio lists the stations whose name contains that text. `Limpiar` empties the box and shows the top stations again.
 - While a request is running, Inicio shows `Cargando emisoras...`.
-- When there are no results, Inicio shows `No se encontraron emisoras.` The search box stays available.
+- When there are no results and no preference filter is applied, Inicio shows `No se encontraron emisoras.` The search box stays available.
 - When the API cannot be reached, Inicio shows `No hay conexión con el servidor.`
 - When the API answers `502` (Radio Browser unavailable) or something unexpected, Inicio shows `No se pudo obtener el catálogo de emisoras.`
 - Both errors show `Reintentar`, which repeats the last request, including the search text.
 - The station selected in the app is highlighted in the list, and the highlight is restored after a new search or when returning to Inicio.
+
+### Preferences in Inicio
+
+The saved `Preferencias` (see below) are default filters for Inicio. Every request, including name searches and `Limpiar`, sends the saved country, language, genre and content type together with the typed name. After the preferences change, Inicio reloads its list the next time it is shown. Favoritos and Reproductor are not affected.
+
+- **Bar:** when at least one preference is saved, a bar above the list reads `Filtros activos` with a summary of the saved values (for example `Spain · Spanish · Jazz · Música`) and a `Desactivar` button. With no preference saved there is no bar.
+- **`Desactivar`:** stops applying the preferences until the app is closed and reloads the unfiltered list. The saved values stay in `Preferencias`, and the bar reads `Preferencias desactivadas` with an `Activar` button that applies them again. The next time the app starts, the preferences are applied again.
+- **No matches:** when the applied preferences match no station, Inicio shows `No se encontraron emisoras con tus preferencias.` with its own `Desactivar` button.
 
 ## Playback in Reproductor
 
@@ -167,9 +193,9 @@ Selecting a station in Inicio opens Reproductor and starts the station's stream 
 
 In the `Error` state the page also shows `No se pudo reproducir esta emisora.` `Reintentar` tries the same station again; you can also pick another station in Inicio. Selecting another station stops the previous stream first; selecting the station that is already playing keeps it playing.
 
-Limitations in this phase:
+Limitations:
 
-- **Playback is tied to the Reproductor page.** Switching to Inicio or Favoritos stops the audio. When you come back, the same station is shown as `Detenido` and you press `Reproducir` to listen again.
+- **Playback is tied to the Reproductor page.** Switching to another tab (Inicio, Favoritos or Ajustes) stops the audio. When you come back, the same station is shown as `Detenido` and you press `Reproducir` to listen again.
 - **No mini-player** outside Reproductor.
 - **No background playback.** Minimising the app or sending it to the background stops the audio.
 
@@ -207,12 +233,98 @@ Each station in `Inicio` and the station in `Reproductor` show a heart: `♥` wh
   - If the list cannot be loaded it shows `No hay conexión con el servidor.` or `No se pudo acceder a la base de datos.` with `Reintentar`.
 - **Logging out** empties every heart and the list.
 
+## Ajustes and Personalización
+
+`Ajustes` is the fourth tab, after `Favoritos`. It lists two entries; each opens its own page inside the tab, and the back button returns to `Ajustes`:
+
+- **`Preferencias`**: "País, idioma, género y tipo de contenido que se aplican en Inicio."
+- **`Personalización`**: "Tema, tipo de letra y tamaño del texto."
+
+`Personalización` works without an account; logging in or out does not change it.
+
+- **Selectors:** three groups: `Tema` (`Blanco`, `Negro`), `Tipo de letra` (each font name is written in its own font) and `Tamaño del texto` (`Pequeño`, `Normal`, `Grande`, `Muy grande`, `Enorme`). The current choices are selected when the page opens.
+- **No save button:** as the page says ("Los cambios se aplican y se guardan al momento."), every change applies at once to every page, the header and the tabs, and is stored on the device.
+- **`Vista previa`:** a card with a sample title, body text, secondary text and button in the current theme, font and size.
+- **`Restablecer valores por defecto`:** returns to `Blanco`, `Ubuntu` and `Normal`.
+
+## Preferencias
+
+`Preferencias` stores default station filters on the device ("Se aplican como filtros en Inicio. «Todos» significa sin filtro."). It works without an account; logging in or out does not change it, and nothing is stored in the database.
+
+- **Pickers:** `País`, `Idioma`, `Género` and `Tipo de contenido`. Each starts with `Todos` (no filter), followed by the options from the API (`/api/catalog/...`). The saved values are selected when the page opens. If a saved value is no longer in the list, it is still shown as selected and kept.
+- **`Guardar`:** stores the four choices and shows `Preferencias guardadas.` It is available only once the lists have loaded.
+- **`Restablecer`:** sets all four to `Todos` and stores that immediately. It works even when the lists cannot be loaded.
+- **While loading:** `Cargando opciones...`
+- **If the lists cannot be loaded:** `No hay conexión con el servidor.` (API not reachable) or `No se pudo obtener el catálogo de emisoras.` (Radio Browser unavailable), with `Reintentar`. The saved preferences are never changed by a failed load.
+
+| Preference key | Value |
+|---|---|
+| `pref_country` | Country name, for example `Spain` |
+| `pref_language` | Language, for example `spanish` |
+| `pref_genre` | Genre tag, for example `jazz` |
+| `pref_content_type` | `music`, `news`, `talk` or `sports` |
+
+A key is removed when its picker is `Todos`.
+
+## Themes and fonts
+
+The app's look (theme, font and text size) is set by `AppearanceService` when the app starts, before the first page appears, and it changes the whole app immediately. The choices are stored on the device with MAUI `Preferences`, never in the database, and logging in or out does not change them.
+
+| Preference key | Default | Values |
+|---|---|---|
+| `appearance_theme` | `white` | `white` (Blanco), `black` (Negro) |
+| `appearance_font` | `Ubuntu` | `Ubuntu`, `Dosis`, `Caladea`, `Cormorant Garamond`, `Recursive`, `Pixelify Sans` |
+| `appearance_font_scale` | `1.0` | `0.85` Pequeño, `1.0` Normal, `1.2` Grande, `1.4` Muy grande, `1.6` Enorme |
+
+A missing, unknown or corrupt stored value falls back to its default. The app does not follow the operating system's light or dark setting.
+
+### Colours
+
+Pages and styles never use literal colours, fonts or sizes. Every style in `Resources/Styles/Styles.xaml` reads them with `DynamicResource`, so a change updates everything at once. The colours live only in the theme files under `Resources/Themes/`, and every theme defines the same keys:
+
+`PageBackgroundColor`, `SurfaceColor`, `InputBackgroundColor`, `DividerColor`, `SelectedItemBackgroundColor`, `PrimaryTextColor`, `SecondaryTextColor`, `ErrorTextColor`, `AccentColor`, `AccentTextColor`, `FavoriteIconColor`, `TabBarBackgroundColor`, `TabBarSelectedColor`, `TabBarUnselectedColor`.
+
+- **Blanco** (`WhiteTheme.xaml`): white background (`#FFFFFF`), near-black text.
+- **Negro** (`BlackTheme.xaml`): true black background (`#000000`), near-white text and a lighter accent.
+
+Each theme also sets the light or dark mode of the native controls (text inputs, pickers and dialogs).
+
+### Fonts and text size
+
+The six fonts are bundled in `Resources/Fonts/`, each with its licence file next to it. The licences are also copied into the app's `Licences/` folder.
+
+| Font | Files | Licence |
+|---|---|---|
+| Ubuntu (default) | `Ubuntu-Regular.ttf`, `Ubuntu-Bold.ttf` | Ubuntu Font Licence (`Ubuntu-UFL.txt`) |
+| Dosis | `Dosis-Variable.ttf` | SIL OFL (`Dosis-OFL.txt`) |
+| Caladea | `Caladea-Regular.ttf` | SIL OFL (`Caladea-OFL.txt`) |
+| Cormorant Garamond | `CormorantGaramond-Regular.ttf`, `CormorantGaramond-Bold.ttf` | SIL OFL (`CormorantGaramond-OFL.txt`) |
+| Recursive | `Recursive-Variable.ttf` | SIL OFL (`Recursive-OFL.txt`) |
+| Pixelify Sans | `PixelifySans-Variable.ttf` | SIL OFL (`PixelifySans-OFL.txt`) |
+
+The files come from Google's font repository, except the static Cormorant Garamond files, which come from the official Cormorant project. Bold text uses the font's bold file when it has one; the variable fonts contain their own bold weight.
+
+The text size scales four base sizes: caption 12, body 16, subtitle 18 and title 24. For example, `Enorme` makes body text 25.6 and titles 38.4. The header title and the tab labels follow the chosen font and size as well. Shell draws them natively, so `ShellChrome` (with a small file per platform under `Platforms/`) applies the font to them. On Android it also recolours the circles of the radio buttons after a theme change, because Android otherwise keeps the colours of the theme the app started with.
+
+### Adding a theme
+
+1. Copy `Resources/Themes/WhiteTheme.xaml` and its `.xaml.cs` to a new file, for example `BlueTheme.xaml`, rename the class, and change the colours. Keep every key.
+2. Add one entry to `ThemeCatalog.All` in `Resources/Themes/ThemeCatalog.cs`:
+
+   ```csharp
+   new("blue", "Azul", typeof(BlueTheme), AppTheme.Dark),
+   ```
+
+   The last value tells native controls whether to use their light or dark look.
+
+No page, style or other code needs to change.
+
 ## Manual check list
 
 1. Start the API and open `http://localhost:5080/api/health`: `status` is `ok` and `timeUtc` is an ISO 8601 UTC timestamp.
 2. Run the app on Windows or the Android emulator. Inicio lists up to 50 real stations.
 3. Search `jazz`: every listed name contains "jazz". Press `Limpiar`: the box is empty and the top stations return. Search a nonsense name: `No se encontraron emisoras.`
-4. Switch between Inicio, Reproductor and Favoritos.
+4. Switch between Inicio, Reproductor, Favoritos and Ajustes.
 5. Select a station in Inicio: Reproductor opens with its name, country and logo (or the placeholder), the status goes `Cargando…` → `Reproduciendo`, and you hear audio. Back in Inicio, that station is highlighted; selecting another one moves the highlight.
 6. In Reproductor, press `Detener`: audio stops and the status shows `Detenido`. Press `Reproducir`: it plays again.
 7. Switch to Favoritos while audio plays: the audio stops. Return to Reproductor: the same station shows `Detenido`. Select another station in Inicio: the new station starts and the old one does not keep playing.
@@ -233,6 +345,14 @@ Each station in `Inicio` and the station in `Reproductor` show a heart: `♥` wh
 14. Log out and press `♡` in Inicio: `Iniciar sesión` opens. Go back: nothing is added. Press it again and log in: you return to Inicio with that heart `♥`.
 15. Stop the API and press a heart while logged in: `No se pudo actualizar tus favoritas.` and the heart goes back. Start the API with an unreachable database (see item 10, using `$env:ConnectionStrings__Default = "Server=<HOST>;Database=2DAM_alumno19;User ID=<USER>;Password=<PASSWORD>;SslMode=Preferred;Connect Timeout=5;"`; keep `Connect Timeout=5` so the API answers before the app's 10-second timeout) and open Favoritos: `No se pudo acceder a la base de datos.` and `Reintentar`. Start the API normally and press `Reintentar`: the list loads.
 16. Press `Cerrar sesión`: every heart in Inicio and Reproductor is `♡`.
+17. Open `Ajustes`: it lists `Preferencias` and `Personalización`. Open each one and go back: you return to `Ajustes`.
+18. In `Personalización` select `Negro`, then `Pixelify Sans`, then `Enorme`: the page, the header and the tabs change at once, and so do Inicio, Reproductor and Favoritos. The text inputs turn dark.
+19. Close and reopen the app: it starts with the same theme, font and size, and `Personalización` shows them selected. Log in and out: nothing changes.
+20. Press `Restablecer valores por defecto`: the app returns to `Blanco`, `Ubuntu` and `Normal`.
+21. With every preference at `Todos`, Inicio shows no filter bar. In `Ajustes` → `Preferencias` choose `Spain` as `País` and press `Guardar`: `Preferencias guardadas.` Open Inicio: the list reloads with Spanish stations only, under `Filtros activos` / `Spain`. Search `radio`: every result contains "radio" and is from Spain.
+22. Press `Desactivar`: the list is unfiltered and the bar reads `Preferencias desactivadas` with `Activar`; `Preferencias` still shows `Spain`. Close and reopen the app: the filter is active again. Press `Activar` after another `Desactivar`: the list is filtered again.
+23. Choose `Andorra` and `Deportes` and save: Inicio shows `No se encontraron emisoras con tus preferencias.` with `Desactivar`. Favoritos still lists every favourite, and they still play in Reproductor.
+24. Stop the API and open `Preferencias`: `No hay conexión con el servidor.` and `Reintentar`, and the saved values are not lost. Start the API and press `Reintentar`: the pickers show the saved values. Press `Restablecer`: all four go back to `Todos`.
 
 ## Notes
 

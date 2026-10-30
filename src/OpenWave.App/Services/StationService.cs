@@ -12,14 +12,17 @@ public sealed class StationService(HttpClient httpClient) : IStationService
 {
     private const int Limit = 50;
 
-    public async Task<IReadOnlyList<StationDto>> SearchAsync(string? name, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<StationDto>> SearchAsync(
+        string? name,
+        UserPreferences? filters = null,
+        CancellationToken cancellationToken = default)
     {
         var requestUri = $"api/stations?limit={Limit}";
-        var trimmedName = name?.Trim();
-        if (!string.IsNullOrEmpty(trimmedName))
-        {
-            requestUri += "&name=" + Uri.EscapeDataString(trimmedName);
-        }
+        requestUri += QueryPart("name", name?.Trim());
+        requestUri += QueryPart("country", filters?.Country);
+        requestUri += QueryPart("language", filters?.Language);
+        requestUri += QueryPart("tag", filters?.Genre);
+        requestUri += QueryPart("contentType", filters?.ContentType);
 
         HttpResponseMessage response;
         try
@@ -64,6 +67,9 @@ public sealed class StationService(HttpClient httpClient) : IStationService
             }
         }
     }
+
+    private static string QueryPart(string key, string? value) =>
+        string.IsNullOrEmpty(value) ? string.Empty : $"&{key}={Uri.EscapeDataString(value)}";
 
     private static async Task<ProblemDetailsResponse?> TryReadProblemAsync(
         HttpResponseMessage response,

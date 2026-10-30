@@ -23,8 +23,48 @@ Accept: application/json
 
 ###
 
-# Optional filters forwarded to Radio Browser
-GET {{OpenWave.Api_HostAddress}}/api/stations?country=Spain&language=spanish&tag=jazz&limit=10
+# Exact filters, ignoring case: country, one of the station's languages, and one of its tags
+GET {{OpenWave.Api_HostAddress}}/api/stations?country=spain&language=spanish&tag=pop&limit=10
+Accept: application/json
+
+###
+
+# Genre and content type together: every station has both the "jazz" and the "music" tags
+GET {{OpenWave.Api_HostAddress}}/api/stations?tag=jazz&contentType=music&limit=10
+Accept: application/json
+
+###
+
+# Name search with filters
+GET {{OpenWave.Api_HostAddress}}/api/stations?name=radio&country=Spain&contentType=news&limit=10
+Accept: application/json
+
+###
+
+# Unknown content type (400): "Tipo de contenido no válido."
+GET {{OpenWave.Api_HostAddress}}/api/stations?contentType=podcast
+Accept: application/json
+
+###
+
+# Filter options (countries, languages and genres are cached for 60 minutes)
+GET {{OpenWave.Api_HostAddress}}/api/catalog/countries
+Accept: application/json
+
+###
+
+GET {{OpenWave.Api_HostAddress}}/api/catalog/languages
+Accept: application/json
+
+###
+
+GET {{OpenWave.Api_HostAddress}}/api/catalog/genres
+Accept: application/json
+
+###
+
+# The four fixed content types (no Radio Browser request)
+GET {{OpenWave.Api_HostAddress}}/api/catalog/content-types
 Accept: application/json
 
 ###

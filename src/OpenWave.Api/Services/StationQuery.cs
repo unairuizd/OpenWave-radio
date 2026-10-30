@@ -8,4 +8,5 @@ public sealed record StationQuery(
     string? Country = null,
     string? Language = null,
     string? Tag = null,
-    int? Limit = null);
+    int? Limit = null,
+    string? ContentType = null);

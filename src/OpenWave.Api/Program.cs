@@ -51,6 +51,10 @@ builder.Services.AddHttpClient<IRadioBrowserClient, RadioBrowserClient>(client =
 
 builder.Services.AddScoped<IStationService, StationService>();
 
+// Only the catalogue option lists are cached (60 minutes, see CatalogService).
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICatalogService, CatalogService>();
+
 // The schema is created only by database/schema.sql: no migrations and no EnsureCreated.
 var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("Missing connection string 'ConnectionStrings:Default'.");

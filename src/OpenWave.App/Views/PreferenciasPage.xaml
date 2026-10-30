@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OpenWave.App.Views.PreferenciasPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
+    x:DataType="vm:PreferenciasViewModel"
+    Title="Preferencias">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Label Style="{StaticResource PageTitleLabel}" Text="Preferencias" />
+            <Label Style="{StaticResource SecondaryLabel}" Text="Se aplican como filtros en Inicio. «Todos» significa sin filtro." />
+
+            <!--  Loading  -->
+            <VerticalStackLayout IsVisible="{Binding IsLoading}" Spacing="8">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                <Label HorizontalOptions="Center" Style="{StaticResource SecondaryLabel}" Text="Cargando opciones..." />
+            </VerticalStackLayout>
+
+            <!--  Lists could not be loaded: the saved values are untouched  -->
+            <VerticalStackLayout IsVisible="{Binding HasError}" Spacing="12">
+                <Label Style="{StaticResource ErrorLabel}" Text="{Binding ErrorMessage}" />
+                <Button
+                    Command="{Binding RetryCommand}"
+                    HorizontalOptions="Start"
+                    Text="Reintentar" />
+            </VerticalStackLayout>
+
+            <!--  Pickers  -->
+            <VerticalStackLayout IsVisible="{Binding IsLoaded}" Spacing="8">
+                <Label Style="{StaticResource StationNameLabel}" Text="País" />
+                <Picker
+                    ItemDisplayBinding="{Binding Label, x:DataType=vm:PreferenceOption}"
+                    ItemsSource="{Binding Countries}"
+                    SelectedItem="{Binding SelectedCountry}" />
+
+                <Label Style="{StaticResource StationNameLabel}" Text="Idioma" />
+                <Picker
+                    ItemDisplayBinding="{Binding Label, x:DataType=vm:PreferenceOption}"
+                    ItemsSource="{Binding Languages}"
+                    SelectedItem="{Binding SelectedLanguage}" />
+
+                <Label Style="{StaticResource StationNameLabel}" Text="Género" />
+                <Picker
+                    ItemDisplayBinding="{Binding Label, x:DataType=vm:PreferenceOption}"
+                    ItemsSource="{Binding Genres}"
+                    SelectedItem="{Binding SelectedGenre}" />
+
+                <Label Style="{StaticResource StationNameLabel}" Text="Tipo de contenido" />
+                <Picker
+                    ItemDisplayBinding="{Binding Label, x:DataType=vm:PreferenceOption}"
+                    ItemsSource="{Binding ContentTypeOptions}"
+                    SelectedItem="{Binding SelectedContentType}" />
+            </VerticalStackLayout>
+
+            <!--  The confirmation sits next to the buttons, so it is visible whenever they are  -->
+            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
+                <Button
+                    Grid.Column="0"
+                    Command="{Binding SaveCommand}"
+                    Text="Guardar" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding ResetCommand}"
+                    Text="Restablecer" />
+                <Label
+                    Grid.Column="2"
+                    IsVisible="{Binding HasStatus}"
+                    Text="{Binding StatusMessage}"
+                    VerticalOptions="Center" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -8,7 +8,9 @@ Supplies the app with the live Radio Browser catalogue of radio stations, includ
 
 ### Requirement: Live station catalogue endpoint
 
-The API SHALL expose `GET /api/stations` and return HTTP 200 with a JSON array of stations from the Radio Browser catalogue. The endpoint SHALL accept optional `name`, `country`, `language` and `tag` query filters and an optional `limit` query parameter. `limit` SHALL default to 50 and SHALL be capped at 100. The API SHALL request the catalogue with `hidebroken=true`, `order=clickcount` and `reverse=true`. Each station SHALL expose `id`, `name` and `streamUrl` as non-empty strings, and `country`, `language`, `tags` and `logoUrl` as optional values. `tags` SHALL be a list of strings when present. Stations without a usable stream URL SHALL be omitted and names SHALL be trimmed.
+The API SHALL expose `GET /api/stations` and return HTTP 200 with a JSON array of stations from the Radio Browser catalogue. The endpoint SHALL accept optional `name`, `country`, `language`, `tag` and `contentType` query filters and an optional `limit` query parameter. `limit` SHALL default to 50 and SHALL be capped at 100. The API SHALL request the catalogue with `hidebroken=true`, `order=clickcount` and `reverse=true`. Each station SHALL expose `id`, `name` and `streamUrl` as non-empty strings, and `country`, `language`, `tags` and `logoUrl` as optional values. `tags` SHALL be a list of strings when present. Stations without a usable stream URL SHALL be omitted and names SHALL be trimmed.
+
+`name` SHALL match any station whose name contains it, ignoring case. `country`, `language` and `tag` SHALL match only stations whose country, one of whose languages, or one of whose tags is equal to the given value, ignoring case (a station's `language` can list several comma-separated languages). `contentType` SHALL be one of `music`, `news`, `talk` or `sports`, and SHALL match only stations that have that value as one of their tags. Any other non-empty `contentType` SHALL be rejected with HTTP 400 and a ProblemDetails `detail` of exactly `Tipo de contenido no válido.` When several filters are given, every returned station SHALL satisfy all of them.
 
 #### Scenario: Requesting the station list
 
@@ -25,9 +27,27 @@ The API SHALL expose `GET /api/stations` and return HTTP 200 with a JSON array o
 
 #### Scenario: Forwarding optional filters
 
-- **WHEN** `GET /api/stations?country=Spain&language=spanish&tag=jazz` is requested
+- **WHEN** `GET /api/stations?country=spain&language=spanish&tag=pop` is requested
 - **THEN** the response status is 200
-- **AND** the `country`, `language` and `tag` filters are applied to the Radio Browser search
+- **AND** every returned station's country is `Spain` and `spanish` is one of its languages
+- **AND** every returned station has `pop` as one of its tags, and a station whose only related tag is `k-pop` or `pop rock` is not returned
+
+#### Scenario: Genre and content type together
+
+- **WHEN** `GET /api/stations?tag=jazz&contentType=music` is requested
+- **THEN** the response status is 200
+- **AND** every returned station has both `jazz` and `music` among its tags, compared ignoring case
+
+#### Scenario: Invalid content type
+
+- **WHEN** `GET /api/stations?contentType=podcast` is requested
+- **THEN** the response status is 400
+- **AND** the `detail` is `Tipo de contenido no válido.`
+
+#### Scenario: Name search with filters
+
+- **WHEN** `GET /api/stations?name=radio&country=Spain&contentType=news` is requested
+- **THEN** every returned station's name contains `radio`, its country is `Spain` and it has the `news` tag
 
 #### Scenario: Limiting the result count
 

@@ -6,7 +6,7 @@
 
 The API SHALL expose `GET /api/stations` and return HTTP 200 with a JSON array of stations from the Radio Browser catalogue. The endpoint SHALL accept optional `name`, `country`, `language`, `tag` and `contentType` query filters and an optional `limit` query parameter. `limit` SHALL default to 50 and SHALL be capped at 100. The API SHALL request the catalogue with `hidebroken=true`, `order=clickcount` and `reverse=true`. Each station SHALL expose `id`, `name` and `streamUrl` as non-empty strings, and `country`, `language`, `tags` and `logoUrl` as optional values. `tags` SHALL be a list of strings when present. Stations without a usable stream URL SHALL be omitted and names SHALL be trimmed.
 
-`name` SHALL match any station whose name contains it, ignoring case. `country`, `language` and `tag` SHALL match only stations whose country, language or one of whose tags is equal to the given value, ignoring case. `contentType` SHALL be one of `music`, `news`, `talk` or `sports`, and SHALL match only stations that have that value as one of their tags. Any other non-empty `contentType` SHALL be rejected with HTTP 400 and a ProblemDetails `detail` of exactly `Tipo de contenido no válido.` When several filters are given, every returned station SHALL satisfy all of them.
+`name` SHALL match any station whose name contains it, ignoring case. `country`, `language` and `tag` SHALL match only stations whose country, one of whose languages, or one of whose tags is equal to the given value, ignoring case (a station's `language` can list several comma-separated languages). `contentType` SHALL be one of `music`, `news`, `talk` or `sports`, and SHALL match only stations that have that value as one of their tags. Any other non-empty `contentType` SHALL be rejected with HTTP 400 and a ProblemDetails `detail` of exactly `Tipo de contenido no válido.` When several filters are given, every returned station SHALL satisfy all of them.
 
 #### Scenario: Requesting the station list
 
@@ -25,7 +25,7 @@ The API SHALL expose `GET /api/stations` and return HTTP 200 with a JSON array o
 
 - **WHEN** `GET /api/stations?country=spain&language=spanish&tag=pop` is requested
 - **THEN** the response status is 200
-- **AND** every returned station's country is `Spain` and its language is `spanish`
+- **AND** every returned station's country is `Spain` and `spanish` is one of its languages
 - **AND** every returned station has `pop` as one of its tags, and a station whose only related tag is `k-pop` or `pop rock` is not returned
 
 #### Scenario: Genre and content type together

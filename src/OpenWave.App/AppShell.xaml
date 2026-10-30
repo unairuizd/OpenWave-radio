@@ -20,6 +20,10 @@
             Title="Favoritos"
             Route="favoritos"
             ContentTemplate="{DataTemplate views:FavoritosPage}" />
+        <ShellContent
+            Title="Ajustes"
+            Route="ajustes"
+            ContentTemplate="{DataTemplate views:AjustesPage}" />
     </TabBar>
 
 </Shell>

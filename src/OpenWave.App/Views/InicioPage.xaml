@@ -7,7 +7,7 @@
     x:DataType="vm:InicioViewModel"
     Title="Inicio">
 
-    <Grid Padding="16" RowDefinitions="Auto,Auto,*" RowSpacing="12">
+    <Grid Padding="16" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12">
 
         <Label
             Grid.Row="0"
@@ -31,7 +31,42 @@
                 Text="Limpiar" />
         </Grid>
 
-        <Grid Grid.Row="2">
+        <!--  Saved Preferencias: shown when at least one is saved, applied or turned off for this session  -->
+        <Border
+            Grid.Row="2"
+            IsVisible="{Binding ShowFilterBar}"
+            Style="{StaticResource StationCard}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <VerticalStackLayout
+                    Grid.Column="0"
+                    IsVisible="{Binding FiltersApplied}"
+                    Spacing="2"
+                    VerticalOptions="Center">
+                    <Label Style="{StaticResource StationNameLabel}" Text="Filtros activos" />
+                    <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
+                </VerticalStackLayout>
+                <Label
+                    Grid.Column="0"
+                    IsVisible="{Binding FiltersNotApplied}"
+                    Style="{StaticResource StationNameLabel}"
+                    Text="Preferencias desactivadas"
+                    VerticalOptions="Center" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding DeactivateFiltersCommand}"
+                    IsVisible="{Binding FiltersApplied}"
+                    Text="Desactivar"
+                    VerticalOptions="Center" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding ActivateFiltersCommand}"
+                    IsVisible="{Binding FiltersNotApplied}"
+                    Text="Activar"
+                    VerticalOptions="Center" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3">
 
             <CollectionView
                 ItemsSource="{Binding Stations}"
@@ -44,8 +79,8 @@
                                     Binding="{Binding IsSelected}"
                                     TargetType="Border"
                                     Value="True">
-                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SelectedSurfaceColor}, Dark={StaticResource SelectedSurfaceColorDark}}" />
-                                    <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource AccentColor}, Dark={StaticResource AccentColorDark}}" />
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource SelectedItemBackgroundColor}" />
+                                    <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
                                 </DataTrigger>
                             </Border.Triggers>
                             <Border.GestureRecognizers>
@@ -93,10 +128,25 @@
             <Label
                 HorizontalOptions="Center"
                 HorizontalTextAlignment="Center"
-                IsVisible="{Binding IsEmpty}"
+                IsVisible="{Binding IsEmptyPlain}"
                 Style="{StaticResource SecondaryLabel}"
                 Text="No se encontraron emisoras."
                 VerticalOptions="Center" />
+
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsEmptyWithPreferences}"
+                Spacing="12"
+                VerticalOptions="Center">
+                <Label
+                    HorizontalTextAlignment="Center"
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="No se encontraron emisoras con tus preferencias." />
+                <Button
+                    Command="{Binding DeactivateFiltersCommand}"
+                    HorizontalOptions="Center"
+                    Text="Desactivar" />
+            </VerticalStackLayout>
 
             <VerticalStackLayout
                 HorizontalOptions="Center"

@@ -19,8 +19,15 @@ public static class MauiProgram
             .UseMauiCommunityToolkitMediaElement(false)
             .ConfigureFonts(fonts =>
             {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                // Each font's alias is its display name, which is also what Personalización stores.
+                foreach (var font in AppearanceOptions.Fonts)
+                {
+                    fonts.AddFont(font.FileName, font.Name);
+                    if (font.BoldFileName is not null)
+                    {
+                        fonts.AddFont(font.BoldFileName, font.BoldAlias);
+                    }
+                }
             });
 
         var apiSettings = new ApiSettings();
@@ -40,6 +47,13 @@ public static class MauiProgram
             client.BaseAddress = new Uri(apiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(10);
         });
+        builder.Services.AddHttpClient<CatalogApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        builder.Services.AddSingleton<AppearanceService>();
+        builder.Services.AddSingleton<PreferencesService>();
         builder.Services.AddSingleton<SessionService>();
         builder.Services.AddSingleton<FavoritesService>();
 
@@ -54,6 +68,15 @@ public static class MauiProgram
         builder.Services.AddSingleton<InicioPage>();
         builder.Services.AddSingleton<ReproductorPage>();
         builder.Services.AddSingleton<FavoritosPage>();
+
+        // Ajustes. Personalización is a singleton too: its view model listens to the singleton AppearanceService,
+        // so a new instance per visit would never be released.
+        builder.Services.AddSingleton<AjustesViewModel>();
+        builder.Services.AddSingleton<AjustesPage>();
+        builder.Services.AddSingleton<PersonalizacionViewModel>();
+        builder.Services.AddSingleton<PersonalizacionPage>();
+        builder.Services.AddTransient<PreferenciasViewModel>();
+        builder.Services.AddTransient<PreferenciasPage>();
 
         // A fresh login or registration form each time the flow opens.
         builder.Services.AddTransient<LoginViewModel>();
