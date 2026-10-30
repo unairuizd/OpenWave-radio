@@ -13,15 +13,18 @@ public partial class InicioViewModel : ObservableObject
 
     private readonly IStationService _stationService;
     private readonly PlaybackService _playback;
+    private readonly FavoritesService _favorites;
     private CancellationTokenSource? _loadCts;
     private string? _lastQuery;
     private bool _hasLoaded;
 
-    public InicioViewModel(IStationService stationService, PlaybackService playback)
+    public InicioViewModel(IStationService stationService, PlaybackService playback, FavoritesService favorites)
     {
         _stationService = stationService;
         _playback = playback;
+        _favorites = favorites;
         _playback.PropertyChanged += OnPlaybackPropertyChanged;
+        _favorites.FavoritesChanged += (_, _) => RefreshFavorites();
     }
 
     public ObservableCollection<StationListItem> Stations { get; } = [];
@@ -72,6 +75,12 @@ public partial class InicioViewModel : ObservableObject
         await Shell.Current.GoToAsync("//reproductor");
     }
 
+    [RelayCommand(AllowConcurrentExecutions = true)]
+    private Task ToggleFavoriteAsync(StationListItem? item)
+    {
+        return item is null ? Task.CompletedTask : _favorites.ToggleFromHeartAsync(item.Station);
+    }
+
     public void LoadIfNeeded()
     {
         if (_hasLoaded || IsLoading)
@@ -109,7 +118,11 @@ public partial class InicioViewModel : ObservableObject
             Stations.Clear();
             foreach (var station in stations)
             {
-                Stations.Add(new StationListItem(station) { IsSelected = station.Id == currentId });
+                Stations.Add(new StationListItem(station)
+                {
+                    IsSelected = station.Id == currentId,
+                    IsFavorite = _favorites.IsFavorite(station.Id),
+                });
             }
 
             IsEmpty = Stations.Count == 0;
@@ -155,6 +168,14 @@ public partial class InicioViewModel : ObservableObject
         foreach (var item in Stations)
         {
             item.IsSelected = item.Station.Id == currentId;
+        }
+    }
+
+    private void RefreshFavorites()
+    {
+        foreach (var item in Stations)
+        {
+            item.IsFavorite = _favorites.IsFavorite(item.Station.Id);
         }
     }
 }

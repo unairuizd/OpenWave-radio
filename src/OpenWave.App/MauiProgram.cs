@@ -30,6 +30,18 @@ public static class MauiProgram
             client.BaseAddress = new Uri(apiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(10);
         });
+        builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+        {
+            client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        builder.Services.AddHttpClient<FavoritesApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        builder.Services.AddSingleton<SessionService>();
+        builder.Services.AddSingleton<FavoritesService>();
 
         builder.Services.AddSingleton<MediaElementAudioPlayer>();
         builder.Services.AddSingleton<IAudioPlayer>(services => services.GetRequiredService<MediaElementAudioPlayer>());
@@ -42,6 +54,12 @@ public static class MauiProgram
         builder.Services.AddSingleton<InicioPage>();
         builder.Services.AddSingleton<ReproductorPage>();
         builder.Services.AddSingleton<FavoritosPage>();
+
+        // A fresh login or registration form each time the flow opens.
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<RegisterViewModel>();
+        builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<RegisterPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

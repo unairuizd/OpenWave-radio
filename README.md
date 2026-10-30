@@ -1,6 +1,6 @@
 # OpenWave
 
-Cross-platform online radio player for the DEIN course project. An ASP.NET Core API serves the live Radio Browser catalogue, and a .NET MAUI app (Windows and Android) lets you browse, search and listen to it.
+Cross-platform online radio player for the DEIN course project. An ASP.NET Core API serves the live Radio Browser catalogue and stores user accounts and favourite stations in a remote MySQL database. A .NET MAUI app (Windows and Android) lets you browse, search and listen to stations, create an account, log in and keep your favourites.
 
 ## Requirements
 
@@ -19,10 +19,30 @@ $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
 
 ```
 OpenWave.sln
+database/schema.sql       MySQL script (run manually; source of truth for the schema)
 src/OpenWave.Contracts/   Shared DTOs (net10.0)
 src/OpenWave.Api/         ASP.NET Core Web API (controllers)
 src/OpenWave.App/         .NET MAUI app (Android + Windows)
 ```
+
+## Database setup
+
+Users and favourites are stored in the remote MySQL database `2DAM_alumno19` (provided by the teacher). Only the API connects to it; the app never does.
+
+1. Open MySQL Workbench, connect with your account, and run `database/schema.sql`. It selects `2DAM_alumno19` and creates the `users` and `favorite_stations` tables. It never drops anything, so running it again is safe.
+2. Optional: the end of the script has a commented-out block that creates a restricted `openwave_app` account with only SELECT, INSERT, UPDATE and DELETE rights. On a shared server your account may not be allowed to create users; in that case skip it and use your own account.
+3. Store the connection string with .NET user-secrets, from the API folder. The values stay in your user profile, outside the repository:
+
+   ```powershell
+   cd src/OpenWave.Api
+   dotnet user-secrets set "ConnectionStrings:Default" "Server=<HOST>;Port=<PORT>;Database=2DAM_alumno19;User ID=<USER>;Password=<PASSWORD>;SslMode=Preferred;Connect Timeout=5;"
+   ```
+
+   Replace `<HOST>`, `<PORT>`, `<USER>` and `<PASSWORD>` with your real values (omit `Port=<PORT>;` if the server uses the default port 3306). `appsettings.json` only contains a placeholder; never put real credentials in any file of the repository.
+
+   The value is saved in `%APPDATA%\Microsoft\UserSecrets\bdfcf5f9-ed90-45fc-ba9d-9cd82bdcde78\secrets.json` (the folder name is the `UserSecretsId` in `OpenWave.Api.csproj`). To change the credentials, run the same `dotnet user-secrets set` command again with the new values, or edit that file. User-secrets are read only when the API runs in the `Development` environment, which `dotnet run` uses by default.
+
+The API never creates or changes tables: there are no EF migrations and no `EnsureCreated`. With the placeholder connection string, database requests fail with `503` and `No se pudo acceder a la base de datos.`
 
 ## Run the API
 
@@ -55,6 +75,34 @@ Invoke-RestMethod "http://localhost:5080/api/stations?name=jazz&limit=5"
 
 The mirrors are tried in the order listed in `RadioBrowser:Servers` in `appsettings.json`, with a 5-second timeout each. If every mirror fails, the API returns `502` with a ProblemDetails body whose `detail` is `No se pudo obtener el catálogo de emisoras.` and logs the technical cause. `OpenWave.Api.http` has ready-made example requests.
 
+### Authentication
+
+Accounts are stored in the database (see [Database setup](#database-setup)). Both endpoints take a JSON body `{"email": "...", "password": "..."}` and return `{"id": 1, "email": "ana@example.com"}` on success. Emails are trimmed and lower-cased before they are stored or compared; passwords are stored only as salted hashes.
+
+| Endpoint | Success | Errors (`detail`) |
+|---|---|---|
+| `POST /api/auth/register` | `201` | `400` `El correo no es válido.` or `La contraseña debe tener al menos 8 caracteres.`; `409` `El correo ya está registrado.` |
+| `POST /api/auth/login` | `200` | `400` `El correo no es válido.`; `401` `Correo o contraseña incorrectos.` (same for an unknown email and a wrong password) |
+
+A malformed JSON body gives `400` `La solicitud no es válida.` When the database cannot be reached, both endpoints return `503` `No se pudo acceder a la base de datos.` and the API keeps running. `OpenWave.Api.http` has example requests with fake data.
+
+### Favourites API
+
+Each user's favourite stations are stored in the database as a copy of the station data (the same JSON format as `/api/stations`), so they keep working when the catalogue changes or Radio Browser is down. `{userId}` is the `id` returned by register or login.
+
+| Endpoint | Success | Errors (`detail`) |
+|---|---|---|
+| `GET /api/users/{userId}/favorites` | `200` list, newest first | `404` `El usuario no existe.` |
+| `POST /api/users/{userId}/favorites` (station body) | `201` the stored station | `400` `Los datos de la emisora no son válidos.`; `404` `El usuario no existe.`; `409` `La emisora ya está en tus favoritas.` |
+| `DELETE /api/users/{userId}/favorites/{stationId}` | `204` | `404` `La emisora no está en tus favoritas.` or `El usuario no existe.` |
+
+- A station needs `id`, `name` and `streamUrl`.
+- Values longer than the database columns are shortened when stored: the name to 255 characters, country and language to 100, and whole tags are dropped from the end until the tag list fits in 500 characters.
+- A station can be a favourite only once per user, even when two identical requests arrive at the same time.
+- When the database cannot be reached, these endpoints return `503` `No se pudo acceder a la base de datos.`
+
+**Known limitation:** these endpoints are not authorised. Anyone who knows a user id can read or change that user's favourites; the session exists only in the app. This is accepted for this course project.
+
 ## Run the app on Windows
 
 With the API running:
@@ -81,6 +129,8 @@ The app uses `http://localhost:5080` on Windows. The `dotnet build -t:Run` short
    $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
    dotnet build src/OpenWave.App -f net10.0-android -t:Run
    ```
+
+   Always deploy with `-t:Run` or `-t:Install`. A Debug build uses Fast Deployment: the app's assemblies are copied to the device separately from the APK, so installing only the APK file (for example with `adb install`) keeps running the previously deployed code.
 
 The app uses `http://10.0.2.2:5080` on Android, which maps to the host machine's `localhost`.
 
@@ -123,6 +173,40 @@ Limitations in this phase:
 - **No mini-player** outside Reproductor.
 - **No background playback.** Minimising the app or sending it to the background stops the audio.
 
+## Account in the app
+
+You can browse, search and listen without an account. An account is needed only for favourites.
+
+- **Logging in:** open `Favoritos` and press `Iniciar sesión`. Enter your email and password and press `Iniciar sesión`. While the request runs the button is disabled and a loading indicator is shown. On success the app returns to `Favoritos`, which shows your email and `Cerrar sesión`.
+- **Creating an account:** on the `Iniciar sesión` page press `Crear cuenta`, enter your email, a password of at least 8 characters and the same password again, and press `Crear cuenta`. You are logged in straight away and returned to `Favoritos`.
+- **Logging out:** press `Cerrar sesión` in `Favoritos`. The station selected in `Reproductor` stays selected and can still be played.
+- **The session is kept only while the app is open.** Every app start begins logged out.
+
+Messages on the `Iniciar sesión` and `Crear cuenta` pages:
+
+| Message | When |
+|---|---|
+| `El correo no es válido.` | The email is empty or not a valid address (checked before contacting the API) |
+| `Introduce la contraseña.` | Login with an empty password |
+| `La contraseña debe tener al menos 8 caracteres.` | Registration with a shorter password |
+| `Las contraseñas no coinciden.` | Registration with different passwords |
+| `Correo o contraseña incorrectos.` | Wrong password or unknown email |
+| `El correo ya está registrado.` | Registration with an email that already has an account |
+| `No hay conexión con el servidor.` | The API is not running or cannot be reached |
+| `No se pudo acceder a la base de datos.` | The API cannot reach the database |
+| `Ha ocurrido un error inesperado.` | Any other failure |
+
+## Favourites in the app
+
+Each station in `Inicio` and the station in `Reproductor` show a heart: `♥` when it is one of your favourites, `♡` when it is not or when nobody is logged in.
+
+- **Adding and removing:** while logged in, press `♡` to add the station and `♥` to remove it. The heart changes at once; it does not select the station, change the page or stop playback. If the change cannot be saved, the heart goes back and the app shows `No se pudo actualizar tus favoritas.`
+- **Heart while logged out:** the app opens `Iniciar sesión`. After logging in (or creating an account) the station is added and you return to the screen where you pressed the heart. Going back without logging in adds nothing. In `Reproductor` this stops the audio, because playback is tied to that page.
+- **`Favoritos`:** lists your favourites, newest first, with the name and country. Tap a station to open `Reproductor` and play it, or press `Quitar` to remove it at once (no confirmation). The list reloads from the API every time the page opens.
+  - While loading it shows `Cargando favoritas...`; with no favourites, `Aún no tienes emisoras favoritas.`
+  - If the list cannot be loaded it shows `No hay conexión con el servidor.` or `No se pudo acceder a la base de datos.` with `Reintentar`.
+- **Logging out** empties every heart and the list.
+
 ## Manual check list
 
 1. Start the API and open `http://localhost:5080/api/health`: `status` is `ok` and `timeUtc` is an ISO 8601 UTC timestamp.
@@ -143,9 +227,14 @@ Limitations in this phase:
     ```
 
     Close that terminal (or remove both variables) afterwards to return to the configured mirrors.
-11. Open Favoritos: it shows `Aún no tienes emisoras favoritas.` and the note that the section is not connected yet.
+11. Open Favoritos while logged out: it shows `Inicia sesión para ver tus favoritas.` and `Iniciar sesión`. Log in or create an account: you return to Favoritos, which shows your email and `Cerrar sesión`. Press `Cerrar sesión`: the logged-out state returns. Restart the app: it starts logged out.
+12. Log in. In Inicio press `♡` on a station: it becomes `♥` and the page does not change. Play a station and press `♡` in Reproductor: it becomes `♥` and the audio keeps playing.
+13. Open Favoritos: both stations are listed, newest first. Tap one: Reproductor opens and plays it. Press `Quitar` on the other: it disappears, and its heart in Inicio is `♡` again. Remove the last one: `Aún no tienes emisoras favoritas.`
+14. Log out and press `♡` in Inicio: `Iniciar sesión` opens. Go back: nothing is added. Press it again and log in: you return to Inicio with that heart `♥`.
+15. Stop the API and press a heart while logged in: `No se pudo actualizar tus favoritas.` and the heart goes back. Start the API with an unreachable database (see item 10, using `$env:ConnectionStrings__Default = "Server=<HOST>;Database=2DAM_alumno19;User ID=<USER>;Password=<PASSWORD>;SslMode=Preferred;Connect Timeout=5;"`; keep `Connect Timeout=5` so the API answers before the app's 10-second timeout) and open Favoritos: `No se pudo acceder a la base de datos.` and `Reintentar`. Start the API normally and press `Reintentar`: the list loads.
+16. Press `Cerrar sesión`: every heart in Inicio and Reproductor is `♡`.
 
 ## Notes
 
-- No database, login or favourites persistence exists yet.
 - `appsettings.Development.json` is ignored by git; never commit real credentials.
+- The API logs database failures (to the console and, on Windows, to the Application event log) with the cause only: never passwords, request bodies or the connection string. Entity Framework Core's own connection-error message may name the database server.

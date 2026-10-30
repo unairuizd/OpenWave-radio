@@ -26,14 +26,3 @@ The app SHALL present exactly three top-level destinations, in this order: `Inic
 
 - **WHEN** the user leaves a destination and comes back to it
 - **THEN** the destination is shown again with its current state, without requiring an app restart
-
-### Requirement: Favoritos placeholder
-
-The `Favoritos` destination SHALL show the empty-state text `Aún no tienes emisoras favoritas.` and a short note in Spanish stating that favourites are not connected yet. It SHALL NOT store, read or send favourite data in this phase.
-
-#### Scenario: Opening Favoritos
-
-- **WHEN** the user opens `Favoritos`
-- **THEN** the page shows `Aún no tienes emisoras favoritas.`
-- **AND** it shows a note explaining that the feature is not connected yet
-- **AND** no favourite data is persisted or requested from the backend

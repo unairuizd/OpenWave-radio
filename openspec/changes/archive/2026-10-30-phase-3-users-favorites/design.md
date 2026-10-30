@@ -47,7 +47,7 @@ The API adds `MySql.EntityFrameworkCore` unpinned. `OpenWaveDbContext` is regist
 ### 3. Credentials only in user-secrets
 
 - `dotnet user-secrets init` adds a `UserSecretsId` to `OpenWave.Api.csproj`; this id is not a secret.
-- `appsettings.json` gets a placeholder value, for example `Server=<HOST>;Port=<PORT>;Database=2DAM_alumno19;User ID=<USER>;Password=<PASSWORD>;SslMode=Preferred;Connect Timeout=5;`. This lets the API start and answer 503 before the real values exist.
+- `appsettings.json` gets a placeholder value, for example `Server=<HOST>;Database=2DAM_alumno19;User ID=<USER>;Password=<PASSWORD>;SslMode=Preferred;Connect Timeout=5;`. This lets the API start and answer 503 before the real values exist.
 - When the developer gives the credentials after group 1, the agent stores them with one `dotnet user-secrets set "ConnectionStrings:Default" "…"` command, run from `src/OpenWave.Api`. The value goes to the user profile's `UserSecrets/<id>/secrets.json`, outside the repository. The credentials are never written to any repository file, README, planning artifact, `.http` file, or report, and `dotnet user-secrets list` is never run.
 - `SslMode=Preferred` works whether or not the unknown server offers TLS. `Connect Timeout=5` keeps a database failure shorter than the app's 10-second HTTP timeout, so the app receives a 503 rather than its own timeout.
 

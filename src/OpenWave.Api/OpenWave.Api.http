@@ -28,3 +28,88 @@ GET {{OpenWave.Api_HostAddress}}/api/stations?country=Spain&language=spanish&tag
 Accept: application/json
 
 ###
+
+# Create an account (201). Repeating it gives 409 "El correo ya está registrado."
+POST {{OpenWave.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "ana@example.com",
+  "password": "secreta123"
+}
+
+###
+
+# Invalid input (400): "El correo no es válido."
+POST {{OpenWave.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "ana-at-example",
+  "password": "secreta123"
+}
+
+###
+
+# Log in (200). The email is trimmed and lower-cased, so the letter case does not matter
+POST {{OpenWave.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ANA@example.com",
+  "password": "secreta123"
+}
+
+###
+
+# Wrong password or unknown email (401): "Correo o contraseña incorrectos."
+POST {{OpenWave.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ana@example.com",
+  "password": "incorrecta"
+}
+
+###
+
+# --- Favourites (use the "id" returned by register or login) ---
+@userId = 1
+
+# The user's favourites, newest first (200). Unknown user: 404 "El usuario no existe."
+GET {{OpenWave.Api_HostAddress}}/api/users/{{userId}}/favorites
+Accept: application/json
+
+###
+
+# Add a favourite (201). Repeating it gives 409 "La emisora ya está en tus favoritas."
+POST {{OpenWave.Api_HostAddress}}/api/users/{{userId}}/favorites
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000001",
+  "name": "Radio de Ejemplo",
+  "streamUrl": "https://example.com/stream.mp3",
+  "country": "Spain",
+  "language": "spanish",
+  "tags": ["pop", "noticias"],
+  "logoUrl": null
+}
+
+###
+
+# Station without streamUrl (400): "Los datos de la emisora no son válidos."
+POST {{OpenWave.Api_HostAddress}}/api/users/{{userId}}/favorites
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000002",
+  "name": "Sin URL"
+}
+
+###
+
+# Remove a favourite (204). Repeating it gives 404 "La emisora no está en tus favoritas."
+DELETE {{OpenWave.Api_HostAddress}}/api/users/{{userId}}/favorites/00000000-0000-0000-0000-000000000001
+
+###

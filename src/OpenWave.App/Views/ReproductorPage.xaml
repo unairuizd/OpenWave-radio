@@ -20,7 +20,19 @@
         </Border>
 
         <VerticalStackLayout IsVisible="{Binding HasStation}" Spacing="12">
-            <Label Style="{StaticResource PageTitleLabel}" Text="{Binding StationName}" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Label
+                    Grid.Column="0"
+                    Style="{StaticResource PageTitleLabel}"
+                    Text="{Binding StationName}"
+                    VerticalOptions="Center" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding ToggleFavoriteCommand}"
+                    Style="{StaticResource FavoriteToggleButton}"
+                    Text="{Binding FavoriteGlyph}"
+                    VerticalOptions="Center" />
+            </Grid>
             <Label
                 IsVisible="{Binding HasCountry}"
                 Style="{StaticResource SecondaryLabel}"

@@ -9,12 +9,20 @@ namespace OpenWave.App.ViewModels;
 public partial class ReproductorViewModel : ObservableObject
 {
     private readonly PlaybackService _playback;
+    private readonly FavoritesService _favorites;
 
-    public ReproductorViewModel(PlaybackService playback)
+    public ReproductorViewModel(PlaybackService playback, FavoritesService favorites)
     {
         _playback = playback;
+        _favorites = favorites;
         _playback.PropertyChanged += OnPlaybackPropertyChanged;
+        _favorites.FavoritesChanged += (_, _) => OnPropertyChanged(nameof(FavoriteGlyph));
     }
+
+    public string FavoriteGlyph =>
+        _playback.CurrentStation is { } station && _favorites.IsFavorite(station.Id)
+            ? FavoritesService.FilledHeart
+            : FavoritesService.EmptyHeart;
 
     public StationDto? CurrentStation => _playback.CurrentStation;
 
@@ -55,6 +63,14 @@ public partial class ReproductorViewModel : ObservableObject
         return _playback.RetryAsync();
     }
 
+    [RelayCommand(AllowConcurrentExecutions = true)]
+    private Task ToggleFavoriteAsync()
+    {
+        return _playback.CurrentStation is { } station
+            ? _favorites.ToggleFromHeartAsync(station)
+            : Task.CompletedTask;
+    }
+
     private void OnPlaybackPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         OnPropertyChanged(nameof(CurrentStation));
@@ -69,5 +85,6 @@ public partial class ReproductorViewModel : ObservableObject
         OnPropertyChanged(nameof(HasError));
         OnPropertyChanged(nameof(ShowPlayerControls));
         OnPropertyChanged(nameof(ToggleButtonText));
+        OnPropertyChanged(nameof(FavoriteGlyph));
     }
 }

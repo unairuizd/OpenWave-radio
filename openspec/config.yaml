@@ -1,82 +1,83 @@
 schema: spec-driven
 
-# OpenWave: project context
+context: |
+  # OpenWave: project context
 
-## Purpose
-Cross-platform online radio. Users can browse and search real radio stations, listen to them,
-register, log in, and save favourite stations that persist in a remote MySQL database.
-This is a course project: a working, coherent, simple solution that the author can explain
-is more important than extra features.
+  ## Purpose
+  Cross-platform online radio. Users can browse and search real radio stations, listen to them,
+  register, log in, and save favourite stations that persist in a remote MySQL database.
+  This is a course project: a working, coherent, simple solution that the author can explain
+  is more important than extra features.
 
-## Stack
-- .NET SDK 10.0.402, C# with nullable reference types enabled.
-- Client: .NET MAUI, targets `net10.0-android` and `net10.0-windows10.0.19041.0` only.
-- Server: ASP.NET Core Web API (controllers, not minimal APIs), same .NET version.
-- Database: remote MySQL, database name `openwave`. EF Core with a MySQL provider (verify a
-  provider version compatible with EF Core 10 / .NET 10, for example Pomelo.EntityFrameworkCore.MySql;
-  if none is compatible, stop and ask before choosing another).
-- External catalogue: Radio Browser API (https://api.radio-browser.info), consulted ONLY by our API.
-- Libraries allowed: any, but prefer few. Required: CommunityToolkit.Mvvm and CommunityToolkit.Maui
-  (MediaElement for audio) in the app.
-- Editor: Visual Studio Code, OS: Windows. Testing: Android emulator + Windows. Manual verification
-  only: do NOT create unit-test projects.
+  ## Stack
+  - .NET SDK 10.0.402, C# with nullable reference types enabled.
+  - Client: .NET MAUI, targets `net10.0-android` and `net10.0-windows10.0.19041.0` only.
+  - Server: ASP.NET Core Web API (controllers, not minimal APIs), same .NET version.
+  - Database: remote MySQL, database name `2DAM_alumno19` (existing database provided by the teacher). EF Core with a MySQL provider (verify a
+    provider version compatible with EF Core 10 / .NET 10, for example Pomelo.EntityFrameworkCore.MySql;
+    if none is compatible, stop and ask before choosing another).
+  - External catalogue: Radio Browser API (https://api.radio-browser.info), consulted ONLY by our API.
+  - Libraries allowed: any, but prefer few. Required: CommunityToolkit.Mvvm and CommunityToolkit.Maui
+    (MediaElement for audio) in the app.
+  - Editor: Visual Studio Code, OS: Windows. Testing: Android emulator + Windows. Manual verification
+    only: do NOT create unit-test projects.
 
-## Architecture (strict responsibilities)
-- MAUI app: UI, navigation, audio playback, screen state. Talks ONLY to our API through services.
-  It never connects to MySQL and never calls Radio Browser directly.
-- API: user and favourites management, validation, business logic, database access, Radio Browser
-  queries and mapping.
-- Data flows: stations = app -> API -> Radio Browser. Users/favourites = app -> API -> MySQL.
-- Audio plays in the app using the stream URL received from the API.
-- Database schema changes are made only by the developer, by running `database/schema.sql` manually.
-  The API and the app never create, alter or drop database objects.
+  ## Architecture (strict responsibilities)
+  - MAUI app: UI, navigation, audio playback, screen state. Talks ONLY to our API through services.
+    It never connects to MySQL and never calls Radio Browser directly.
+  - API: user and favourites management, validation, business logic, database access, Radio Browser
+    queries and mapping.
+  - Data flows: stations = app -> API -> Radio Browser. Users/favourites = app -> API -> MySQL.
+  - Audio plays in the app using the stream URL received from the API.
+  - Database schema changes are made only by the developer, by running `database/schema.sql` manually.
+    The API and the app never create, alter or drop database objects.
 
-## Solution layout
-OpenWave/
-  OpenWave.sln
-  database/schema.sql                 (MySQL script, source of truth for the schema, run manually by the developer)
-  src/OpenWave.Contracts/             (class library net10.0: DTOs shared by API and app, no logic)
-  src/OpenWave.Api/                   (Controllers/, Services/, Repositories/, Data/ (DbContext + Entities), Options/)
-  src/OpenWave.App/                   (Views/, ViewModels/, Services/, Resources/Styles/)
+  ## Solution layout
+  OpenWave/
+    OpenWave.sln
+    database/schema.sql                 (MySQL script, source of truth for the schema, run manually by the developer)
+    src/OpenWave.Contracts/             (class library net10.0: DTOs shared by API and app, no logic)
+    src/OpenWave.Api/                   (Controllers/, Services/, Repositories/, Data/ (DbContext + Entities), Options/)
+    src/OpenWave.App/                   (Views/, ViewModels/, Services/, Resources/Styles/)
 
-## Conventions
-- Language: code identifiers, comments and docs in ENGLISH.
-  Every string shown to the user (labels, buttons, messages, errors) in SPANISH (Spain, es-ES).
-- App uses MVVM with CommunityToolkit.Mvvm ([ObservableProperty], [RelayCommand]).
-  Views contain no logic beyond UI; ViewModels never reference Views; Services wrap HttpClient and playback.
-  Register everything in MauiProgram.cs with dependency injection. Navigation with Shell routes.
-- API layering: Controllers (HTTP only) -> Services (business logic) -> Repositories (EF Core access).
-  Use DTOs from Contracts at the HTTP boundary; never expose EF entities. Async everywhere,
-  pass CancellationToken, never use .Result or .Wait(). Return ProblemDetails for errors with
-  Spanish `detail` messages.
-- The app reads the API base URL from a single configurable place (`ApiSettings`): default per
-  platform (Android emulator `http://10.0.2.2:5080`, Windows `http://localhost:5080`), overridable
-  through MAUI `Preferences` key `api_base_url`. Cleartext HTTP is allowed in development
-  (Android manifest `usesCleartextTraffic`).
-- Theming-ready UI (for a later phase): never hard-code colours, font family or font sizes in pages.
-  Use semantic resource keys in `Resources/Styles` (e.g. PageBackgroundColor, PrimaryTextColor,
-  AccentColor, AppFontFamily, BodyFontSize) referenced with DynamicResource / AppThemeBinding.
-- Secrets: the DB connection string is read from configuration key `ConnectionStrings:Default`
-  (user-secrets or `appsettings.Development.json`, which must be in .gitignore). Never write real
-  credentials anywhere: use placeholders; the developer fills in the real values.
+  ## Conventions
+  - Language: code identifiers, comments and docs in ENGLISH.
+    Every string shown to the user (labels, buttons, messages, errors) in SPANISH (Spain, es-ES).
+  - App uses MVVM with CommunityToolkit.Mvvm ([ObservableProperty], [RelayCommand]).
+    Views contain no logic beyond UI; ViewModels never reference Views; Services wrap HttpClient and playback.
+    Register everything in MauiProgram.cs with dependency injection. Navigation with Shell routes.
+  - API layering: Controllers (HTTP only) -> Services (business logic) -> Repositories (EF Core access).
+    Use DTOs from Contracts at the HTTP boundary; never expose EF entities. Async everywhere,
+    pass CancellationToken, never use .Result or .Wait(). Return ProblemDetails for errors with
+    Spanish `detail` messages.
+  - The app reads the API base URL from a single configurable place (`ApiSettings`): default per
+    platform (Android emulator `http://10.0.2.2:5080`, Windows `http://localhost:5080`), overridable
+    through MAUI `Preferences` key `api_base_url`. Cleartext HTTP is allowed in development
+    (Android manifest `usesCleartextTraffic`).
+  - Theming-ready UI (for a later phase): never hard-code colours, font family or font sizes in pages.
+    Use semantic resource keys in `Resources/Styles` (e.g. PageBackgroundColor, PrimaryTextColor,
+    AccentColor, AppFontFamily, BodyFontSize) referenced with DynamicResource / AppThemeBinding.
+  - Secrets: the DB connection string is read from configuration key `ConnectionStrings:Default`
+    (user-secrets or `appsettings.Development.json`, which must be in .gitignore). Never write real
+    credentials anywhere: use placeholders; the developer fills in the real values.
 
-## Ground rules for the AI agent
-1. Implement only what the current change asks. Do not add features from later phases.
-2. Keep it simple: no mediator, no extra abstraction layers, no unit-test projects.
-3. Do NOT run any git command (init, add, commit, branch, checkout, stash, reset, push, etc.) and do
-   not suggest commits. The developer controls git. Creating or editing a `.gitignore` file is allowed.
-4. Do not invent package versions. Use `dotnet add package <name>` without a pinned version, and
-   confirm it supports net10.0. Never lower the target framework to make a package work: ask me.
-5. After each group of tasks run the relevant build and fix errors before continuing:
-   `dotnet build src/OpenWave.Api`
-   `dotnet build src/OpenWave.App -f net10.0-windows10.0.19041.0`
-   `dotnet build src/OpenWave.App -f net10.0-android`
-   Never say a task is done without having run the build, and report real output, not guesses.
-6. If something in the spec is ambiguous or impossible, stop and ask instead of improvising.
-7. Show a short summary at the end of each task group: files created/changed, commands run, what to test manually.
+  ## Ground rules for the AI agent
+  1. Implement only what the current change asks. Do not add features from later phases.
+  2. Keep it simple: no mediator, no extra abstraction layers, no unit-test projects.
+  3. Do NOT run any git command (init, add, commit, branch, checkout, stash, reset, push, etc.) and do
+     not suggest commits. The developer controls git. Creating or editing a `.gitignore` file is allowed.
+  4. Do not invent package versions. Use `dotnet add package <name>` without a pinned version, and
+     confirm it supports net10.0. Never lower the target framework to make a package work: ask me.
+  5. After each group of tasks run the relevant build and fix errors before continuing:
+     `dotnet build src/OpenWave.Api`
+     `dotnet build src/OpenWave.App -f net10.0-windows10.0.19041.0`
+     `dotnet build src/OpenWave.App -f net10.0-android`
+     Never say a task is done without having run the build, and report real output, not guesses.
+  6. If something in the spec is ambiguous or impossible, stop and ask instead of improvising.
+  7. Show a short summary at the end of each task group: files created/changed, commands run, what to test manually.
 
-## Non-goals (whole project)
-JWT/tokens, password reset, email verification, roles, unit tests, deployment to a remote server,
-iOS/macOS targets, background playback, offline mode.
-Known limitation: favourites endpoints are not authorised (the session is only held in the app);
-accepted for this course project.
+  ## Non-goals (whole project)
+  JWT/tokens, password reset, email verification, roles, unit tests, deployment to a remote server,
+  iOS/macOS targets, background playback, offline mode.
+  Known limitation: favourites endpoints are not authorised (the session is only held in the app);
+  accepted for this course project.

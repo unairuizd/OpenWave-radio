@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OpenWave.App.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
+    x:DataType="vm:LoginViewModel"
+    Title="Iniciar sesión">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Label Style="{StaticResource PageTitleLabel}" Text="Iniciar sesión" />
+
+            <Entry
+                Keyboard="Email"
+                Placeholder="Correo electrónico"
+                Text="{Binding Email}" />
+            <Entry
+                IsPassword="True"
+                Placeholder="Contraseña"
+                ReturnCommand="{Binding LoginCommand}"
+                Text="{Binding Password}" />
+
+            <Label
+                IsVisible="{Binding HasError}"
+                Style="{StaticResource ErrorLabel}"
+                Text="{Binding ErrorMessage}" />
+
+            <Button Command="{Binding LoginCommand}" Text="Iniciar sesión" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+            <Label
+                Margin="0,12,0,0"
+                Style="{StaticResource SecondaryLabel}"
+                Text="¿No tienes cuenta?" />
+            <Button Command="{Binding GoToRegisterCommand}" Text="Crear cuenta" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

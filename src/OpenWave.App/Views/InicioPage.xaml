@@ -53,19 +53,29 @@
                                     Command="{Binding SelectStationCommand, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
-                            <VerticalStackLayout Spacing="2">
-                                <Label
-                                    Style="{StaticResource StationNameLabel}"
-                                    Text="{Binding Station.Name}" />
-                                <Label Style="{StaticResource SecondaryLabel}">
-                                    <Label.Text>
-                                        <MultiBinding StringFormat="{}{0} · {1}">
-                                            <Binding Path="Station.Country" TargetNullValue="Desconocido" />
-                                            <Binding Path="Station.Language" TargetNullValue="Desconocido" />
-                                        </MultiBinding>
-                                    </Label.Text>
-                                </Label>
-                            </VerticalStackLayout>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label
+                                        Style="{StaticResource StationNameLabel}"
+                                        Text="{Binding Station.Name}" />
+                                    <Label Style="{StaticResource SecondaryLabel}">
+                                        <Label.Text>
+                                            <MultiBinding StringFormat="{}{0} · {1}">
+                                                <Binding Path="Station.Country" TargetNullValue="Desconocido" />
+                                                <Binding Path="Station.Language" TargetNullValue="Desconocido" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                    </Label>
+                                </VerticalStackLayout>
+                                <!--  A button consumes its own tap, so the heart never selects the station.  -->
+                                <Button
+                                    Grid.Column="1"
+                                    Command="{Binding ToggleFavoriteCommand, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
+                                    CommandParameter="{Binding .}"
+                                    Style="{StaticResource FavoriteToggleButton}"
+                                    Text="{Binding FavoriteGlyph}"
+                                    VerticalOptions="Center" />
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

@@ -3,14 +3,111 @@
     x:Class="OpenWave.App.Views.FavoritosPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:contracts="clr-namespace:OpenWave.Contracts;assembly=OpenWave.Contracts"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
+    x:DataType="vm:FavoritosViewModel"
     Title="Favoritos">
 
-    <VerticalStackLayout Padding="16" Spacing="8">
-        <Label Style="{StaticResource PageTitleLabel}" Text="Favoritos" />
-        <Label Text="Aún no tienes emisoras favoritas." />
+    <Grid Padding="16" RowDefinitions="Auto,Auto,*" RowSpacing="12">
         <Label
-            Style="{StaticResource SecondaryLabel}"
-            Text="Esta sección aún no está conectada; llegará en una fase posterior." />
-    </VerticalStackLayout>
+            Grid.Row="0"
+            Style="{StaticResource PageTitleLabel}"
+            Text="Favoritos" />
+
+        <!--  Logged out  -->
+        <VerticalStackLayout
+            Grid.Row="1"
+            IsVisible="{Binding IsLoggedOut}"
+            Spacing="12">
+            <Label Text="Inicia sesión para ver tus favoritas." />
+            <Button
+                Command="{Binding LogInCommand}"
+                HorizontalOptions="Start"
+                Text="Iniciar sesión" />
+        </VerticalStackLayout>
+
+        <!--  Logged in: account header  -->
+        <Grid
+            Grid.Row="1"
+            ColumnDefinitions="*,Auto"
+            ColumnSpacing="8"
+            IsVisible="{Binding IsLoggedIn}">
+            <Label
+                Grid.Column="0"
+                LineBreakMode="TailTruncation"
+                Style="{StaticResource SecondaryLabel}"
+                Text="{Binding Email}"
+                VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Command="{Binding LogOutCommand}"
+                Text="Cerrar sesión" />
+        </Grid>
+
+        <!--  Logged in: list and its states  -->
+        <Grid Grid.Row="2" IsVisible="{Binding IsLoggedIn}">
+
+            <CollectionView ItemsSource="{Binding Stations}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="contracts:StationDto">
+                        <Border Margin="0,0,0,8" Style="{StaticResource StationCard}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding PlayCommand, Source={RelativeSource AncestorType={x:Type vm:FavoritosViewModel}}, x:DataType=vm:FavoritosViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Style="{StaticResource StationNameLabel}" Text="{Binding Name}" />
+                                    <Label
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{Binding Country, TargetNullValue='Desconocido'}" />
+                                </VerticalStackLayout>
+                                <Button
+                                    Grid.Column="1"
+                                    Command="{Binding RemoveCommand, Source={RelativeSource AncestorType={x:Type vm:FavoritosViewModel}}, x:DataType=vm:FavoritosViewModel}"
+                                    CommandParameter="{Binding .}"
+                                    Text="Quitar"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsLoading}"
+                Spacing="8"
+                VerticalOptions="Center">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                <Label Style="{StaticResource SecondaryLabel}" Text="Cargando favoritas..." />
+            </VerticalStackLayout>
+
+            <Label
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                IsVisible="{Binding IsEmpty}"
+                Style="{StaticResource SecondaryLabel}"
+                Text="Aún no tienes emisoras favoritas."
+                VerticalOptions="Center" />
+
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                IsVisible="{Binding HasError}"
+                Spacing="12"
+                VerticalOptions="Center">
+                <Label
+                    HorizontalTextAlignment="Center"
+                    Style="{StaticResource ErrorLabel}"
+                    Text="{Binding ErrorMessage}" />
+                <Button
+                    Command="{Binding RetryCommand}"
+                    HorizontalOptions="Center"
+                    Text="Reintentar" />
+            </VerticalStackLayout>
+
+        </Grid>
+    </Grid>
 
 </ContentPage>
