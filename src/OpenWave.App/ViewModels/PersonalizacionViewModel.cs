@@ -7,7 +7,7 @@ using OpenWave.App.Services;
 namespace OpenWave.App.ViewModels;
 
 /// <summary>
-/// Theme, font and text size selectors. Every change is applied and stored at once by
+/// Theme, variant, font and text size selectors. Every change is applied and stored at once by
 /// <see cref="AppearanceService"/>; there is no save button.
 /// </summary>
 public partial class PersonalizacionViewModel : ObservableObject
@@ -18,6 +18,7 @@ public partial class PersonalizacionViewModel : ObservableObject
     {
         _appearance = appearance;
         SelectedThemeId = appearance.ThemeId;
+        SelectedPaletteId = appearance.PaletteId;
         SelectedFont = appearance.FontFamilyId;
         SelectedScale = appearance.FontScale;
 
@@ -27,6 +28,16 @@ public partial class PersonalizacionViewModel : ObservableObject
 
     public IReadOnlyList<AppThemeDefinition> Themes => ThemeCatalog.All;
 
+    /// <summary>
+    /// The variants of the selected theme.
+    /// </summary>
+    public IReadOnlyList<ThemePalette> Palettes => (ThemeCatalog.Find(_appearance.ThemeId) ?? ThemeCatalog.Default).Palettes;
+
+    /// <summary>
+    /// The variant choice is shown only for a theme with more than one palette.
+    /// </summary>
+    public bool ShowPaletteChoice => Palettes.Count > 1;
+
     public IReadOnlyList<FontOption> Fonts => AppearanceOptions.Fonts;
 
     public IReadOnlyList<FontScaleOption> Scales => AppearanceOptions.Scales;
@@ -34,6 +45,9 @@ public partial class PersonalizacionViewModel : ObservableObject
     // Radio button values arrive as object, so the selections are object-typed.
     [ObservableProperty]
     public partial object? SelectedThemeId { get; set; }
+
+    [ObservableProperty]
+    public partial object? SelectedPaletteId { get; set; }
 
     [ObservableProperty]
     public partial object? SelectedFont { get; set; }
@@ -46,6 +60,14 @@ public partial class PersonalizacionViewModel : ObservableObject
         if (value is string id && id != _appearance.ThemeId)
         {
             _appearance.SetTheme(id);
+        }
+    }
+
+    partial void OnSelectedPaletteIdChanged(object? value)
+    {
+        if (value is string id && id != _appearance.PaletteId)
+        {
+            _appearance.SetPalette(id);
         }
     }
 
@@ -77,6 +99,11 @@ public partial class PersonalizacionViewModel : ObservableObject
         {
             case nameof(AppearanceService.ThemeId):
                 SelectedThemeId = _appearance.ThemeId;
+                OnPropertyChanged(nameof(Palettes));
+                OnPropertyChanged(nameof(ShowPaletteChoice));
+                break;
+            case nameof(AppearanceService.PaletteId):
+                SelectedPaletteId = _appearance.PaletteId;
                 break;
             case nameof(AppearanceService.FontFamilyId):
                 SelectedFont = _appearance.FontFamilyId;

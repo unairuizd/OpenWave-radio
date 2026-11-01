@@ -44,7 +44,9 @@
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
 		<!-- Images -->
-		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Include="Resources\Images\*.svg" />
+		<!-- The icons' licence ships as a plain asset under Licences/, like the font licences -->
+		<MauiAsset Include="Resources\Images\*.txt" LogicalName="Licences\%(Filename)%(Extension)" />
 
 		<!-- Custom Fonts (only the font files; their licences ship as plain assets under Licences/) -->
 		<MauiFont Include="Resources\Fonts\*.ttf" />

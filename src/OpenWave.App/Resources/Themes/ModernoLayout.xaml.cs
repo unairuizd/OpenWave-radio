@@ -1,8 +1,8 @@
 namespace OpenWave.App.Resources.Themes;
 
-public partial class BlackTheme : ResourceDictionary
+public partial class ModernoLayout : ResourceDictionary
 {
-    public BlackTheme()
+    public ModernoLayout()
     {
         InitializeComponent();
     }

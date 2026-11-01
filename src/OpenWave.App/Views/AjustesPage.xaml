@@ -1,40 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--  Opened from the header's gear. The look comes from the active theme layout (AjustesTemplate); it belongs to no
+      bottom bar section.  -->
 <ContentPage
     x:Class="OpenWave.App.Views.AjustesPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:AjustesViewModel"
-    Title="Ajustes">
-
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Style="{StaticResource PageTitleLabel}" Text="Ajustes" />
-
-            <Border Style="{StaticResource StationCard}">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding OpenPreferenciasCommand}" />
-                </Border.GestureRecognizers>
-                <VerticalStackLayout Spacing="2">
-                    <Label Style="{StaticResource StationNameLabel}" Text="Preferencias" />
-                    <Label
-                        Style="{StaticResource SecondaryLabel}"
-                        Text="País, idioma, género y tipo de contenido que se aplican en Inicio." />
-                </VerticalStackLayout>
-            </Border>
-
-            <Border Style="{StaticResource StationCard}">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding OpenPersonalizacionCommand}" />
-                </Border.GestureRecognizers>
-                <VerticalStackLayout Spacing="2">
-                    <Label Style="{StaticResource StationNameLabel}" Text="Personalización" />
-                    <Label
-                        Style="{StaticResource SecondaryLabel}"
-                        Text="Tema, tipo de letra y tamaño del texto." />
-                </VerticalStackLayout>
-            </Border>
-        </VerticalStackLayout>
-    </ScrollView>
-
-</ContentPage>
+    Title="Ajustes"
+    ControlTemplate="{DynamicResource AjustesTemplate}"
+    Shell.NavBarIsVisible="False" />

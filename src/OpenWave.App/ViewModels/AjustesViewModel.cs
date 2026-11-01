@@ -5,7 +5,7 @@ namespace OpenWave.App.ViewModels;
 
 public partial class AjustesViewModel : ObservableObject
 {
-    // Pushed onto the Ajustes tab, so the back button returns here.
+    // Pushed onto Ajustes, so the back button (or the gear) returns here.
     [RelayCommand]
     private Task OpenPreferenciasAsync() => Shell.Current.GoToAsync("preferencias");
 

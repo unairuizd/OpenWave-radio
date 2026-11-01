@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    "Blanco" theme: white background, near-black text. Every theme file defines exactly the same colour
-    keys; styles read them with DynamicResource, so swapping the theme dictionary recolours the app at once.
+    Moderno "Claro" palette: white background, near-black text. Every palette file defines exactly the same colour
+    keys; styles and layouts read them with DynamicResource, so swapping the palette recolours the app at once.
 -->
 <ResourceDictionary
-    x:Class="OpenWave.App.Resources.Themes.WhiteTheme"
+    x:Class="OpenWave.App.Resources.Themes.ModernoLightPalette"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 

@@ -5,11 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:PreferenciasViewModel"
-    Title="Preferencias">
+    Title="Preferencias"
+    ControlTemplate="{DynamicResource SettingsPageTemplate}"
+    Shell.NavBarIsVisible="False">
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Style="{StaticResource PageTitleLabel}" Text="Preferencias" />
             <Label Style="{StaticResource SecondaryLabel}" Text="Se aplican como filtros en Inicio. «Todos» significa sin filtro." />
 
             <!--  Loading  -->

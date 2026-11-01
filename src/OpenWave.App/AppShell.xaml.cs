@@ -10,13 +10,14 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
 
-		// Pushed onto the current tab, so going back returns to the screen that opened them.
+		// Pushed onto the current section, so going back returns to the screen that opened them.
+		Routing.RegisterRoute("ajustes", typeof(AjustesPage));
 		Routing.RegisterRoute("login", typeof(LoginPage));
 		Routing.RegisterRoute("register", typeof(RegisterPage));
 		Routing.RegisterRoute("personalizacion", typeof(PersonalizacionPage));
 		Routing.RegisterRoute("preferencias", typeof(PreferenciasPage));
 
-		// The header and tab labels are drawn by the platform: re-apply the font and size when they change.
+		// The login pages keep the platform header: re-apply its font and size when they change.
 		appearance.PropertyChanged += OnAppearanceChanged;
 		Loaded += (_, _) => RefreshChrome();
 	}
@@ -39,11 +40,7 @@ public partial class AppShell : Shell
 			ShellChrome.EnsureTitleView(page);
 		}
 
-		// Let the platform finish (re)building the tab views first.
-		Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), () =>
-		{
-			ShellChrome.ApplyTabFonts(this);
-			ShellChrome.ApplyRadioColors();
-		});
+		// Let the platform finish (re)building the page's views first.
+		Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), ShellChrome.ApplyRadioColors);
 	}
 }

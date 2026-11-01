@@ -10,11 +10,6 @@ public sealed class FavoritesService
 {
     public const string SaveFailedMessage = "No se pudo actualizar tus favoritas.";
 
-    // U+FE0E asks for the text glyph: without it Android draws ♥ as a red colour emoji,
-    // ignoring the accent colour of the heart button.
-    public const string FilledHeart = "♥︎";
-    public const string EmptyHeart = "♡︎";
-
     private readonly FavoritesApiClient _api;
     private readonly SessionService _session;
     private readonly HashSet<string> _ids = new(StringComparer.Ordinal);

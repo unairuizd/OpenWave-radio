@@ -175,6 +175,8 @@ public partial class InicioViewModel : ObservableObject
             {
                 Stations.Add(new StationListItem(station)
                 {
+                    PlayCommand = SelectStationCommand,
+                    HeartCommand = ToggleFavoriteCommand,
                     IsSelected = station.Id == currentId,
                     IsFavorite = _favorites.IsFavorite(station.Id),
                 });

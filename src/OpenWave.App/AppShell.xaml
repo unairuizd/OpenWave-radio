@@ -5,7 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:OpenWave.App.Views"
     Title="OpenWave"
-    FlyoutBehavior="Disabled">
+    FlyoutBehavior="Disabled"
+    Shell.TabBarIsVisible="False">
+
+    <!--  The three sections give the //inicio, //reproductor and //favoritos routes. The native tab bar is never
+          shown: every themed page draws its own bottom bar (Resources/Themes), and Ajustes is a pushed route.  -->
 
     <TabBar>
         <ShellContent
@@ -20,10 +24,6 @@
             Title="Favoritos"
             Route="favoritos"
             ContentTemplate="{DataTemplate views:FavoritosPage}" />
-        <ShellContent
-            Title="Ajustes"
-            Route="ajustes"
-            ContentTemplate="{DataTemplate views:AjustesPage}" />
     </TabBar>
 
 </Shell>

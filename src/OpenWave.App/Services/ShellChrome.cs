@@ -1,8 +1,8 @@
 namespace OpenWave.App.Services;
 
 /// <summary>
-/// Makes the parts of the Shell that the platform draws itself follow the chosen font and text size:
-/// the page header title (through a TitleView) and the tab labels (platform code in Platforms/).
+/// Makes the parts that the platform draws itself follow the chosen appearance: the header title of the pages that
+/// keep the platform header (through a TitleView) and the radio button circles (platform code in Platforms/).
 /// </summary>
 public static partial class ShellChrome
 {
@@ -20,24 +20,6 @@ public static partial class ShellChrome
         title.SetDynamicResource(VisualElement.StyleProperty, "HeaderTitleLabel");
         Shell.SetTitleView(page, title);
     }
-
-    /// <summary>
-    /// Applies the current font family and size to the tab labels.
-    /// </summary>
-    public static void ApplyTabFonts(Shell shell)
-    {
-        var resources = Application.Current?.Resources;
-        if (resources is null
-            || !resources.TryGetValue("AppFontFamily", out var family)
-            || !resources.TryGetValue("FontSizeCaption", out var size))
-        {
-            return;
-        }
-
-        ApplyPlatformTabFonts(shell, (string)family, (double)size);
-    }
-
-    static partial void ApplyPlatformTabFonts(Shell shell, string fontFamily, double fontSize);
 
     /// <summary>
     /// Colours the native radio button circles from the theme. Android paints them once, when the activity

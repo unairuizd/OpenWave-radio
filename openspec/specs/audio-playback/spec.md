@@ -8,18 +8,19 @@ Provides real streaming playback for the selected radio station, with clear Span
 
 ### Requirement: Selected station on the player
 
-`Reproductor` SHALL show the name and country of the currently selected station and its logo when a logo URL is available. When no logo is available or it cannot be loaded, the page SHALL show a local fallback image. When no station has been selected, the page SHALL show `Selecciona una emisora en Inicio` instead of station details.
+`Reproductor` SHALL show a large logo of the selected station (or a local fallback image when no logo is available or it cannot be loaded), and under it the station name and its characteristics (country, language and tags) on the left with the heart on the right. When no station has been selected, the page SHALL show `Selecciona una emisora en Inicio` instead of the logo and station details, and the play/stop control SHALL be disabled.
 
 #### Scenario: No station selected
 
 - **WHEN** the user opens `Reproductor` before selecting any station
 - **THEN** the page shows `Selecciona una emisora en Inicio`
-- **AND** no station name, country or playback control is shown
+- **AND** no station name, country or logo is shown
+- **AND** the play/stop control is disabled
 
 #### Scenario: Station selected
 
 - **WHEN** the user has selected a station in `Inicio`
-- **THEN** `Reproductor` shows that station's name and country
+- **THEN** `Reproductor` shows that station's name, country, language and tags
 - **AND** it shows the station logo or the fallback image
 
 #### Scenario: Logo cannot be loaded
@@ -30,7 +31,7 @@ Provides real streaming playback for the selected radio station, with clear Span
 
 ### Requirement: Real play and stop
 
-`Reproductor` SHALL play the selected station's stream and SHALL provide a control that stops playback. The status text SHALL be `Detenido` when stopped, `Cargando…` while buffering, `Reproduciendo` while audio is playing and `Error` after a failure. The control SHALL read `Reproducir` when stopped and `Detener` while buffering or playing. The status SHALL reflect actual playback rather than a simulated flag.
+`Reproductor` SHALL play the selected station's stream and SHALL provide a central control that starts and stops playback. The status text SHALL be `Detenido` when stopped, `Cargando…` while buffering, `Reproduciendo` while audio is playing and `Error` after a failure. The control SHALL show a play icon named `Reproducir` when stopped or in error, and a stop icon named `Detener` while buffering or playing. The status SHALL reflect actual playback rather than a simulated flag.
 
 #### Scenario: Starting playback
 
@@ -38,14 +39,14 @@ Provides real streaming playback for the selected radio station, with clear Span
 - **THEN** the status text changes to `Cargando…`
 - **AND** it then changes to `Reproduciendo`
 - **AND** audio from the station is heard
-- **AND** the control offers `Detener`
+- **AND** the control shows the stop icon `Detener`
 
 #### Scenario: Stopping playback
 
 - **WHEN** playback is running and the user activates `Detener`
 - **THEN** audio stops
 - **AND** the status text changes to `Detenido`
-- **AND** the control offers `Reproducir`
+- **AND** the control shows the play icon `Reproducir`
 
 ### Requirement: Playback failure and retry
 
@@ -103,3 +104,51 @@ Playback SHALL be tied to the `Reproductor` page in this phase. Leaving the page
 - **THEN** the same station is shown
 - **AND** the status text is `Detenido`
 - **AND** the user can start playback again
+
+### Requirement: Previous and next favourite
+
+`Reproductor` SHALL offer `Favorita anterior` and `Favorita siguiente` on either side of the play/stop control. They SHALL move through the logged-in user's favourites in the `Favoritos` order (newest first), wrapping from the last to the first and from the first to the last, and SHALL select and play the chosen station, stopping the previous one.
+
+#### Scenario: Next favourite
+
+- **WHEN** the current station is the second of three favourites and the user activates `Favorita siguiente`
+- **THEN** the third favourite is selected and starts playing
+
+#### Scenario: Next on the last favourite
+
+- **WHEN** the current station is the last favourite and the user activates `Favorita siguiente`
+- **THEN** the first favourite is selected and starts playing
+
+#### Scenario: Previous on the first favourite
+
+- **WHEN** the current station is the first favourite and the user activates `Favorita anterior`
+- **THEN** the last favourite is selected and starts playing
+
+### Requirement: Previous and next from a station that is not a favourite
+
+When no station is selected or the current station is not one of the user's favourites, `Favorita siguiente` SHALL choose the first favourite and `Favorita anterior` the last one. When the only favourite is the current station, nothing SHALL change.
+
+#### Scenario: Current station is not a favourite
+
+- **WHEN** the current station is not a favourite and the user activates `Favorita anterior`
+- **THEN** the last favourite is selected and starts playing
+
+#### Scenario: Only favourite is playing
+
+- **WHEN** the user's only favourite is the current station and the user activates `Favorita siguiente`
+- **THEN** the same station stays selected and its playback is not restarted
+
+### Requirement: Previous and next without favourites
+
+When no user is logged in, `Favorita anterior` and `Favorita siguiente` SHALL open `Iniciar sesión`, and nothing SHALL be added to the favourites. When the logged-in user has no favourites, they SHALL change nothing and the status line SHALL show `Aún no tienes emisoras favoritas.`
+
+#### Scenario: Logged out
+
+- **WHEN** a logged-out user activates `Favorita siguiente`
+- **THEN** `Iniciar sesión` opens
+
+#### Scenario: No favourites
+
+- **WHEN** a logged-in user with no favourites activates `Favorita anterior`
+- **THEN** the selected station and playback do not change
+- **AND** the status line shows `Aún no tienes emisoras favoritas.`

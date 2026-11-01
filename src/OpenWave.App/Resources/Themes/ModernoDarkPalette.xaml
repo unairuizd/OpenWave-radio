@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    "Negro" theme: true black background, near-white text. Defines exactly the same colour keys as
-    WhiteTheme.xaml; the accent is lighter so it keeps its contrast on black.
+    Moderno "Oscuro" palette: true black background, near-white text. Defines exactly the same colour keys as
+    ModernoLightPalette.xaml; the accent is lighter so it keeps its contrast on black.
 -->
 <ResourceDictionary
-    x:Class="OpenWave.App.Resources.Themes.BlackTheme"
+    x:Class="OpenWave.App.Resources.Themes.ModernoDarkPalette"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 

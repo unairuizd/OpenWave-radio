@@ -3,7 +3,6 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenWave.App.Services;
-using OpenWave.Contracts;
 
 namespace OpenWave.App.ViewModels;
 
@@ -20,9 +19,10 @@ public partial class FavoritosViewModel : ObservableObject
         _playback = playback;
         _session.PropertyChanged += OnSessionPropertyChanged;
         _favorites.FavoritesChanged += (_, _) => RefreshList();
+        _playback.PropertyChanged += OnPlaybackPropertyChanged;
     }
 
-    public ObservableCollection<StationDto> Stations { get; } = [];
+    public ObservableCollection<StationListItem> Stations { get; } = [];
 
     public bool IsLoggedIn => _session.IsLoggedIn;
 
@@ -71,21 +71,21 @@ public partial class FavoritosViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task PlayAsync(StationDto? station)
+    private async Task PlayAsync(StationListItem? item)
     {
-        if (station is null)
+        if (item is null)
         {
             return;
         }
 
-        await _playback.SelectStationAsync(station);
+        await _playback.SelectStationAsync(item.Station);
         await Shell.Current.GoToAsync("//reproductor");
     }
 
     [RelayCommand(AllowConcurrentExecutions = true)]
-    private async Task RemoveAsync(StationDto? station)
+    private async Task RemoveAsync(StationListItem? item)
     {
-        if (station is not null && !await _favorites.RemoveAsync(station))
+        if (item is not null && !await _favorites.RemoveAsync(item.Station))
         {
             await Shell.Current.DisplayAlertAsync("Favoritas", FavoritesService.SaveFailedMessage, "Aceptar");
         }
@@ -137,12 +137,33 @@ public partial class FavoritosViewModel : ObservableObject
         }
 
         // Filtered by the ids, so a removal shows at once and a failed one brings the station back.
+        var currentId = _playback.CurrentStation?.Id;
         foreach (var station in _favorites.Favorites.Where(f => _favorites.IsFavorite(f.Id)))
         {
-            Stations.Add(station);
+            Stations.Add(new StationListItem(station)
+            {
+                PlayCommand = PlayCommand,
+                HeartCommand = RemoveCommand,
+                IsFavorite = true,
+                IsSelected = station.Id == currentId,
+            });
         }
 
         IsEmpty = Stations.Count == 0;
+    }
+
+    private void OnPlaybackPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(PlaybackService.CurrentStation))
+        {
+            return;
+        }
+
+        var currentId = _playback.CurrentStation?.Id;
+        foreach (var item in Stations)
+        {
+            item.IsSelected = item.Station.Id == currentId;
+        }
     }
 
     private void OnSessionPropertyChanged(object? sender, PropertyChangedEventArgs e)

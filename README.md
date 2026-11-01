@@ -1,6 +1,6 @@
 # OpenWave
 
-Cross-platform online radio player for the DEIN course project. An ASP.NET Core API serves the live Radio Browser catalogue and stores user accounts and favourite stations in a remote MySQL database. A .NET MAUI app (Windows and Android) lets you browse, search and listen to stations, create an account, log in and keep your favourites. In `Ajustes` you can save default station filters (country, language, genre and content type) for Inicio, and change the theme, font and text size; both are stored on the device.
+Cross-platform online radio player for the DEIN course project. An ASP.NET Core API serves the live Radio Browser catalogue and stores user accounts and favourite stations in a remote MySQL database. A .NET MAUI app (Windows and Android) lets you browse, search and listen to stations, create an account, log in and keep your favourites. In `Ajustes` (the gear in every page's header) you can save default station filters (country, language, genre and content type) for Inicio, and change the theme, its variant, the font and the text size; both are stored on the device.
 
 ## Requirements
 
@@ -164,7 +164,8 @@ Preferences.Default.Set("api_base_url", "http://192.168.1.10:5080");
 
 ## Search and error states in Inicio
 
-- Type a name in the search box and press Enter or `Buscar`: Inicio lists the stations whose name contains that text. `Limpiar` empties the box and shows the top stations again.
+- Inicio shows the stations as a grid of cards (see [Navigation and layout](#navigation-and-layout)).
+- Type a name in the search box and press Enter or the magnifier (`Buscar`): Inicio lists the stations whose name contains that text. The cross (`Limpiar búsqueda`) empties the box and shows the top stations again.
 - While a request is running, Inicio shows `Cargando emisoras...`.
 - When there are no results and no preference filter is applied, Inicio shows `No se encontraron emisoras.` The search box stays available.
 - When the API cannot be reached, Inicio shows `No hay conexión con el servidor.`
@@ -182,20 +183,37 @@ The saved `Preferencias` (see below) are default filters for Inicio. Every reque
 
 ## Playback in Reproductor
 
-Selecting a station in Inicio opens Reproductor and starts the station's stream with `CommunityToolkit.Maui.MediaElement`. The page shows the station name, country and logo (a local placeholder when there is no logo or it cannot be loaded).
+Selecting a station in Inicio or Favoritos (the card or its play button) opens Reproductor and starts the station's stream with `CommunityToolkit.Maui.MediaElement`. The page shows, from top to bottom:
 
-| Status | Meaning | Button |
+- a large logo (a local placeholder when there is no logo or it cannot be loaded);
+- the station name and its details (country · language · up to three tags) on the left, and the heart on the right;
+- three controls: previous favourite, play/stop in the centre, next favourite;
+- a status line with the state, any notice, and the error with `Reintentar`.
+
+Before any station is selected the page shows `Selecciona una emisora en Inicio` instead of the logo and details, and play/stop is disabled.
+
+| Status | Meaning | Centre control |
 |---|---|---|
-| `Detenido` | Nothing is playing | `Reproducir` |
-| `Cargando…` | The stream is opening or buffering | `Detener` |
-| `Reproduciendo` | Audio is playing | `Detener` |
-| `Error` | The stream could not be opened, did not start within 15 seconds, or stopped unexpectedly | `Reintentar` |
+| `Detenido` | Nothing is playing | Play icon (`Reproducir`) |
+| `Cargando…` | The stream is opening or buffering | Stop icon (`Detener`) |
+| `Reproduciendo` | Audio is playing | Stop icon (`Detener`) |
+| `Error` | The stream could not be opened, did not start within 15 seconds, or stopped unexpectedly | Play icon (`Reproducir`) |
 
-In the `Error` state the page also shows `No se pudo reproducir esta emisora.` `Reintentar` tries the same station again; you can also pick another station in Inicio. Selecting another station stops the previous stream first; selecting the station that is already playing keeps it playing.
+In the `Error` state the status line also shows `No se pudo reproducir esta emisora.` and `Reintentar`, which tries the same station again; the play icon does the same. Selecting another station stops the previous stream first; selecting the station that is already playing keeps it playing.
+
+### Previous and next favourite
+
+The buttons on either side of play/stop (`Emisora favorita anterior` and `Emisora favorita siguiente`) move through your favourites in the `Favoritos` order (newest first) and play the chosen station:
+
+- They wrap: next on the last favourite plays the first, previous on the first plays the last.
+- When the current station is not a favourite (or none is selected), next plays the first favourite and previous the last one.
+- When your only favourite is the current station, nothing changes.
+- With no favourites the status line shows `Aún no tienes emisoras favoritas.`
+- Logged out, they open `Iniciar sesión`; nothing is added to your favourites.
 
 Limitations:
 
-- **Playback is tied to the Reproductor page.** Switching to another tab (Inicio, Favoritos or Ajustes) stops the audio. When you come back, the same station is shown as `Detenido` and you press `Reproducir` to listen again.
+- **Playback is tied to the Reproductor page.** Going to another page (Inicio, Favoritos or Ajustes) stops the audio. When you come back, the same station is shown as `Detenido` and you press `Reproducir` to listen again.
 - **No mini-player** outside Reproductor.
 - **No background playback.** Minimising the app or sending it to the background stops the audio.
 
@@ -224,28 +242,41 @@ Messages on the `Iniciar sesión` and `Crear cuenta` pages:
 
 ## Favourites in the app
 
-Each station in `Inicio` and the station in `Reproductor` show a heart: `♥` when it is one of your favourites, `♡` when it is not or when nobody is logged in.
+Each station card and the station in `Reproductor` show a heart: filled (`Quitar de favoritas`) when it is one of your favourites, outline (`Añadir a favoritas`) when it is not or when nobody is logged in.
 
-- **Adding and removing:** while logged in, press `♡` to add the station and `♥` to remove it. The heart changes at once; it does not select the station, change the page or stop playback. If the change cannot be saved, the heart goes back and the app shows `No se pudo actualizar tus favoritas.`
+- **Adding and removing:** while logged in, press the outline heart to add the station and the filled heart to remove it. The heart changes at once; it does not select the station, change the page or stop playback. If the change cannot be saved, the heart goes back and the app shows `No se pudo actualizar tus favoritas.`
 - **Heart while logged out:** the app opens `Iniciar sesión`. After logging in (or creating an account) the station is added and you return to the screen where you pressed the heart. Going back without logging in adds nothing. In `Reproductor` this stops the audio, because playback is tied to that page.
-- **`Favoritos`:** lists your favourites, newest first, with the name and country. Tap a station to open `Reproductor` and play it, or press `Quitar` to remove it at once (no confirmation). The list reloads from the API every time the page opens.
+- **`Favoritos`:** shows your email and `Cerrar sesión` in a compact row under the header, then your favourites, newest first, as the same cards as Inicio. Tap a card or its play button to open `Reproductor` and play it, or press its filled heart to remove it at once (no confirmation). The station selected in the app is highlighted. The list reloads from the API every time the page opens.
   - While loading it shows `Cargando favoritas...`; with no favourites, `Aún no tienes emisoras favoritas.`
   - If the list cannot be loaded it shows `No hay conexión con el servidor.` or `No se pudo acceder a la base de datos.` with `Reintentar`.
 - **Logging out** empties every heart and the list.
 
+## Navigation and layout
+
+Every page except `Iniciar sesión` and `Crear cuenta` has the same frame, drawn by the active theme:
+
+- **Header:** the page title in upper case, centred, and a gear (`Ajustes`) on the right. The gear opens `Ajustes`; from `Personalización` or `Preferencias` it returns to `Ajustes` (never opening a second one); on `Ajustes` it does nothing.
+- **Bottom bar:** `Inicio`, `Reproductor` and `Favoritos`, each an icon with a label. The current section is marked (screen readers announce, for example, "Inicio, seleccionado"); on `Ajustes`, `Personalización` and `Preferencias` nothing is marked. A button leaves any page, settings included; pressing the current section's button does nothing. The app opens on `Inicio`.
+- Only the content between the header and the bar scrolls.
+
+`Iniciar sesión` and `Crear cuenta` keep the platform header with its back button. The platform's own tab bar is never shown. On Windows, pushed pages (Ajustes and its sub-pages, the login pages) also get the window's back arrow.
+
+**Station cards** (Inicio and Favoritos) are taller than wide: logo, name (bold, up to two lines), details (country · language, then up to three tags, up to two lines; `Desconocido` for a missing country or language), and a row with the play button on the left and the heart on the right. The grid has one column for about every 170 units of width, and never fewer than two. Tapping the card or its play button plays the station; the heart never selects it.
+
+**Icons** are original 24×24 single-colour drawings made for this project (`Resources/Images/ic_*.svg`, see `Icons-LICENSE.txt`, also shipped in the app's `Licences/` folder). They are tinted at runtime with the palette colours, and their size follows the title text size.
+
+**Known limitation (Windows):** after a text size change in `Personalización`, icons on pages that were already open keep their previous size; the text resizes at once. Pages opened afterwards, and every page after restarting the app, show the icons at the new size. The CommunityToolkit tint draws each icon at the size it had when it was first drawn. Android resizes every icon immediately.
+
 ## Ajustes and Personalización
 
-`Ajustes` is the fourth tab, after `Favoritos`. It lists two entries; each opens its own page inside the tab, and the back button returns to `Ajustes`:
-
-- **`Preferencias`**: "País, idioma, género y tipo de contenido que se aplican en Inicio."
-- **`Personalización`**: "Tema, tipo de letra y tamaño del texto."
+`Ajustes` opens from the gear. It shows two full-width cards, `PERSONALIZACIÓN` and `PREFERENCIAS`; each opens its page, and the back button (or the gear) returns to `Ajustes`.
 
 `Personalización` works without an account; logging in or out does not change it.
 
-- **Selectors:** three groups: `Tema` (`Blanco`, `Negro`), `Tipo de letra` (each font name is written in its own font) and `Tamaño del texto` (`Pequeño`, `Normal`, `Grande`, `Muy grande`, `Enorme`). The current choices are selected when the page opens.
-- **No save button:** as the page says ("Los cambios se aplican y se guardan al momento."), every change applies at once to every page, the header and the tabs, and is stored on the device.
+- **Selectors:** `Tema` (every registered theme; today only `Moderno`), `Variante` (`Claro`, `Oscuro`; shown only when the theme has more than one), `Tipo de letra` (each font name is written in its own font) and `Tamaño del texto` (`Pequeño`, `Normal`, `Grande`, `Muy grande`, `Enorme`). The current choices are selected when the page opens.
+- **No save button:** as the page says ("Los cambios se aplican y se guardan al momento."), every change applies at once to every page, the header and the bottom bar, and is stored on the device.
 - **`Vista previa`:** a card with a sample title, body text, secondary text and button in the current theme, font and size.
-- **`Restablecer valores por defecto`:** returns to `Blanco`, `Ubuntu` and `Normal`.
+- **`Restablecer valores por defecto`:** returns to `Moderno` `Claro`, `Ubuntu` and `Normal`.
 
 ## Preferencias
 
@@ -268,26 +299,55 @@ A key is removed when its picker is `Todos`.
 
 ## Themes and fonts
 
-The app's look (theme, font and text size) is set by `AppearanceService` when the app starts, before the first page appears, and it changes the whole app immediately. The choices are stored on the device with MAUI `Preferences`, never in the database, and logging in or out does not change them.
+The app's look (theme, variant, font and text size) is set by `AppearanceService` when the app starts, before the first page appears, and it changes the whole app immediately. The choices are stored on the device with MAUI `Preferences`, never in the database, and logging in or out does not change them.
 
 | Preference key | Default | Values |
 |---|---|---|
-| `appearance_theme` | `white` | `white` (Blanco), `black` (Negro) |
+| `appearance_theme` | `moderno` | `moderno` (Moderno) |
+| `appearance_theme_variant` | `light` | `light` (Claro), `dark` (Oscuro) |
 | `appearance_font` | `Ubuntu` | `Ubuntu`, `Dosis`, `Caladea`, `Cormorant Garamond`, `Recursive`, `Pixelify Sans` |
 | `appearance_font_scale` | `1.0` | `0.85` Pequeño, `1.0` Normal, `1.2` Grande, `1.4` Muy grande, `1.6` Enorme |
 
-A missing, unknown or corrupt stored value falls back to its default. The app does not follow the operating system's light or dark setting.
+The previous version stored `white` (Blanco) or `black` (Negro) in `appearance_theme`. On the first start they become `moderno` with `light` or `dark`, and the new values are written back. Any other missing, unknown or corrupt value falls back to its default (`Moderno` `Claro`, `Ubuntu`, `Normal`). The app does not follow the operating system's light or dark setting.
 
-### Colours
+### Themes
 
-Pages and styles never use literal colours, fonts or sizes. Every style in `Resources/Styles/Styles.xaml` reads them with `DynamicResource`, so a change updates everything at once. The colours live only in the theme files under `Resources/Themes/`, and every theme defines the same keys:
+A theme is three things in `Resources/Themes/`:
 
-`PageBackgroundColor`, `SurfaceColor`, `InputBackgroundColor`, `DividerColor`, `SelectedItemBackgroundColor`, `PrimaryTextColor`, `SecondaryTextColor`, `ErrorTextColor`, `AccentColor`, `AccentTextColor`, `FavoriteIconColor`, `TabBarBackgroundColor`, `TabBarSelectedColor`, `TabBarUnselectedColor`.
+- **Palettes** (one per variant): the colours. Every palette defines the same 14 keys: `PageBackgroundColor`, `SurfaceColor`, `InputBackgroundColor`, `DividerColor`, `SelectedItemBackgroundColor`, `PrimaryTextColor`, `SecondaryTextColor`, `ErrorTextColor`, `AccentColor`, `AccentTextColor`, `FavoriteIconColor`, `TabBarBackgroundColor`, `TabBarSelectedColor`, `TabBarUnselectedColor`.
+- **A layout:** the page templates and the shared pieces: `HeaderTemplate`, `BottomBarTemplate`, `StationCardTemplate`, `InicioTemplate`, `ReproductorTemplate`, `FavoritosTemplate`, `AjustesTemplate` and `SettingsPageTemplate`. Pages pick their template with `DynamicResource`, so switching theme swaps the layout.
+- **An entry in `ThemeCatalog`.**
 
-- **Blanco** (`WhiteTheme.xaml`): white background (`#FFFFFF`), near-black text.
-- **Negro** (`BlackTheme.xaml`): true black background (`#000000`), near-white text and a lighter accent.
+Pages, layouts and styles never contain literal colours, fonts or sizes: colours come only from the palettes, and the font family and sizes only from `Resources/Styles/Styles.xaml` (replaced at runtime by the appearance settings). Themes never set font families or text sizes. The single audio player (`MediaElement`) is the content of `ReproductorPage`, not part of any layout, so a theme change can never duplicate or restart it.
 
-Each theme also sets the light or dark mode of the native controls (text inputs, pickers and dialogs).
+**Moderno** (`ModernoLayout.xaml`) has two variants:
+
+- **Claro** (`ModernoLightPalette.xaml`): white background (`#FFFFFF`), near-black text (the colours of the former Blanco).
+- **Oscuro** (`ModernoDarkPalette.xaml`): true black background (`#000000`), near-white text and a lighter accent (the colours of the former Negro).
+
+Each palette also sets the light or dark mode of the native controls (text inputs, pickers and dialogs).
+
+### Contrast
+
+Every text or icon colour has a contrast ratio of at least 4.5:1 with the background it is drawn on (WCAG relative luminance):
+
+| Where | Pair | Claro | Oscuro |
+|---|---|---|---|
+| Titles, body text, header title | `PrimaryTextColor` on `PageBackgroundColor` | 18.37:1 | 18.79:1 |
+| Card names, Ajustes cards | `PrimaryTextColor` on `SurfaceColor` | 18.37:1 | 16.75:1 |
+| Name on the selected card | `PrimaryTextColor` on `SelectedItemBackgroundColor` | 15.18:1 | 12.38:1 |
+| Search text | `PrimaryTextColor` on `InputBackgroundColor` | 16.44:1 | 15.20:1 |
+| Secondary text, email, notices | `SecondaryTextColor` on `PageBackgroundColor` | 6.80:1 | 10.22:1 |
+| Card details | `SecondaryTextColor` on `SurfaceColor` | 6.80:1 | 9.11:1 |
+| Details on the selected card | `SecondaryTextColor` on `SelectedItemBackgroundColor` | 5.62:1 | 6.74:1 |
+| Search placeholder | `SecondaryTextColor` on `InputBackgroundColor` | 6.08:1 | 8.27:1 |
+| Error messages | `ErrorTextColor` on `PageBackgroundColor` | 6.54:1 | 9.20:1 |
+| Button text, play icon | `AccentTextColor` on `AccentColor` | 5.71:1 | 9.07:1 |
+| Heart on a card | `FavoriteIconColor` on `SurfaceColor` | 5.71:1 | 8.08:1 |
+| Heart on the selected card | `FavoriteIconColor` on `SelectedItemBackgroundColor` | 4.72:1 | 5.97:1 |
+| Heart in Reproductor | `FavoriteIconColor` on `PageBackgroundColor` | 5.71:1 | 9.07:1 |
+| Marked bottom bar button | `TabBarSelectedColor` on `TabBarBackgroundColor` | 5.34:1 | 8.54:1 |
+| Other bottom bar buttons | `TabBarUnselectedColor` on `TabBarBackgroundColor` | 6.36:1 | 7.11:1 |
 
 ### Fonts and text size
 
@@ -304,29 +364,33 @@ The six fonts are bundled in `Resources/Fonts/`, each with its licence file next
 
 The files come from Google's font repository, except the static Cormorant Garamond files, which come from the official Cormorant project. Bold text uses the font's bold file when it has one; the variable fonts contain their own bold weight.
 
-The text size scales four base sizes: caption 12, body 16, subtitle 18 and title 24. For example, `Enorme` makes body text 25.6 and titles 38.4. The header title and the tab labels follow the chosen font and size as well. Shell draws them natively, so `ShellChrome` (with a small file per platform under `Platforms/`) applies the font to them. On Android it also recolours the circles of the radio buttons after a theme change, because Android otherwise keeps the colours of the theme the app started with.
+The text size scales four base sizes: caption 12, body 16, subtitle 18 and title 24. For example, `Enorme` makes body text 25.6 and titles 38.4. Icons are as large as a title letter (24 at `Normal`), inside buttons of at least 48 units. The header of `Iniciar sesión` and `Crear cuenta` is drawn by the platform, so `ShellChrome` gives it a title styled like the rest of the app. On Android `ShellChrome` (with a small file under `Platforms/Android/`) also recolours the circles of the radio buttons after a theme change, because Android otherwise keeps the colours of the theme the app started with.
 
-### Adding a theme
+### How to add a theme
 
-1. Copy `Resources/Themes/WhiteTheme.xaml` and its `.xaml.cs` to a new file, for example `BlueTheme.xaml`, rename the class, and change the colours. Keep every key.
-2. Add one entry to `ThemeCatalog.All` in `Resources/Themes/ThemeCatalog.cs`:
+1. **Palettes:** copy `Resources/Themes/ModernoLightPalette.xaml` and its `.xaml.cs` for each variant (for example `RetroPalette.xaml`), rename the class and change the colours. Keep all 14 keys.
+2. **Layout:** copy `ModernoLayout.xaml` and its `.xaml.cs` (for example `RetroLayout.xaml`), rename the class, and change the templates as you like. Keep every template key and the bindings and commands they use (the page view models, `AppNavigation` for the gear and the bar, the `ContentPresenter` in `ReproductorTemplate` and `SettingsPageTemplate`). Use only palette keys for colours and the named styles for text: never set a font family or a font size.
+3. **Registry:** add one entry to `ThemeCatalog.All` in `ThemeCatalog.cs`:
 
    ```csharp
-   new("blue", "Azul", typeof(BlueTheme), AppTheme.Dark),
+   new("retro", "Retro", typeof(RetroLayout),
+   [
+       new("dark", "Oscuro", typeof(RetroPalette), AppTheme.Dark),
+   ]),
    ```
 
-   The last value tells native controls whether to use their light or dark look.
+   The last value of each palette tells native controls whether to use their light or dark look. With a single palette, `Personalización` hides the `Variante` choice.
 
-No page, style or other code needs to change.
+No page, view model, service or style needs to change; the theme appears in `Personalización` at once.
 
 ## Manual check list
 
 1. Start the API and open `http://localhost:5080/api/health`: `status` is `ok` and `timeUtc` is an ISO 8601 UTC timestamp.
 2. Run the app on Windows or the Android emulator. Inicio lists up to 50 real stations.
 3. Search `jazz`: every listed name contains "jazz". Press `Limpiar`: the box is empty and the top stations return. Search a nonsense name: `No se encontraron emisoras.`
-4. Switch between Inicio, Reproductor, Favoritos and Ajustes.
-5. Select a station in Inicio: Reproductor opens with its name, country and logo (or the placeholder), the status goes `Cargando…` → `Reproduciendo`, and you hear audio. Back in Inicio, that station is highlighted; selecting another one moves the highlight.
-6. In Reproductor, press `Detener`: audio stops and the status shows `Detenido`. Press `Reproducir`: it plays again.
+4. Use the bottom bar to switch between Inicio, Reproductor and Favoritos: the current one is marked. Press the current section's button: nothing changes. Press the gear: `AJUSTES` opens with no bar button marked; press the gear again: nothing changes.
+5. Inicio shows portrait cards: logo, name, details, play button and heart; cards in a row have the same height. Widen the Windows window: more columns appear; narrow it: never fewer than two. Tap a card (or its play button): Reproductor opens with its large logo (or the placeholder), name and details, the status goes `Cargando…` → `Reproduciendo`, and you hear audio. Back in Inicio, that card is highlighted; selecting another one moves the highlight.
+6. In Reproductor, press the stop icon (`Detener`): audio stops, the status shows `Detenido` and the centre shows the play icon. Press it (`Reproducir`): it plays again. Restart the app and open Reproductor first: `Selecciona una emisora en Inicio` and the play/stop control is disabled.
 7. Switch to Favoritos while audio plays: the audio stops. Return to Reproductor: the same station shows `Detenido`. Select another station in Inicio: the new station starts and the old one does not keep playing.
 8. Let Inicio load the list, then turn off the computer's internet connection (on the emulator: turn on airplane mode) and select a station: within 15 seconds the status shows `Error`, `No se pudo reproducir esta emisora.` and `Reintentar`. The app keeps working. Turn the connection back on and press `Reintentar`: the station plays.
 9. Stop the API and relaunch the app: Inicio shows `No hay conexión con el servidor.` with a `Reintentar` button, and the app keeps working. Start the API again and press `Reintentar`: the list loads without restarting the app.
@@ -340,19 +404,23 @@ No page, style or other code needs to change.
 
     Close that terminal (or remove both variables) afterwards to return to the configured mirrors.
 11. Open Favoritos while logged out: it shows `Inicia sesión para ver tus favoritas.` and `Iniciar sesión`. Log in or create an account: you return to Favoritos, which shows your email and `Cerrar sesión`. Press `Cerrar sesión`: the logged-out state returns. Restart the app: it starts logged out.
-12. Log in. In Inicio press `♡` on a station: it becomes `♥` and the page does not change. Play a station and press `♡` in Reproductor: it becomes `♥` and the audio keeps playing.
-13. Open Favoritos: both stations are listed, newest first. Tap one: Reproductor opens and plays it. Press `Quitar` on the other: it disappears, and its heart in Inicio is `♡` again. Remove the last one: `Aún no tienes emisoras favoritas.`
-14. Log out and press `♡` in Inicio: `Iniciar sesión` opens. Go back: nothing is added. Press it again and log in: you return to Inicio with that heart `♥`.
+12. Log in. In Inicio press the outline heart on a card: it fills and the page does not change. Play a station and press its outline heart in Reproductor: it fills and the audio keeps playing.
+13. Open Favoritos: your email and `Cerrar sesión` are in one row under the header, and both stations are listed as cards, newest first, with filled hearts; the playing one is highlighted. Tap one: Reproductor opens and plays it. Press the filled heart of the other: it disappears, and its heart in Inicio is an outline again. Remove the last one: `Aún no tienes emisoras favoritas.`
+14. Log out and press a heart in Inicio: `Iniciar sesión` opens. Go back: nothing is added. Press it again and log in: you return to Inicio with that heart filled.
 15. Stop the API and press a heart while logged in: `No se pudo actualizar tus favoritas.` and the heart goes back. Start the API with an unreachable database (see item 10, using `$env:ConnectionStrings__Default = "Server=<HOST>;Database=2DAM_alumno19;User ID=<USER>;Password=<PASSWORD>;SslMode=Preferred;Connect Timeout=5;"`; keep `Connect Timeout=5` so the API answers before the app's 10-second timeout) and open Favoritos: `No se pudo acceder a la base de datos.` and `Reintentar`. Start the API normally and press `Reintentar`: the list loads.
-16. Press `Cerrar sesión`: every heart in Inicio and Reproductor is `♡`.
-17. Open `Ajustes`: it lists `Preferencias` and `Personalización`. Open each one and go back: you return to `Ajustes`.
-18. In `Personalización` select `Negro`, then `Pixelify Sans`, then `Enorme`: the page, the header and the tabs change at once, and so do Inicio, Reproductor and Favoritos. The text inputs turn dark.
+16. Press `Cerrar sesión`: every heart in Inicio and Reproductor is an outline.
+17. Open `Ajustes` with the gear: it shows the cards `PERSONALIZACIÓN` and `PREFERENCIAS`. Open each one: its header reads `PERSONALIZACIÓN` / `PREFERENCIAS` and no bar button is marked. Go back (Android back button, the window's back arrow on Windows, or the gear): you return to `Ajustes`, and going back once more leaves `Ajustes` (there is never a second one). From `Personalización` press `Favoritos` in the bar: Favoritos opens and is marked.
+18. In `Personalización` select `Oscuro`, then `Pixelify Sans`, then `Enorme`: the page, the header, the bar and the icons change at once, and so do Inicio, Reproductor, Favoritos, `Iniciar sesión` and `Crear cuenta`. The text inputs turn dark. Your session, favourites, selected station and preferences are unchanged, and a station still plays normally (one stream only). With `Enorme` on a phone, no header title or text is cut and Reproductor's controls are reached by scrolling while the header and bar stay fixed.
 19. Close and reopen the app: it starts with the same theme, font and size, and `Personalización` shows them selected. Log in and out: nothing changes.
-20. Press `Restablecer valores por defecto`: the app returns to `Blanco`, `Ubuntu` and `Normal`.
+20. Press `Restablecer valores por defecto`: the app returns to `Moderno` `Claro`, `Ubuntu` and `Normal`.
 21. With every preference at `Todos`, Inicio shows no filter bar. In `Ajustes` → `Preferencias` choose `Spain` as `País` and press `Guardar`: `Preferencias guardadas.` Open Inicio: the list reloads with Spanish stations only, under `Filtros activos` / `Spain`. Search `radio`: every result contains "radio" and is from Spain.
 22. Press `Desactivar`: the list is unfiltered and the bar reads `Preferencias desactivadas` with `Activar`; `Preferencias` still shows `Spain`. Close and reopen the app: the filter is active again. Press `Activar` after another `Desactivar`: the list is filtered again.
 23. Choose `Andorra` and `Deportes` and save: Inicio shows `No se encontraron emisoras con tus preferencias.` with `Desactivar`. Favoritos still lists every favourite, and they still play in Reproductor.
 24. Stop the API and open `Preferencias`: `No hay conexión con el servidor.` and `Reintentar`, and the saved values are not lost. Start the API and press `Reintentar`: the pickers show the saved values. Press `Restablecer`: all four go back to `Todos`.
+25. Log in with three favourites (A newest, then B, then C) and play B from Favoritos. In Reproductor press next: C plays; next again: A (wrap); previous: C. Play a station that is not a favourite: next plays A, previous plays C. Remove two favourites so only the current one is left: next and previous change nothing. Remove it too: previous shows `Aún no tienes emisoras favoritas.` Log out and press next: `Iniciar sesión` opens; go back: nothing is added.
+26. Migration: close the app, set `appearance_theme` to `black` in the preferences file (Windows: `%LOCALAPPDATA%\User Name\com.openwave.app\Settings\preferences.dat`) and start the app: it opens in `Moderno` `Oscuro` and the file now holds `moderno` and `dark`. With `white` it opens in `Claro`; with an unknown value it opens in `Moderno` `Claro` without crashing.
+27. Keyboard (Windows): with Tab you reach the gear, the search box, `Buscar`, `Limpiar búsqueda`, each card's play button and heart, and the bottom bar; the focused control shows an outline, and Enter or Space activates it. On a card's play button, Enter opens Reproductor and plays the station.
+28. Screen reader (Narrator on Windows, TalkBack on Android): the gear is read as `Ajustes`, a card's buttons as `Reproducir <name>` and `Añadir a favoritas` / `Quitar de favoritas`, Reproductor's as `Emisora favorita anterior`, `Reproducir` / `Detener` and `Emisora favorita siguiente`, and the marked bar button with `, seleccionado`.
 
 ## Notes
 

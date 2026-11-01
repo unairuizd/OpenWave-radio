@@ -4,20 +4,37 @@ using OpenWave.App.Resources.Themes;
 namespace OpenWave.App.Services;
 
 /// <summary>
-/// Applies and remembers the theme, font family and text size. Styles read the colour, font and size
-/// resources with DynamicResource, so every change here updates the whole app at once.
+/// Applies and remembers the theme, its palette (variant), the font family and the text size. Styles and
+/// layouts read the colour, font and size resources with DynamicResource, so every change here updates the
+/// whole app at once.
 /// </summary>
 public partial class AppearanceService : ObservableObject
 {
     private const string ThemeKey = "appearance_theme";
+    private const string PaletteKey = "appearance_theme_variant";
     private const string FontKey = "appearance_font";
     private const string ScaleKey = "appearance_font_scale";
     private const double ScaleTolerance = 0.001;
 
-    private ResourceDictionary? _themeDictionary;
+    // The same values as MinTouchTarget and the IconButton padding in Styles.xaml.
+    private const double MinTouchTarget = 48;
+    private const double IconPadding = 12;
+
+    // Theme ids stored by the previous version, which had one dictionary per colour scheme.
+    private static readonly Dictionary<string, (string ThemeId, string PaletteId)> LegacyThemes = new()
+    {
+        ["white"] = (ThemeCatalog.DefaultId, "light"),
+        ["black"] = (ThemeCatalog.DefaultId, "dark"),
+    };
+
+    private ResourceDictionary? _paletteDictionary;
+    private ResourceDictionary? _layoutDictionary;
 
     [ObservableProperty]
     public partial string ThemeId { get; private set; } = ThemeCatalog.DefaultId;
+
+    [ObservableProperty]
+    public partial string PaletteId { get; private set; } = ThemeCatalog.DefaultPaletteId;
 
     [ObservableProperty]
     public partial string FontFamilyId { get; private set; } = AppearanceOptions.DefaultFont;
@@ -31,11 +48,15 @@ public partial class AppearanceService : ObservableObject
     /// </summary>
     public void Initialize()
     {
-        ApplyTheme(ThemeCatalog.Find(ReadString(ThemeKey)) ?? ThemeCatalog.Find(ThemeCatalog.DefaultId)!);
+        var (theme, palette) = ReadStoredTheme();
+        ApplyTheme(theme, palette);
         ApplyFont(FindFont(ReadString(FontKey)) ?? AppearanceOptions.DefaultFont);
         ApplyScale(FindScale(ReadDouble(ScaleKey)) ?? AppearanceOptions.DefaultScale);
     }
 
+    /// <summary>
+    /// Switches to another theme, keeping the current variant when the new theme has it.
+    /// </summary>
     public void SetTheme(string id)
     {
         var theme = ThemeCatalog.Find(id);
@@ -44,8 +65,25 @@ public partial class AppearanceService : ObservableObject
             return;
         }
 
-        ApplyTheme(theme);
-        Preferences.Default.Set(ThemeKey, theme.Id);
+        var palette = theme.FindPalette(PaletteId) ?? theme.Palettes[0];
+        ApplyTheme(theme, palette);
+        StoreTheme(theme, palette);
+    }
+
+    /// <summary>
+    /// Switches to another variant of the current theme.
+    /// </summary>
+    public void SetPalette(string id)
+    {
+        var theme = ThemeCatalog.Find(ThemeId) ?? ThemeCatalog.Default;
+        var palette = theme.FindPalette(id);
+        if (palette is null)
+        {
+            return;
+        }
+
+        ApplyTheme(theme, palette);
+        StoreTheme(theme, palette);
     }
 
     public void SetFontFamily(string name)
@@ -74,27 +112,76 @@ public partial class AppearanceService : ObservableObject
 
     public void ResetToDefaults()
     {
-        SetTheme(ThemeCatalog.DefaultId);
+        var theme = ThemeCatalog.Default;
+        var palette = theme.FindPalette(ThemeCatalog.DefaultPaletteId) ?? theme.Palettes[0];
+        ApplyTheme(theme, palette);
+        StoreTheme(theme, palette);
         SetFontFamily(AppearanceOptions.DefaultFont);
         SetFontScale(AppearanceOptions.DefaultScale);
     }
 
-    private void ApplyTheme(AppThemeDefinition theme)
+    /// <summary>
+    /// The stored theme and palette. Values of the previous version are migrated and written back;
+    /// an unknown theme becomes the default, and an unknown palette the theme's first one.
+    /// </summary>
+    private static (AppThemeDefinition Theme, ThemePalette Palette) ReadStoredTheme()
+    {
+        var themeId = ReadString(ThemeKey);
+        var paletteId = ReadString(PaletteKey);
+
+        if (themeId is not null && LegacyThemes.TryGetValue(themeId, out var migrated))
+        {
+            (themeId, paletteId) = migrated;
+            Preferences.Default.Set(ThemeKey, themeId);
+            Preferences.Default.Set(PaletteKey, paletteId);
+        }
+
+        var theme = ThemeCatalog.Find(themeId);
+        if (theme is null)
+        {
+            theme = ThemeCatalog.Default;
+            paletteId = ThemeCatalog.DefaultPaletteId;
+        }
+
+        return (theme, theme.FindPalette(paletteId) ?? theme.Palettes[0]);
+    }
+
+    private static void StoreTheme(AppThemeDefinition theme, ThemePalette palette)
+    {
+        Preferences.Default.Set(ThemeKey, theme.Id);
+        Preferences.Default.Set(PaletteKey, palette.Id);
+    }
+
+    private void ApplyTheme(AppThemeDefinition theme, ThemePalette palette)
     {
         var app = Application.Current!;
         var merged = app.Resources.MergedDictionaries;
 
-        if (_themeDictionary is not null)
+        if (_paletteDictionary is not null)
         {
-            merged.Remove(_themeDictionary);
+            merged.Remove(_paletteDictionary);
         }
 
-        _themeDictionary = (ResourceDictionary)Activator.CreateInstance(theme.ResourceDictionaryType)!;
-        merged.Add(_themeDictionary);
+        _paletteDictionary = (ResourceDictionary)Activator.CreateInstance(palette.ResourceDictionaryType)!;
+        merged.Add(_paletteDictionary);
 
-        // Native controls (inputs, pickers, dialogs) follow the theme's light or dark mode.
-        app.UserAppTheme = theme.BaseTheme;
+        // The layout (page templates, header, bottom bar, station card) only changes with the theme, not with the
+        // variant, so switching Claro/Oscuro never rebuilds the pages.
+        if (_layoutDictionary?.GetType() != theme.LayoutDictionaryType)
+        {
+            if (_layoutDictionary is not null)
+            {
+                merged.Remove(_layoutDictionary);
+            }
+
+            _layoutDictionary = (ResourceDictionary)Activator.CreateInstance(theme.LayoutDictionaryType)!;
+            merged.Add(_layoutDictionary);
+        }
+
+        // Native controls (inputs, pickers, dialogs) follow the palette's light or dark mode.
+        app.UserAppTheme = palette.BaseTheme;
         ThemeId = theme.Id;
+        PaletteId = palette.Id;
     }
 
     private void ApplyFont(string name)
@@ -112,6 +199,8 @@ public partial class AppearanceService : ObservableObject
         resources["FontSizeBody"] = Math.Round(AppearanceOptions.BodySize * scale, 1);
         resources["FontSizeSubtitle"] = Math.Round(AppearanceOptions.SubtitleSize * scale, 1);
         resources["FontSizeTitle"] = Math.Round(AppearanceOptions.TitleSize * scale, 1);
+        // Icons are as wide as a title letter is high, plus their padding, so they scale with the text.
+        resources["IconButtonSize"] = Math.Max(MinTouchTarget, Math.Round(AppearanceOptions.TitleSize * scale, 1) + 2 * IconPadding);
         FontScale = scale;
     }
 

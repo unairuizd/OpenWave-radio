@@ -7,11 +7,12 @@
     xmlns:themes="clr-namespace:OpenWave.App.Resources.Themes"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:PersonalizacionViewModel"
-    Title="Personalización">
+    Title="Personalización"
+    ControlTemplate="{DynamicResource SettingsPageTemplate}"
+    Shell.NavBarIsVisible="False">
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Style="{StaticResource PageTitleLabel}" Text="Personalización" />
             <Label Style="{StaticResource SecondaryLabel}" Text="Los cambios se aplican y se guardan al momento." />
 
             <!--  Theme  -->
@@ -25,6 +26,21 @@
                         <RadioButton Content="{Binding DisplayName}" Value="{Binding Id}" />
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!--  Variant: only for a theme with more than one palette  -->
+            <VerticalStackLayout IsVisible="{Binding ShowPaletteChoice}" Spacing="12">
+                <Label Style="{StaticResource StationNameLabel}" Text="Variante" />
+                <VerticalStackLayout
+                    BindableLayout.ItemsSource="{Binding Palettes}"
+                    RadioButtonGroup.GroupName="palette"
+                    RadioButtonGroup.SelectedValue="{Binding SelectedPaletteId}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="themes:ThemePalette">
+                            <RadioButton Content="{Binding DisplayName}" Value="{Binding Id}" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
             </VerticalStackLayout>
 
             <!--  Font: each name is written in its own font  -->

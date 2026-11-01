@@ -1,0 +1,11 @@
+OpenWave icons
+==============
+
+The files ic_settings.svg, ic_search.svg, ic_clear.svg, ic_home.svg, ic_player.svg,
+ic_favorites.svg, ic_heart.svg, ic_heart_outline.svg, ic_play.svg, ic_stop.svg,
+ic_previous.svg and ic_next.svg in Resources/Images are original work drawn for the
+OpenWave course project. They are not copied or derived from any icon set.
+
+They are single-colour 24x24 drawings; the app tints them at runtime with the
+colours of the active theme palette. They may be used under the same terms as the
+rest of the OpenWave source code.
