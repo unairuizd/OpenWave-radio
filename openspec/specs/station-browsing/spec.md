@@ -8,13 +8,13 @@ Lets the user browse, search and select real stations in Inicio and understand w
 
 ### Requirement: Station list in Inicio
 
-When the station list loads successfully, `Inicio` SHALL show every station returned by the API, one entry per station: in `Moderno` as a grid of station cards with at least two columns on a phone and more columns on wider windows, and in `Tocadiscos` as the stack of record sleeves. Without an active search, `Inicio` SHALL request and show the top stations from the catalogue.
+When the station list loads successfully, `Inicio` SHALL show every station returned by the API, one entry per station: in `Moderno` as a grid of station cards with at least two columns on a phone and more columns on wider windows, in `Tocadiscos` as the stack of record sleeves, and in every other theme as its theme specification describes. Without an active search, `Inicio` SHALL request and show the top stations from the catalogue.
 
 #### Scenario: API is running
 
 - **WHEN** the API is running and the user opens `Inicio`
-- **THEN** the page lists the stations returned by the API as cards in `Moderno`, or as sleeves in `Tocadiscos`
-- **AND** each visible card, or the focused sleeve's information panel, shows the station name
+- **THEN** the page lists the stations returned by the API as cards in `Moderno`, as sleeves in `Tocadiscos`, or as the entries of the selected theme
+- **AND** each visible card, the focused sleeve's information panel, or each visible entry of the other themes shows the station name
 
 #### Scenario: Loading the list
 
@@ -34,9 +34,8 @@ When the station list loads successfully, `Inicio` SHALL show every station retu
 
 #### Scenario: Up to a hundred stations
 
-- **WHEN** the API returns 100 stations and `Tocadiscos` is selected
-- **THEN** the user can reach every station in the sleeve stack and the page stays responsive
-
+- **WHEN** the API returns 100 stations and any theme other than `Moderno` is selected
+- **THEN** the user can reach every station and the page stays responsive
 ### Requirement: Error state with retry
 
 When the station request fails, `Inicio` SHALL show an error message in Spanish and a `Reintentar` button, and the app SHALL remain usable without crashing. If the API cannot be reached, the message SHALL be `No hay conexión con el servidor.` If the API reports that the catalogue is unavailable, the message SHALL be `No se pudo obtener el catálogo de emisoras.` Activating `Reintentar` SHALL repeat the last request, including the current search term when one is active.
@@ -62,7 +61,7 @@ When the station request fails, `Inicio` SHALL show an error message in Spanish 
 
 ### Requirement: Selecting a station
 
-Selecting a station in `Inicio` SHALL select it and start its stream, stopping the previous one. In `Moderno`, tapping a station card or its play button SHALL also open `Reproductor`. In `Tocadiscos`, pressing the focused sleeve SHALL play the station and stay in `Inicio`, and pressing it again while it is the current station SHALL toggle play and stop.
+Selecting a station in `Inicio` SHALL select it and start its stream, stopping the previous one. In `Moderno`, tapping a station card or its play button SHALL also open `Reproductor`. In `Tocadiscos`, pressing the focused sleeve SHALL play the station and stay in `Inicio`, and pressing it again while it is the current station SHALL toggle play and stop. In every other theme, the play action its theme specification names SHALL behave as the focused sleeve does in `Tocadiscos`.
 
 #### Scenario: Selecting a station
 
@@ -77,6 +76,11 @@ Selecting a station in `Inicio` SHALL select it and start its stream, stopping t
 - **THEN** playback of that station starts
 - **AND** `Inicio` stays on screen and its information panel shows `Cargando…` and then `Reproduciendo`
 
+#### Scenario: Selecting a station in another theme
+
+- **WHEN** the user activates the play action of a station that is not playing in `Radio de válvulas`, `Casete portátil`, `Boombox`, `Mesa de DJ`, `MP3` or `Clásico de rueda`
+- **THEN** playback of that station starts and `Inicio` stays on screen
+- **AND** activating the same action again while it plays stops it
 ### Requirement: Station search by name
 
 `Inicio` SHALL provide a search input that takes the remaining width of its row and SHALL send the entered name to the OpenWave API, together with the saved preference filters while they are applied. The search SHALL run when the user submits the input from the keyboard or activates the search icon button `Buscar`. A clear icon button `Limpiar búsqueda` SHALL clear the input and restore the top stations, still filtered by the applied preferences. The app SHALL NOT call Radio Browser or any other catalogue host directly.
@@ -101,7 +105,7 @@ Selecting a station in `Inicio` SHALL select it and start its stream, stopping t
 
 ### Requirement: Selected station is identifiable
 
-`Inicio` SHALL visibly mark the station currently selected in the app: in `Moderno` with the card highlight, and in `Tocadiscos` with the peeking disc and outline on its sleeve. The mark SHALL move when another station is selected and SHALL be restored when `Inicio` is shown again. `Reproductor` SHALL identify the same station by showing its name and country.
+`Inicio` SHALL visibly mark the station currently selected in the app: in `Moderno` with the card highlight, in `Tocadiscos` with the peeking disc and outline on its sleeve, and in every other theme with the mark its theme specification describes. The mark SHALL move when another station is selected and SHALL be restored when `Inicio` is shown again. `Reproductor` SHALL identify the same station by showing its name and country.
 
 #### Scenario: Highlighting the selected station
 
@@ -119,7 +123,6 @@ Selecting a station in `Inicio` SHALL select it and start its stream, stopping t
 
 - **WHEN** the user leaves `Inicio` and returns to it
 - **THEN** the currently selected station is still highlighted if it is present in the list
-
 ### Requirement: Saved preferences as default filters
 
 While at least one preference is saved and preferences are applied, every station request from `Inicio` SHALL include the saved country, language, genre and content type, each only when it is set, together with the typed name. Preferences SHALL be applied by default every time the app starts. When the saved preferences change, `Inicio` SHALL reload its list the next time it is shown. The preferences SHALL NOT affect `Favoritos` or `Reproductor`.

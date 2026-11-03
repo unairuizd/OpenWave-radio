@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    MP3 "Azul" palette: a dark plastic body, a blue back-lit LCD with light blue text, an inverted cursor row, a light
+    blue accent and mint hearts. The selected-item colour is the cursor row's background. Same colour keys as every
+    palette.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.Mp3AzulPalette"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Pages and surfaces -->
+    <Color x:Key="PageBackgroundColor">#22252B</Color>
+    <Color x:Key="SurfaceColor">#0A2A5C</Color>
+    <Color x:Key="InputBackgroundColor">#0B1220</Color>
+    <Color x:Key="DividerColor">#3A4150</Color>
+    <Color x:Key="SelectedItemBackgroundColor">#1C4E9A</Color>
+
+    <!-- Text -->
+    <Color x:Key="PrimaryTextColor">#D6ECFF</Color>
+    <Color x:Key="SecondaryTextColor">#9DB8D6</Color>
+    <Color x:Key="ErrorTextColor">#FF9A8A</Color>
+
+    <!-- Accent: the OK button; mint hearts -->
+    <Color x:Key="AccentColor">#5CC8FF</Color>
+    <Color x:Key="AccentTextColor">#031A2B</Color>
+    <Color x:Key="FavoriteIconColor">#7CF0C8</Color>
+
+    <!-- The button panel -->
+    <Color x:Key="TabBarBackgroundColor">#16181C</Color>
+    <Color x:Key="TabBarSelectedColor">#5CC8FF</Color>
+    <Color x:Key="TabBarUnselectedColor">#A7B0BE</Color>
+
+</ResourceDictionary>

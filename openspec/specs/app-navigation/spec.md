@@ -74,7 +74,7 @@ The gear SHALL always lead to the main `Ajustes` page. From `Personalización` o
 
 ### Requirement: Bottom bar
 
-Every themed page that shows a bottom bar SHALL show it fixed at the bottom, clear of the system's gesture and navigation areas, with the buttons `Inicio`, `Reproductor` and `Favoritos`, each an icon with a label. The current section's button SHALL be marked, and screen readers SHALL announce which button is selected. On `Ajustes`, `Personalización` and `Preferencias` no button SHALL be marked. In `Moderno` every themed page shows it; in `Tocadiscos` every themed page except `Reproductor` does.
+Every themed page that shows a bottom bar SHALL show it fixed at the bottom, clear of the system's gesture and navigation areas, with the buttons `Inicio`, `Reproductor` and `Favoritos`, each with a label. The current section's button SHALL be marked, and screen readers SHALL announce which button is selected. On `Ajustes`, `Personalización` and `Preferencias` no button SHALL be marked. In `Moderno` and `Clásico de rueda` every themed page shows it; in `Tocadiscos`, `Radio de válvulas`, `Casete portátil`, `Boombox`, `Mesa de DJ` and `MP3` every themed page except `Reproductor` does.
 
 #### Scenario: Marked section
 
@@ -88,10 +88,14 @@ Every themed page that shows a bottom bar SHALL show it fixed at the bottom, cle
 
 #### Scenario: Reproductor without a bar
 
-- **WHEN** the user opens `Reproductor` in `Tocadiscos`
+- **WHEN** the user opens `Reproductor` in `Tocadiscos`, `Radio de válvulas`, `Casete portátil`, `Boombox`, `Mesa de DJ` or `MP3`
 - **THEN** no bottom bar is shown
 - **AND** the house button leads to `Inicio` and the gear to `Ajustes`
 
+#### Scenario: Reproductor with the slim bar
+
+- **WHEN** the user opens `Reproductor` in `Clásico de rueda`
+- **THEN** the slim bottom bar under the wheel shows `Inicio`, `Reproductor` and `Favoritos` with `Reproductor` marked
 ### Requirement: Navigating with the bottom bar
 
 Activating a bottom bar button SHALL show that section from any themed page, including the settings pages, which are left. Activating the button of the section already shown SHALL do nothing.

@@ -38,6 +38,13 @@ public partial class PlaybackService : ObservableObject
     /// </summary>
     public bool IsActive => State is PlaybackState.Buffering or PlaybackState.Playing;
 
+    // Every state change also reaches the page chrome that has no view model with the state.
+    partial void OnStateChanged(PlaybackState value)
+    {
+        PlaybackIndicator.Current.IsActive = IsActive;
+        PlaybackIndicator.Current.StatusText = StatusText;
+    }
+
     public string StatusText => State switch
     {
         PlaybackState.Buffering => "Cargando…",

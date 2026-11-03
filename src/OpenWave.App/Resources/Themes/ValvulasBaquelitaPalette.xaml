@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Radio de válvulas "Baquelita" palette: cream bakelite cabinet, dark brown text, bottle-green magic eye and a dark wooden strip. The selected-item colour is the lit dial window behind the current station. Text on the wooden strip uses the bar colours, never PrimaryTextColor (1.16:1). Same colour keys as every palette.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.ValvulasBaquelitaPalette"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Pages and surfaces -->
+    <Color x:Key="PageBackgroundColor">#EFE3C8</Color>
+    <Color x:Key="SurfaceColor">#F8F0DD</Color>
+    <Color x:Key="InputBackgroundColor">#E2D3B2</Color>
+    <Color x:Key="DividerColor">#B89F78</Color>
+    <Color x:Key="SelectedItemBackgroundColor">#DCCDA8</Color>
+
+    <!-- Text -->
+    <Color x:Key="PrimaryTextColor">#2B1B0E</Color>
+    <Color x:Key="SecondaryTextColor">#5E4630</Color>
+    <Color x:Key="ErrorTextColor">#A3261B</Color>
+
+    <!-- Accent: buttons, magic eye, heart and needle -->
+    <Color x:Key="AccentColor">#2F6B45</Color>
+    <Color x:Key="AccentTextColor">#FFFFFF</Color>
+    <Color x:Key="FavoriteIconColor">#9C2F1F</Color>
+
+    <!-- Wooden strip: header and bottom bar -->
+    <Color x:Key="TabBarBackgroundColor">#3A2616</Color>
+    <Color x:Key="TabBarSelectedColor">#F2C46D</Color>
+    <Color x:Key="TabBarUnselectedColor">#E8DCC2</Color>
+
+</ResourceDictionary>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Boombox "Cromado" palette: a black plastic body, gunmetal panels, chrome trim, hot pink keys, cyan display digits
+    and yellow hearts. The selected-item colour is the pink outline of the current station. Same colour keys as every
+    palette.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.BoomboxCromadoPalette"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Pages and surfaces -->
+    <Color x:Key="PageBackgroundColor">#18181B</Color>
+    <Color x:Key="SurfaceColor">#2A2B30</Color>
+    <Color x:Key="InputBackgroundColor">#0B0B0D</Color>
+    <Color x:Key="DividerColor">#4A4C54</Color>
+    <Color x:Key="SelectedItemBackgroundColor">#FF5FA2</Color>
+
+    <!-- Text -->
+    <Color x:Key="PrimaryTextColor">#F3F4F6</Color>
+    <Color x:Key="SecondaryTextColor">#B8BCC6</Color>
+    <Color x:Key="ErrorTextColor">#FF8A80</Color>
+
+    <!-- Accent: hot pink keys and the meter's peak; yellow hearts -->
+    <Color x:Key="AccentColor">#FF4F9A</Color>
+    <Color x:Key="AccentTextColor">#1A0010</Color>
+    <Color x:Key="FavoriteIconColor">#FFD23F</Color>
+
+    <!-- The chassis: cyan display digits and LEDs, chrome trim and memory buttons -->
+    <Color x:Key="TabBarBackgroundColor">#0F0F11</Color>
+    <Color x:Key="TabBarSelectedColor">#3FE0D0</Color>
+    <Color x:Key="TabBarUnselectedColor">#C9CCD3</Color>
+
+</ResourceDictionary>

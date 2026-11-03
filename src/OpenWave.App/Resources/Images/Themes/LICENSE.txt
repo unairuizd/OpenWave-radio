@@ -1,0 +1,16 @@
+OpenWave - art of the six retro themes
+======================================
+
+All the art of the Radio de válvulas, Casete portátil, Boombox, Mesa de DJ, MP3 and
+Clásico de rueda themes (cabinets, dials, needles, knobs, magic eye, keys, grilles,
+cassettes, reels, speakers, meters, pads, platters, screens, wheels and every other
+shape in their layouts) is original work drawn for the OpenWave course project. It is
+drawn as vector shapes in XAML and C# (Resources/Themes/ and Views/Controls/) and takes
+every colour from the theme palettes.
+
+It is not copied or derived from the design, logo or name of any real radio, cassette
+player, music player, DJ equipment or brand, and it uses no third-party glyphs or images.
+
+The themes also reuse the OpenWave icons in Resources/Images (see Icons-LICENSE.txt).
+
+It may be used under the same terms as the rest of the OpenWave source code.

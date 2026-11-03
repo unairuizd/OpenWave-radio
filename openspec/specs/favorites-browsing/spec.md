@@ -8,7 +8,7 @@ Lets a logged-in user mark stations as favourites from `Inicio` and `Reproductor
 
 ### Requirement: Favourite toggle on stations
 
-Every station shown in `Inicio` and the selected station in `Reproductor` SHALL have a heart toggle: on each card in `Moderno`, and next to the name in the information panel in `Tocadiscos`. It SHALL appear as a filled heart when the station is one of the logged-in user's stored favourites, and as an outline heart when it is not or when no user is logged in. Its accessible name SHALL be `Quitar de favoritas` when filled and `Añadir a favoritas` when outlined.
+Every station shown in `Inicio` and the selected station in `Reproductor` SHALL have a heart toggle: on each card in `Moderno`, next to the name in the information panel in `Tocadiscos`, and where its theme specification places it in every other theme. It SHALL appear as a filled heart when the station is one of the logged-in user's stored favourites, and as an outline heart when it is not or when no user is logged in. Its accessible name SHALL be `Quitar de favoritas` when filled and `Añadir a favoritas` when outlined.
 
 #### Scenario: Favourites loaded after login
 
@@ -20,7 +20,6 @@ Every station shown in `Inicio` and the selected station in `Reproductor` SHALL 
 
 - **WHEN** no user is logged in
 - **THEN** every heart in `Inicio` and `Reproductor` is an outline heart
-
 ### Requirement: Toggling a favourite while logged in
 
 When a logged-in user activates an empty heart, the app SHALL add the station to their favourites through the API and fill the heart. Activating a filled heart SHALL remove it and empty the heart. Activating the toggle SHALL NOT select or play the station.
@@ -71,7 +70,7 @@ The heart state SHALL match the stored favourites in every screen. A change made
 
 ### Requirement: Favoritos list
 
-For a logged-in user, `Favoritos` SHALL show their favourite stations newest first, in the same presentation as `Inicio`: cards in a grid in `Moderno`, the sleeve stack in `Tocadiscos`. While loading it SHALL show a loading indicator, and when the user has none it SHALL show `Aún no tienes emisoras favoritas.` The logged-in email and `Cerrar sesión` SHALL be shown in one compact row directly under the header.
+For a logged-in user, `Favoritos` SHALL show their favourite stations newest first, in the presentation its theme gives it: cards in a grid in `Moderno`, the sleeve stack in `Tocadiscos`, and in every other theme as its theme specification describes. While loading it SHALL show a loading indicator, and when the user has none it SHALL show `Aún no tienes emisoras favoritas.` The logged-in email and `Cerrar sesión` SHALL be shown in one compact row directly under the header.
 
 #### Scenario: User with favourites
 
@@ -84,7 +83,6 @@ For a logged-in user, `Favoritos` SHALL show their favourite stations newest fir
 
 - **WHEN** a logged-in user with no favourites opens `Favoritos`
 - **THEN** the page shows `Aún no tienes emisoras favoritas.`
-
 ### Requirement: Favoritos errors with retry
 
 When the favourites cannot be loaded, `Favoritos` SHALL show a Spanish error and a `Reintentar` button that loads them again. The message SHALL be `No hay conexión con el servidor.` when the API cannot be reached and `No se pudo acceder a la base de datos.` when the API reports that the database is unavailable.
@@ -112,7 +110,7 @@ When no user is logged in, `Favoritos` SHALL show `Inicia sesión para ver tus f
 
 ### Requirement: Playing a favourite
 
-Playing a station from `Favoritos` SHALL behave exactly as selecting a station in `Inicio` does in the same theme: in `Moderno` a card or its play button selects it, opens `Reproductor` and starts its playback; in `Tocadiscos` the focused sleeve starts it and the page stays on `Favoritos`.
+Playing a station from `Favoritos` SHALL behave exactly as selecting a station in `Inicio` does in the same theme: in `Moderno` a card or its play button selects it, opens `Reproductor` and starts its playback; in `Tocadiscos` the focused sleeve starts it and the page stays on `Favoritos`; in every other theme the play action its theme specification names starts it and the page stays on `Favoritos`.
 
 #### Scenario: Playing from Favoritos
 
@@ -125,9 +123,13 @@ Playing a station from `Favoritos` SHALL behave exactly as selecting a station i
 - **WHEN** a logged-in user presses the focused sleeve in `Favoritos` in `Tocadiscos`
 - **THEN** its playback starts and `Favoritos` stays on screen
 
+#### Scenario: Playing from Favoritos in another theme
+
+- **WHEN** a logged-in user activates the play action of a favourite in `MP3`
+- **THEN** its playback starts and `Favoritos` stays on screen
 ### Requirement: Removing a favourite from Favoritos
 
-The filled heart of a station in `Favoritos` (on its card, or in the information panel in `Tocadiscos`) SHALL remove the station immediately, without confirmation, and update the list. If removal fails, the station SHALL stay in the list and the app SHALL show `No se pudo actualizar tus favoritas.`
+The filled heart of a station in `Favoritos` (on its card, in the information panel in `Tocadiscos`, or where its theme specification places it in every other theme) SHALL remove the station immediately, without confirmation, and update the list. If removal fails, the station SHALL stay in the list and the app SHALL show `No se pudo actualizar tus favoritas.`
 
 #### Scenario: Removing a favourite
 

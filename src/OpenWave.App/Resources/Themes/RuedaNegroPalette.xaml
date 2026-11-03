@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Clásico de rueda "Negro" palette: a black body, a dark screen, near-white text and a dark blue highlighted menu row. Its accent is a deep blue with white text, so the highlighted row text is AccentTextColor in both palettes (the brief light-blue accent with dark text is kept for the hearts and the marked bar item). Same colour keys as every palette.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.RuedaNegroPalette"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Pages and surfaces -->
+    <Color x:Key="PageBackgroundColor">#232427</Color>
+    <Color x:Key="SurfaceColor">#0F1215</Color>
+    <Color x:Key="InputBackgroundColor">#2E3034</Color>
+    <Color x:Key="DividerColor">#45484E</Color>
+    <Color x:Key="SelectedItemBackgroundColor">#2556A8</Color>
+
+    <!-- Text -->
+    <Color x:Key="PrimaryTextColor">#F0F2F4</Color>
+    <Color x:Key="SecondaryTextColor">#A9AEB5</Color>
+    <Color x:Key="ErrorTextColor">#FF8A80</Color>
+
+    <!-- Accent: buttons; AccentTextColor is also the text of the highlighted menu row; hearts -->
+    <Color x:Key="AccentColor">#2E63C0</Color>
+    <Color x:Key="AccentTextColor">#FFFFFF</Color>
+    <Color x:Key="FavoriteIconColor">#6FA4FF</Color>
+
+    <!-- The wheel area and the slim bar -->
+    <Color x:Key="TabBarBackgroundColor">#18191B</Color>
+    <Color x:Key="TabBarSelectedColor">#6FA4FF</Color>
+    <Color x:Key="TabBarUnselectedColor">#A9AEB5</Color>
+
+</ResourceDictionary>

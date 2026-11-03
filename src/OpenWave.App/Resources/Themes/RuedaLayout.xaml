@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Clásico de rueda layout: a mid-2000s pocket player with a screen of menus and a round click wheel. Stations and
+    favourites are menus moved through with the wheel, and the player is a "now playing" screen. No brand name or logo
+    appears. Colours come from the active palette and fonts and sizes from Styles.xaml, always through DynamicResource
+    or the named styles: this layout never sets a colour, font family or font size itself. It defines every key itself
+    and does not use another layout.
+
+    Keys every layout defines: HeaderTemplate, BottomBarTemplate, StationCardTemplate, InicioTemplate,
+    ReproductorTemplate, FavoritosTemplate, AjustesTemplate and SettingsPageTemplate. Personalización also reads the
+    optional SettingsPanelStyle. Clásico de rueda adds ReproductorHeaderTemplate (the same title bar).
+
+    Inicio, Reproductor and Favoritos are a device centred with a maximum width: the screen on top (with the title bar
+    inside it), the wheel under it (its size never depends on the text size) and the slim bottom bar under the wheel.
+    The highlighted menu row's text is AccentTextColor in both palettes. The title bar's play-state glyph comes from
+    PlaybackIndicator.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.RuedaLayout"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:behaviors="clr-namespace:OpenWave.App.Behaviors"
+    xmlns:controls="clr-namespace:OpenWave.App.Views.Controls"
+    xmlns:services="clr-namespace:OpenWave.App.Services"
+    xmlns:views="clr-namespace:OpenWave.App.Views"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels">
+
+    <!--  Styles of this layout (colours from palette keys only; fonts and sizes from the shared styles)  -->
+
+    <!--  The screen inside the body  -->
+    <Style x:Key="RuedaScreen" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
+        <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+        <Setter Property="StrokeThickness" Value="3" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="10" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  A menu line that is a control of its own (Ajustes entries, the account row)  -->
+    <Style
+        x:Key="RuedaMenuButton"
+        BasedOn="{StaticResource SettingsCardButton}"
+        TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+        <Setter Property="BorderColor" Value="{DynamicResource DividerColor}" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="TextTransform" Value="None" />
+    </Style>
+
+    <!--  The play state on the Reproduciendo screen, or the error colour for "Error"  -->
+    <Style
+        x:Key="RuedaStatusLabel"
+        BasedOn="{StaticResource SecondaryLabel}"
+        TargetType="Label">
+        <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamilyBold}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Style.Triggers>
+            <Trigger TargetType="Label" Property="Text" Value="Error">
+                <Setter Property="TextColor" Value="{DynamicResource ErrorTextColor}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--
+        The panel that holds Personalización and Preferencias: the screen's frame. It keeps the page colour because the
+        shared radio button style paints each option with it.
+    -->
+    <Style x:Key="SettingsPanelStyle" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}" />
+        <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+        <Setter Property="StrokeThickness" Value="3" />
+        <Setter Property="Margin" Value="12,10" />
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="10" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+        Header: the screen's title bar. A play-state glyph on the left (▶ while a station is buffering or playing, ❙❙
+        otherwise; decoration), the title in upper case centred on the full width, and the gear on the right.
+    -->
+    <ControlTemplate x:Key="HeaderTemplate">
+        <Grid
+            BackgroundColor="{DynamicResource SurfaceColor}"
+            ColumnDefinitions="Auto,*,Auto"
+            RowDefinitions="Auto,Auto">
+            <Label
+                Grid.Column="0"
+                AutomationProperties.IsInAccessibleTree="False"
+                HorizontalTextAlignment="Center"
+                Style="{StaticResource StationNameLabel}"
+                Text="❙❙"
+                VerticalOptions="Center"
+                WidthRequest="{DynamicResource IconButtonSize}">
+                <Label.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsActive, Source={x:Static services:PlaybackIndicator.Current}, x:DataType=services:PlaybackIndicator}"
+                        TargetType="Label"
+                        Value="True">
+                        <Setter Property="Text" Value="▶" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label
+                Grid.Column="1"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="WordWrap"
+                MaxLines="2"
+                SemanticProperties.HeadingLevel="Level1"
+                Style="{StaticResource HeaderTitleLabel}"
+                Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
+                TextTransform="Uppercase"
+                VerticalOptions="Center" />
+            <ImageButton
+                Grid.Column="2"
+                Margin="0,2,2,2"
+                behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                Command="{x:Static services:AppNavigation.OpenAjustesCommand}"
+                SemanticProperties.Description="Ajustes"
+                Source="ic_settings.png"
+                Style="{StaticResource IconButton}"
+                ToolTipProperties.Text="Ajustes" />
+            <BoxView
+                Grid.Row="1"
+                Grid.ColumnSpan="3"
+                HeightRequest="1"
+                Color="{DynamicResource DividerColor}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--  Reproductor's header: the same title bar (MENÚ on the wheel and the slim bar lead back to Inicio)  -->
+    <ControlTemplate x:Key="ReproductorHeaderTemplate">
+        <ContentView ControlTemplate="{StaticResource HeaderTemplate}" />
+    </ControlTemplate>
+
+    <!--
+        The slim bottom bar (the template of a views:BottomBar), under the wheel on every page: three small text buttons;
+        the current section is bold in the marked colour with an underline. Both looks are set by triggers, because a
+        value set directly would win.
+    -->
+    <ControlTemplate x:Key="BottomBarTemplate">
+        <Grid
+            Padding="0,2,0,4"
+            BackgroundColor="{DynamicResource TabBarBackgroundColor}"
+            ColumnDefinitions="*,*,*"
+            RowDefinitions="Auto,Auto">
+            <Button
+                Grid.Column="0"
+                Padding="4,8"
+                BackgroundColor="Transparent"
+                BorderWidth="0"
+                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
+                CommandParameter="inicio"
+                FontFamily="{DynamicResource AppFontFamily}"
+                FontSize="{DynamicResource FontSizeCaption}"
+                MinimumHeightRequest="{StaticResource MinTouchTarget}"
+                Text="Inicio"
+                TextColor="{DynamicResource TabBarUnselectedColor}">
+                <Button.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Button"
+                        Value="False">
+                        <Setter Property="SemanticProperties.Description" Value="Inicio" />
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Button"
+                        Value="True">
+                        <Setter Property="TextColor" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamilyBold}" />
+                        <Setter Property="FontAttributes" Value="Bold" />
+                        <Setter Property="SemanticProperties.Description" Value="Inicio, seleccionado" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <BoxView
+                Grid.Row="1"
+                Grid.Column="0"
+                Margin="40,0"
+                HeightRequest="2"
+                IsVisible="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                Color="{DynamicResource TabBarSelectedColor}" />
+
+            <Button
+                Grid.Column="1"
+                Padding="4,8"
+                BackgroundColor="Transparent"
+                BorderWidth="0"
+                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
+                CommandParameter="reproductor"
+                FontFamily="{DynamicResource AppFontFamily}"
+                FontSize="{DynamicResource FontSizeCaption}"
+                MinimumHeightRequest="{StaticResource MinTouchTarget}"
+                Text="Reproductor"
+                TextColor="{DynamicResource TabBarUnselectedColor}">
+                <Button.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Button"
+                        Value="False">
+                        <Setter Property="SemanticProperties.Description" Value="Reproductor" />
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Button"
+                        Value="True">
+                        <Setter Property="TextColor" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamilyBold}" />
+                        <Setter Property="FontAttributes" Value="Bold" />
+                        <Setter Property="SemanticProperties.Description" Value="Reproductor, seleccionado" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <BoxView
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="40,0"
+                HeightRequest="2"
+                IsVisible="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                Color="{DynamicResource TabBarSelectedColor}" />
+
+            <Button
+                Grid.Column="2"
+                Padding="4,8"
+                BackgroundColor="Transparent"
+                BorderWidth="0"
+                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
+                CommandParameter="favoritos"
+                FontFamily="{DynamicResource AppFontFamily}"
+                FontSize="{DynamicResource FontSizeCaption}"
+                MinimumHeightRequest="{StaticResource MinTouchTarget}"
+                Text="Favoritos"
+                TextColor="{DynamicResource TabBarUnselectedColor}">
+                <Button.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Button"
+                        Value="False">
+                        <Setter Property="SemanticProperties.Description" Value="Favoritos" />
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Button"
+                        Value="True">
+                        <Setter Property="TextColor" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamilyBold}" />
+                        <Setter Property="FontAttributes" Value="Bold" />
+                        <Setter Property="SemanticProperties.Description" Value="Favoritos, seleccionado" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <BoxView
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="40,0"
+                HeightRequest="2"
+                IsVisible="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                Color="{DynamicResource TabBarSelectedColor}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--  Preferencias (and any page without its own frame): the title bar, the screen frame, the slim bar  -->
+    <ControlTemplate x:Key="SettingsPageTemplate">
+        <Grid BackgroundColor="{DynamicResource PageBackgroundColor}" RowDefinitions="Auto,*,Auto">
+            <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+            <Border Grid.Row="1" Style="{StaticResource SettingsPanelStyle}">
+                <ContentPresenter />
+            </Border>
+            <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--
+        A menu row (the station item, a CursorList row): the play-state glyph when it is the current station, the name,
+        the heart and `›`. The cursor row is highlighted with white (AccentTextColor) text and icons.
+    -->
+    <DataTemplate x:Key="StationCardTemplate" x:DataType="vm:StationListItem">
+        <Grid
+            Padding="10,4"
+            ColumnDefinitions="Auto,*,Auto,Auto"
+            ColumnSpacing="6"
+            MinimumHeightRequest="{StaticResource MinTouchTarget}">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Transparent" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="{DynamicResource SelectedItemBackgroundColor}" />
+                                <Setter TargetName="Glyph" Property="Label.TextColor" Value="{DynamicResource AccentTextColor}" />
+                                <Setter TargetName="Name" Property="Label.TextColor" Value="{DynamicResource AccentTextColor}" />
+                                <Setter TargetName="Chevron" Property="Label.TextColor" Value="{DynamicResource AccentTextColor}" />
+                                <Setter TargetName="Heart" Property="behaviors:IconTint.Color" Value="{DynamicResource AccentTextColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </VisualStateManager.VisualStateGroups>
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding TapCommand, Source={RelativeSource AncestorType={x:Type controls:CursorList}}, x:DataType=controls:CursorList}" CommandParameter="{Binding .}" />
+            </Grid.GestureRecognizers>
+            <Label
+                x:Name="Glyph"
+                Grid.Column="0"
+                IsVisible="{Binding IsSelected}"
+                Style="{StaticResource StationNameLabel}"
+                Text="❙❙"
+                VerticalOptions="Center">
+                <Label.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsActive, Source={x:Static services:PlaybackIndicator.Current}, x:DataType=services:PlaybackIndicator}"
+                        TargetType="Label"
+                        Value="True">
+                        <Setter Property="Text" Value="▶" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <Label
+                x:Name="Name"
+                Grid.Column="1"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
+                Style="{StaticResource StationNameLabel}"
+                Text="{Binding Station.Name}"
+                VerticalOptions="Center" />
+            <ImageButton
+                x:Name="Heart"
+                Grid.Column="2"
+                behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                Command="{Binding HeartCommand}"
+                CommandParameter="{Binding .}"
+                Style="{StaticResource IconButton}"
+                VerticalOptions="Center">
+                <ImageButton.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsFavorite}"
+                        TargetType="ImageButton"
+                        Value="False">
+                        <Setter Property="Source" Value="ic_heart_outline.png" />
+                        <Setter Property="SemanticProperties.Description" Value="Añadir a favoritas" />
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsFavorite}"
+                        TargetType="ImageButton"
+                        Value="True">
+                        <Setter Property="Source" Value="ic_heart.png" />
+                        <Setter Property="SemanticProperties.Description" Value="Quitar de favoritas" />
+                    </DataTrigger>
+                </ImageButton.Triggers>
+            </ImageButton>
+            <Label
+                x:Name="Chevron"
+                Grid.Column="3"
+                AutomationProperties.IsInAccessibleTree="False"
+                Style="{StaticResource StationNameLabel}"
+                Text="›"
+                VerticalOptions="Center" />
+        </Grid>
+    </DataTemplate>
+
+    <!--
+        Page templates. Templated content does not inherit the page's view model, so each root takes the page's
+        BindingContext. The device (screen, wheel, slim bar) is centred with a maximum width.
+    -->
+    <ControlTemplate x:Key="InicioTemplate">
+        <Grid
+            x:DataType="vm:InicioViewModel"
+            BackgroundColor="{DynamicResource PageBackgroundColor}"
+            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}">
+            <Grid
+                Padding="12,10,12,0"
+                MaximumWidthRequest="520"
+                RowDefinitions="*,Auto,Auto"
+                RowSpacing="8">
+
+                <!--  The screen: title bar, search and filter rows, then the Emisoras menu (the states replace it)  -->
+                <Border Grid.Row="0" Style="{StaticResource RuedaScreen}">
+                    <Grid RowDefinitions="Auto,Auto,Auto,*">
+                        <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+                        <Grid
+                            Grid.Row="1"
+                            Padding="8,4"
+                            ColumnDefinitions="*,Auto,Auto"
+                            ColumnSpacing="2">
+                            <Entry
+                                Grid.Column="0"
+                                Placeholder="Buscar emisora..."
+                                ReturnCommand="{Binding SearchCommand}"
+                                ReturnType="Search"
+                                SemanticProperties.Description="Buscar emisora"
+                                Text="{Binding SearchText}"
+                                VerticalOptions="Center" />
+                            <ImageButton
+                                Grid.Column="1"
+                                behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                                Command="{Binding SearchCommand}"
+                                SemanticProperties.Description="Buscar"
+                                Source="ic_search.png"
+                                Style="{StaticResource IconButton}"
+                                ToolTipProperties.Text="Buscar" />
+                            <ImageButton
+                                Grid.Column="2"
+                                behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                                Command="{Binding ClearSearchCommand}"
+                                SemanticProperties.Description="Limpiar búsqueda"
+                                Source="ic_clear.png"
+                                Style="{StaticResource IconButton}"
+                                ToolTipProperties.Text="Limpiar búsqueda" />
+                        </Grid>
+                        <Grid
+                            Grid.Row="2"
+                            Padding="10,2,10,6"
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="8"
+                            IsVisible="{Binding ShowFilterBar}">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                IsVisible="{Binding FiltersApplied}"
+                                VerticalOptions="Center">
+                                <Label Style="{StaticResource StationNameLabel}" Text="Filtros activos" />
+                                <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
+                            </VerticalStackLayout>
+                            <Label
+                                Grid.Column="0"
+                                IsVisible="{Binding FiltersNotApplied}"
+                                Style="{StaticResource StationNameLabel}"
+                                Text="Preferencias desactivadas"
+                                VerticalOptions="Center" />
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding DeactivateFiltersCommand}"
+                                IsVisible="{Binding FiltersApplied}"
+                                Text="Desactivar"
+                                VerticalOptions="Center" />
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding ActivateFiltersCommand}"
+                                IsVisible="{Binding FiltersNotApplied}"
+                                Text="Activar"
+                                VerticalOptions="Center" />
+                        </Grid>
+
+                        <controls:CursorList
+                            x:Name="Menu"
+                            Grid.Row="3"
+                            ActivateCommand="{Binding PlayHereCommand}"
+                            FocusOnReset="First"
+                            ItemIsCurrentPath="IsSelected"
+                            ItemTemplate="{StaticResource StationCardTemplate}"
+                            ItemsSource="{Binding Stations}" />
+
+                        <VerticalStackLayout
+                            Grid.Row="3"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding IsLoading}"
+                            Spacing="8"
+                            VerticalOptions="Center">
+                            <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                            <Label Style="{StaticResource SecondaryLabel}" Text="Cargando emisoras..." />
+                        </VerticalStackLayout>
+
+                        <Label
+                            Grid.Row="3"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            IsVisible="{Binding IsEmptyPlain}"
+                            Style="{StaticResource SecondaryLabel}"
+                            Text="No se encontraron emisoras."
+                            VerticalOptions="Center" />
+
+                        <VerticalStackLayout
+                            Grid.Row="3"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding IsEmptyWithPreferences}"
+                            Spacing="12"
+                            VerticalOptions="Center">
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="No se encontraron emisoras con tus preferencias." />
+                            <Button
+                                Command="{Binding DeactivateFiltersCommand}"
+                                HorizontalOptions="Center"
+                                Text="Desactivar" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout
+                            Grid.Row="3"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding HasError}"
+                            Spacing="12"
+                            VerticalOptions="Center">
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                Style="{StaticResource ErrorLabel}"
+                                Text="{Binding ErrorMessage}" />
+                            <Button
+                                Command="{Binding RetryCommand}"
+                                HorizontalOptions="Center"
+                                Text="Reintentar" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!--  The wheel: it moves the menu cursor; MENÚ is disabled here  -->
+                <controls:ClickWheel
+                    Grid.Row="1"
+                    CenterCommand="{Binding ActivateCursorCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                    IsMenuEnabled="False"
+                    MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
+                    MenuCommandParameter="inicio"
+                    NextCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                    PlayPauseCommand="{Binding ActivateCurrentCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                    PreviousCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                    ScrollStepCommand="{Binding MoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}" />
+
+                <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
+            </Grid>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="FavoritosTemplate">
+        <Grid
+            x:DataType="vm:FavoritosViewModel"
+            BackgroundColor="{DynamicResource PageBackgroundColor}"
+            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}">
+            <Grid
+                Padding="12,10,12,0"
+                MaximumWidthRequest="520"
+                RowDefinitions="*,Auto,Auto"
+                RowSpacing="8">
+
+                <!--  The screen: title bar, the account row, then the Favoritas menu (the states replace it)  -->
+                <Border Grid.Row="0" Style="{StaticResource RuedaScreen}">
+                    <Grid RowDefinitions="Auto,Auto,*">
+                        <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+                        <Grid
+                            Grid.Row="1"
+                            Padding="10,6"
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="8"
+                            IsVisible="{Binding IsLoggedIn}">
+                            <Label
+                                Grid.Column="0"
+                                LineBreakMode="TailTruncation"
+                                MaxLines="1"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="{Binding Email}"
+                                VerticalOptions="Center" />
+                            <Button
+                                Grid.Column="1"
+                                Padding="12,4"
+                                Command="{Binding LogOutCommand}"
+                                Text="Cerrar sesión" />
+                        </Grid>
+
+                        <controls:CursorList
+                            x:Name="Menu"
+                            Grid.Row="2"
+                            ActivateCommand="{Binding PlayHereCommand}"
+                            FocusOnReset="KeepPosition"
+                            IsVisible="{Binding IsLoggedIn}"
+                            ItemIsCurrentPath="IsSelected"
+                            ItemTemplate="{StaticResource StationCardTemplate}"
+                            ItemsSource="{Binding Stations}" />
+
+                        <!--  Logged out: the text and an Iniciar sesión row  -->
+                        <VerticalStackLayout
+                            Grid.Row="2"
+                            Padding="10"
+                            IsVisible="{Binding IsLoggedOut}"
+                            Spacing="12"
+                            VerticalOptions="Center">
+                            <Label HorizontalTextAlignment="Center" Text="Inicia sesión para ver tus favoritas." />
+                            <Button
+                                Command="{Binding LogInCommand}"
+                                Style="{StaticResource RuedaMenuButton}"
+                                Text="Iniciar sesión" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout
+                            Grid.Row="2"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding IsLoading}"
+                            Spacing="8"
+                            VerticalOptions="Center">
+                            <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                            <Label Style="{StaticResource SecondaryLabel}" Text="Cargando favoritas..." />
+                        </VerticalStackLayout>
+
+                        <Label
+                            Grid.Row="2"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            IsVisible="{Binding IsEmpty}"
+                            Style="{StaticResource SecondaryLabel}"
+                            Text="Aún no tienes emisoras favoritas."
+                            VerticalOptions="Center" />
+
+                        <VerticalStackLayout
+                            Grid.Row="2"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding HasError}"
+                            Spacing="12"
+                            VerticalOptions="Center">
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                Style="{StaticResource ErrorLabel}"
+                                Text="{Binding ErrorMessage}" />
+                            <Button
+                                Command="{Binding RetryCommand}"
+                                HorizontalOptions="Center"
+                                Text="Reintentar" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!--  The wheel: it moves the menu cursor; MENÚ opens Inicio  -->
+                <controls:ClickWheel
+                    Grid.Row="1"
+                    CenterCommand="{Binding ActivateCursorCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                    MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
+                    MenuCommandParameter="inicio"
+                    NextCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                    PlayPauseCommand="{Binding ActivateCurrentCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                    PreviousCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                    ScrollStepCommand="{Binding MoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}" />
+
+                <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
+            </Grid>
+        </Grid>
+    </ControlTemplate>
+
+    <!--  Ajustes: a screen menu with one line per entry, the title bar and the slim bar  -->
+    <ControlTemplate x:Key="AjustesTemplate">
+        <Grid
+            x:DataType="vm:AjustesViewModel"
+            BackgroundColor="{DynamicResource PageBackgroundColor}"
+            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
+            RowDefinitions="Auto,*,Auto">
+            <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+
+            <ScrollView Grid.Row="1">
+                <Border
+                    Margin="16,20"
+                    MaximumWidthRequest="520"
+                    Style="{StaticResource RuedaScreen}"
+                    VerticalOptions="Start">
+                    <VerticalStackLayout Padding="10" Spacing="8">
+                        <Button
+                            Command="{Binding OpenPreferenciasCommand}"
+                            SemanticProperties.Hint="País, idioma, género y tipo de contenido que se aplican en Inicio."
+                            Style="{StaticResource RuedaMenuButton}"
+                            Text="Preferencias  ›" />
+                        <Button
+                            Command="{Binding OpenPersonalizacionCommand}"
+                            SemanticProperties.Hint="Tema, tipo de letra y tamaño del texto."
+                            Style="{StaticResource RuedaMenuButton}"
+                            Text="Personalización  ›" />
+                    </VerticalStackLayout>
+                </Border>
+            </ScrollView>
+
+            <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--
+        Reproductor: the Reproduciendo screen (logo, name, characteristics, the En directo bar and the status line), the
+        wheel bound for this page (play/stop, previous/next favourite, the heart in the centre, the ring disabled, MENÚ
+        to Inicio) and the slim bar with Reproductor marked. The audio player is not here: it belongs to the window.
+    -->
+    <ControlTemplate x:Key="ReproductorTemplate">
+        <Grid
+            x:DataType="vm:ReproductorViewModel"
+            BackgroundColor="{DynamicResource PageBackgroundColor}"
+            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}">
+            <Grid
+                Padding="12,10,12,0"
+                MaximumWidthRequest="520"
+                RowDefinitions="*,Auto,Auto"
+                RowSpacing="8">
+
+                <Border Grid.Row="0" Style="{StaticResource RuedaScreen}">
+                    <Grid RowDefinitions="Auto,*">
+                        <ContentView Grid.Row="0" ControlTemplate="{StaticResource ReproductorHeaderTemplate}" />
+                        <ScrollView Grid.Row="1">
+                            <VerticalStackLayout Padding="14,12" Spacing="8">
+                                <Label
+                                    IsVisible="{Binding HasNoStation}"
+                                    Style="{StaticResource SecondaryLabel}"
+                                    Text="Selecciona una emisora en Inicio o en tus favoritas" />
+
+                                <Border
+                                    Padding="4"
+                                    BackgroundColor="{DynamicResource InputBackgroundColor}"
+                                    HeightRequest="140"
+                                    HorizontalOptions="Center"
+                                    IsVisible="{Binding HasStation}"
+                                    Stroke="{DynamicResource DividerColor}"
+                                    StrokeThickness="1"
+                                    WidthRequest="140">
+                                    <Grid>
+                                        <Image Aspect="AspectFit" Source="station_placeholder.png" />
+                                        <Image Aspect="AspectFit" Source="{Binding LogoUrl}" />
+                                    </Grid>
+                                </Border>
+                                <Label
+                                    HorizontalTextAlignment="Center"
+                                    IsVisible="{Binding HasStation}"
+                                    LineBreakMode="TailTruncation"
+                                    MaxLines="2"
+                                    Style="{StaticResource StationNameLabel}"
+                                    Text="{Binding StationName}" />
+                                <Label
+                                    HorizontalTextAlignment="Center"
+                                    IsVisible="{Binding HasDetails}"
+                                    Style="{StaticResource SecondaryLabel}"
+                                    Text="{Binding Details}" />
+
+                                <!--  A full bar: a live stream has no progress  -->
+                                <VerticalStackLayout IsVisible="{Binding HasStation}" Spacing="2">
+                                    <BoxView
+                                        CornerRadius="3"
+                                        HeightRequest="6"
+                                        Color="{DynamicResource AccentColor}" />
+                                    <Label
+                                        HorizontalTextAlignment="Center"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="En directo" />
+                                </VerticalStackLayout>
+
+                                <!--  Status line  -->
+                                <Label
+                                    HorizontalTextAlignment="Center"
+                                    IsVisible="{Binding HasStation}"
+                                    Style="{StaticResource RuedaStatusLabel}"
+                                    Text="{Binding StatusText}" />
+                                <Label
+                                    HorizontalTextAlignment="Center"
+                                    IsVisible="{Binding HasNotice}"
+                                    Style="{StaticResource SecondaryLabel}"
+                                    Text="{Binding Notice}" />
+                                <Label
+                                    HorizontalTextAlignment="Center"
+                                    IsVisible="{Binding HasError}"
+                                    Style="{StaticResource ErrorLabel}"
+                                    Text="{Binding ErrorMessage}" />
+                                <Button
+                                    Command="{Binding RetryCommand}"
+                                    HorizontalOptions="Center"
+                                    IsVisible="{Binding HasError}"
+                                    Text="Reintentar" />
+                            </VerticalStackLayout>
+                        </ScrollView>
+                    </Grid>
+                </Border>
+
+                <!--  The wheel for this page: the ring does nothing here  -->
+                <controls:ClickWheel
+                    Grid.Row="1"
+                    CenterCommand="{Binding ToggleFavoriteCommand}"
+                    IsScrollEnabled="False"
+                    MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
+                    MenuCommandParameter="inicio"
+                    NextCommand="{Binding NextFavoriteCommand}"
+                    NextDescription="Favorita siguiente"
+                    PlayPauseCommand="{Binding ToggleCommand}"
+                    PreviousCommand="{Binding PreviousFavoriteCommand}"
+                    PreviousDescription="Favorita anterior">
+                    <controls:ClickWheel.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsFavorite}"
+                            TargetType="controls:ClickWheel"
+                            Value="False">
+                            <Setter Property="CenterIcon" Value="ic_heart_outline.png" />
+                            <Setter Property="CenterDescription" Value="Añadir a favoritas" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsFavorite}"
+                            TargetType="controls:ClickWheel"
+                            Value="True">
+                            <Setter Property="CenterIcon" Value="ic_heart.png" />
+                            <Setter Property="CenterDescription" Value="Quitar de favoritas" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsActive}"
+                            TargetType="controls:ClickWheel"
+                            Value="False">
+                            <Setter Property="PlayPauseDescription" Value="Reproducir" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsActive}"
+                            TargetType="controls:ClickWheel"
+                            Value="True">
+                            <Setter Property="PlayPauseDescription" Value="Detener" />
+                        </DataTrigger>
+                    </controls:ClickWheel.Triggers>
+                </controls:ClickWheel>
+
+                <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
+            </Grid>
+        </Grid>
+    </ControlTemplate>
+
+</ResourceDictionary>
