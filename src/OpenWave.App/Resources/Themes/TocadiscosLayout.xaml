@@ -1,0 +1,954 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Tocadiscos layout: a 1960s-70s record player. Stations are record sleeves, the player is a turntable and the
+    favourites live in a record crate. Colours come from the active palette and fonts and sizes from Styles.xaml,
+    always through DynamicResource or the named styles: this layout never sets a colour, font family or font size itself.
+    It defines every key itself and does not use the Moderno layout.
+
+    Keys every layout defines: HeaderTemplate, BottomBarTemplate, StationCardTemplate, InicioTemplate,
+    ReproductorTemplate, FavoritosTemplate, AjustesTemplate and SettingsPageTemplate. Personalización also reads the
+    optional SettingsPanelStyle. Tocadiscos adds ReproductorHeaderTemplate and CrateRecordTemplate.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.TocadiscosLayout"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:behaviors="clr-namespace:OpenWave.App.Behaviors"
+    xmlns:controls="clr-namespace:OpenWave.App.Views.Controls"
+    xmlns:services="clr-namespace:OpenWave.App.Services"
+    xmlns:views="clr-namespace:OpenWave.App.Views"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels">
+
+    <!--  Styles of this layout (colours from palette keys only; fonts and sizes from the shared styles)  -->
+    <Style
+        x:Key="TocadiscosTitleLabel"
+        BasedOn="{StaticResource HeaderTitleLabel}"
+        TargetType="Label">
+        <Setter Property="TextColor" Value="{DynamicResource TabBarSelectedColor}" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style
+        x:Key="TocadiscosCardButton"
+        BasedOn="{StaticResource SettingsCardButton}"
+        TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{DynamicResource TabBarUnselectedColor}" />
+        <Setter Property="TextColor" Value="{DynamicResource AccentTextColor}" />
+        <Setter Property="BorderColor" Value="{DynamicResource AccentColor}" />
+        <Setter Property="BorderWidth" Value="3" />
+        <Setter Property="CornerRadius" Value="4" />
+    </Style>
+
+    <Style x:Key="TocadiscosPanel" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
+        <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Padding" Value="14" />
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="10" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+        The wood panel that holds Personalización and Preferencias: walnut with a lighter wood frame. It keeps the page
+        colour because the shared radio button style paints each option with it.
+    -->
+    <Style x:Key="SettingsPanelStyle" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}" />
+        <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+        <Setter Property="StrokeThickness" Value="4" />
+        <Setter Property="Margin" Value="12,10" />
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="16" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+        Header: a dark wooden strip with the title in brass, upper case, centred on the full width, and the gear on the
+        right. The empty column on the left is as wide as the gear, so the title stays centred.
+    -->
+    <ControlTemplate x:Key="HeaderTemplate">
+        <Grid
+            BackgroundColor="{DynamicResource TabBarBackgroundColor}"
+            ColumnDefinitions="Auto,*,Auto"
+            RowDefinitions="Auto,Auto">
+            <BoxView
+                Grid.Column="0"
+                WidthRequest="{DynamicResource IconButtonSize}"
+                Color="Transparent" />
+            <Label
+                Grid.Column="1"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="WordWrap"
+                MaxLines="2"
+                SemanticProperties.HeadingLevel="Level1"
+                Style="{StaticResource TocadiscosTitleLabel}"
+                Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
+                TextTransform="Uppercase"
+                VerticalOptions="Center" />
+            <ImageButton
+                Grid.Column="2"
+                Margin="0,4,4,4"
+                behaviors:IconTint.Color="{DynamicResource TabBarSelectedColor}"
+                Command="{x:Static services:AppNavigation.OpenAjustesCommand}"
+                SemanticProperties.Description="Ajustes"
+                Source="ic_settings.png"
+                Style="{StaticResource IconButton}"
+                ToolTipProperties.Text="Ajustes" />
+            <BoxView
+                Grid.Row="1"
+                Grid.ColumnSpan="3"
+                HeightRequest="3"
+                Color="{DynamicResource AccentColor}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--  Reproductor's header: the same, with a house on the left that opens Inicio (this page has no bottom bar)  -->
+    <ControlTemplate x:Key="ReproductorHeaderTemplate">
+        <Grid
+            BackgroundColor="{DynamicResource TabBarBackgroundColor}"
+            ColumnDefinitions="Auto,*,Auto"
+            RowDefinitions="Auto,Auto">
+            <ImageButton
+                Grid.Column="0"
+                Margin="4,4,0,4"
+                behaviors:IconTint.Color="{DynamicResource TabBarSelectedColor}"
+                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
+                CommandParameter="inicio"
+                SemanticProperties.Description="Inicio"
+                Source="ic_home.png"
+                Style="{StaticResource IconButton}"
+                ToolTipProperties.Text="Inicio" />
+            <Label
+                Grid.Column="1"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="WordWrap"
+                MaxLines="2"
+                SemanticProperties.HeadingLevel="Level1"
+                Style="{StaticResource TocadiscosTitleLabel}"
+                Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
+                TextTransform="Uppercase"
+                VerticalOptions="Center" />
+            <ImageButton
+                Grid.Column="2"
+                Margin="0,4,4,4"
+                behaviors:IconTint.Color="{DynamicResource TabBarSelectedColor}"
+                Command="{x:Static services:AppNavigation.OpenAjustesCommand}"
+                SemanticProperties.Description="Ajustes"
+                Source="ic_settings.png"
+                Style="{StaticResource IconButton}"
+                ToolTipProperties.Text="Ajustes" />
+            <BoxView
+                Grid.Row="1"
+                Grid.ColumnSpan="3"
+                HeightRequest="3"
+                Color="{DynamicResource AccentColor}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--
+        Bottom bar (the template of a views:BottomBar): a wooden strip with cream icons; the current section is brass,
+        bold and underlined. Both looks are set by triggers, because a value set directly on an element would win.
+    -->
+    <ControlTemplate x:Key="BottomBarTemplate">
+        <Grid
+            BackgroundColor="{DynamicResource TabBarBackgroundColor}"
+            ColumnDefinitions="*,*,*"
+            RowDefinitions="Auto,Auto,Auto,Auto">
+            <BoxView
+                Grid.ColumnSpan="3"
+                HeightRequest="3"
+                Color="{DynamicResource AccentColor}" />
+
+            <!--  Inicio  -->
+            <ImageButton
+                Grid.Row="1"
+                Grid.Column="0"
+                Margin="0,4,0,0"
+                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
+                CommandParameter="inicio"
+                HorizontalOptions="Center"
+                Source="ic_home.png"
+                Style="{StaticResource IconButton}">
+                <ImageButton.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="ImageButton"
+                        Value="False">
+                        <Setter Property="behaviors:IconTint.Color" Value="{DynamicResource TabBarUnselectedColor}" />
+                        <Setter Property="SemanticProperties.Description" Value="Inicio" />
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="ImageButton"
+                        Value="True">
+                        <Setter Property="behaviors:IconTint.Color" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="SemanticProperties.Description" Value="Inicio, seleccionado" />
+                    </DataTrigger>
+                </ImageButton.Triggers>
+            </ImageButton>
+            <Label
+                Grid.Row="2"
+                Grid.Column="0"
+                AutomationProperties.IsInAccessibleTree="False"
+                Style="{StaticResource TabBarLabel}"
+                Text="Inicio">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{x:Static services:AppNavigation.GoToSectionCommand}" CommandParameter="inicio" />
+                </Label.GestureRecognizers>
+                <Label.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Label"
+                        Value="True">
+                        <Setter Property="TextColor" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamilyBold}" />
+                        <Setter Property="FontAttributes" Value="Bold" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <BoxView
+                Grid.Row="3"
+                Grid.Column="0"
+                Margin="0,2,0,6"
+                HeightRequest="3"
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                WidthRequest="{DynamicResource IconButtonSize}"
+                Color="{DynamicResource TabBarSelectedColor}" />
+
+            <!--  Reproductor  -->
+            <ImageButton
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="0,4,0,0"
+                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
+                CommandParameter="reproductor"
+                HorizontalOptions="Center"
+                Source="ic_player.png"
+                Style="{StaticResource IconButton}">
+                <ImageButton.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="ImageButton"
+                        Value="False">
+                        <Setter Property="behaviors:IconTint.Color" Value="{DynamicResource TabBarUnselectedColor}" />
+                        <Setter Property="SemanticProperties.Description" Value="Reproductor" />
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="ImageButton"
+                        Value="True">
+                        <Setter Property="behaviors:IconTint.Color" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="SemanticProperties.Description" Value="Reproductor, seleccionado" />
+                    </DataTrigger>
+                </ImageButton.Triggers>
+            </ImageButton>
+            <Label
+                Grid.Row="2"
+                Grid.Column="1"
+                AutomationProperties.IsInAccessibleTree="False"
+                Style="{StaticResource TabBarLabel}"
+                Text="Reproductor">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{x:Static services:AppNavigation.GoToSectionCommand}" CommandParameter="reproductor" />
+                </Label.GestureRecognizers>
+                <Label.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Label"
+                        Value="True">
+                        <Setter Property="TextColor" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamilyBold}" />
+                        <Setter Property="FontAttributes" Value="Bold" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <BoxView
+                Grid.Row="3"
+                Grid.Column="1"
+                Margin="0,2,0,6"
+                HeightRequest="3"
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                WidthRequest="{DynamicResource IconButtonSize}"
+                Color="{DynamicResource TabBarSelectedColor}" />
+
+            <!--  Favoritos  -->
+            <ImageButton
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="0,4,0,0"
+                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
+                CommandParameter="favoritos"
+                HorizontalOptions="Center"
+                Source="ic_favorites.png"
+                Style="{StaticResource IconButton}">
+                <ImageButton.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="ImageButton"
+                        Value="False">
+                        <Setter Property="behaviors:IconTint.Color" Value="{DynamicResource TabBarUnselectedColor}" />
+                        <Setter Property="SemanticProperties.Description" Value="Favoritos" />
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="ImageButton"
+                        Value="True">
+                        <Setter Property="behaviors:IconTint.Color" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="SemanticProperties.Description" Value="Favoritos, seleccionado" />
+                    </DataTrigger>
+                </ImageButton.Triggers>
+            </ImageButton>
+            <Label
+                Grid.Row="2"
+                Grid.Column="2"
+                AutomationProperties.IsInAccessibleTree="False"
+                Style="{StaticResource TabBarLabel}"
+                Text="Favoritos">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{x:Static services:AppNavigation.GoToSectionCommand}" CommandParameter="favoritos" />
+                </Label.GestureRecognizers>
+                <Label.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                        TargetType="Label"
+                        Value="True">
+                        <Setter Property="TextColor" Value="{DynamicResource TabBarSelectedColor}" />
+                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamilyBold}" />
+                        <Setter Property="FontAttributes" Value="Bold" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+            <BoxView
+                Grid.Row="3"
+                Grid.Column="2"
+                Margin="0,2,0,6"
+                HeightRequest="3"
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
+                WidthRequest="{DynamicResource IconButtonSize}"
+                Color="{DynamicResource TabBarSelectedColor}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--  Preferencias (and any page without its own frame): walnut, header, the wood panel, bottom bar  -->
+    <ControlTemplate x:Key="SettingsPageTemplate">
+        <Grid BackgroundColor="{DynamicResource PageBackgroundColor}" RowDefinitions="Auto,*,Auto">
+            <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+            <Border Grid.Row="1" Style="{StaticResource SettingsPanelStyle}">
+                <ContentPresenter />
+            </Border>
+            <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--
+        A record sleeve (the station item of Inicio and Favoritos): a square cream sleeve with the logo. The current
+        station's sleeve has a brass outline and its record peeks out of the right edge.
+    -->
+    <DataTemplate x:Key="StationCardTemplate" x:DataType="vm:StationListItem">
+        <AbsoluteLayout>
+            <Grid
+                AbsoluteLayout.LayoutBounds="1,0.5,0.74,0.74"
+                AbsoluteLayout.LayoutFlags="All"
+                IsVisible="{Binding IsSelected}">
+                <Ellipse Fill="{DynamicResource InputBackgroundColor}" />
+                <Ellipse
+                    Scale="0.8"
+                    Stroke="{DynamicResource DividerColor}"
+                    StrokeThickness="1" />
+                <Ellipse
+                    Scale="0.6"
+                    Stroke="{DynamicResource DividerColor}"
+                    StrokeThickness="1" />
+                <Ellipse Fill="{DynamicResource AccentColor}" Scale="0.3" />
+            </Grid>
+            <Border
+                Padding="0"
+                AbsoluteLayout.LayoutBounds="0,0.5,0.82,0.82"
+                AbsoluteLayout.LayoutFlags="All"
+                BackgroundColor="{DynamicResource TabBarUnselectedColor}"
+                Stroke="{DynamicResource DividerColor}"
+                StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="3" />
+                </Border.StrokeShape>
+                <Border.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsSelected}"
+                        TargetType="Border"
+                        Value="True">
+                        <Setter Property="Stroke" Value="{DynamicResource SelectedItemBackgroundColor}" />
+                        <Setter Property="StrokeThickness" Value="5" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Grid Margin="10">
+                    <Image Aspect="AspectFit" Source="station_placeholder.png" />
+                    <Image Aspect="AspectFit" Source="{Binding Station.LogoUrl}" />
+                </Grid>
+            </Border>
+        </AbsoluteLayout>
+    </DataTemplate>
+
+    <!--  A record standing in the crate: its sleeve with the logo, the disc peeking out above, and the name  -->
+    <DataTemplate x:Key="CrateRecordTemplate" x:DataType="vm:StationListItem">
+        <Grid RowDefinitions="*,Auto" RowSpacing="2">
+            <Grid.Triggers>
+                <DataTrigger
+                    Binding="{Binding IsSelected}"
+                    TargetType="Grid"
+                    Value="True">
+                    <Setter Property="TranslationY" Value="-12" />
+                </DataTrigger>
+            </Grid.Triggers>
+            <AbsoluteLayout Grid.Row="0">
+                <Ellipse
+                    AbsoluteLayout.LayoutBounds="0.5,0,0.8,0.5"
+                    AbsoluteLayout.LayoutFlags="All"
+                    Fill="{DynamicResource InputBackgroundColor}"
+                    Stroke="{DynamicResource DividerColor}"
+                    StrokeThickness="1" />
+                <Border
+                    Padding="4"
+                    AbsoluteLayout.LayoutBounds="0.5,1,1,0.82"
+                    AbsoluteLayout.LayoutFlags="All"
+                    BackgroundColor="{DynamicResource TabBarUnselectedColor}"
+                    Stroke="{DynamicResource DividerColor}"
+                    StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="2" />
+                    </Border.StrokeShape>
+                    <Border.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsSelected}"
+                            TargetType="Border"
+                            Value="True">
+                            <Setter Property="Stroke" Value="{DynamicResource SelectedItemBackgroundColor}" />
+                            <Setter Property="StrokeThickness" Value="3" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Grid>
+                        <Image Aspect="AspectFit" Source="station_placeholder.png" />
+                        <Image Aspect="AspectFit" Source="{Binding Station.LogoUrl}" />
+                    </Grid>
+                </Border>
+            </AbsoluteLayout>
+            <Label
+                Grid.Row="1"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
+                Style="{StaticResource SecondaryLabel}"
+                Text="{Binding Station.Name}" />
+        </Grid>
+    </DataTemplate>
+
+    <!--
+        Page templates. Templated content does not inherit the page's view model, so each root takes the page's
+        BindingContext. Only the main area scrolls; the header and the bar stay fixed.
+    -->
+    <ControlTemplate x:Key="InicioTemplate">
+        <Grid
+            x:DataType="vm:InicioViewModel"
+            BackgroundColor="{DynamicResource PageBackgroundColor}"
+            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
+            RowDefinitions="Auto,Auto,Auto,*,Auto">
+            <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+
+            <!--  Search row  -->
+            <Grid
+                Grid.Row="1"
+                Padding="16,10,16,0"
+                ColumnDefinitions="*,Auto,Auto"
+                ColumnSpacing="4">
+                <Entry
+                    Grid.Column="0"
+                    Placeholder="Buscar emisora..."
+                    ReturnCommand="{Binding SearchCommand}"
+                    ReturnType="Search"
+                    SemanticProperties.Description="Buscar emisora"
+                    Text="{Binding SearchText}"
+                    VerticalOptions="Center" />
+                <ImageButton
+                    Grid.Column="1"
+                    behaviors:IconTint.Color="{DynamicResource TabBarSelectedColor}"
+                    Command="{Binding SearchCommand}"
+                    SemanticProperties.Description="Buscar"
+                    Source="ic_search.png"
+                    Style="{StaticResource IconButton}"
+                    ToolTipProperties.Text="Buscar" />
+                <ImageButton
+                    Grid.Column="2"
+                    behaviors:IconTint.Color="{DynamicResource TabBarSelectedColor}"
+                    Command="{Binding ClearSearchCommand}"
+                    SemanticProperties.Description="Limpiar búsqueda"
+                    Source="ic_clear.png"
+                    Style="{StaticResource IconButton}"
+                    ToolTipProperties.Text="Limpiar búsqueda" />
+            </Grid>
+
+            <!--  Active filters, compact  -->
+            <Border
+                Grid.Row="2"
+                Margin="16,8,16,0"
+                Padding="10,6"
+                IsVisible="{Binding ShowFilterBar}"
+                Style="{StaticResource TocadiscosPanel}">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <VerticalStackLayout
+                        Grid.Column="0"
+                        IsVisible="{Binding FiltersApplied}"
+                        VerticalOptions="Center">
+                        <Label Style="{StaticResource StationNameLabel}" Text="Filtros activos" />
+                        <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
+                    </VerticalStackLayout>
+                    <Label
+                        Grid.Column="0"
+                        IsVisible="{Binding FiltersNotApplied}"
+                        Style="{StaticResource StationNameLabel}"
+                        Text="Preferencias desactivadas"
+                        VerticalOptions="Center" />
+                    <Button
+                        Grid.Column="1"
+                        Command="{Binding DeactivateFiltersCommand}"
+                        IsVisible="{Binding FiltersApplied}"
+                        Text="Desactivar"
+                        VerticalOptions="Center" />
+                    <Button
+                        Grid.Column="1"
+                        Command="{Binding ActivateFiltersCommand}"
+                        IsVisible="{Binding FiltersNotApplied}"
+                        Text="Activar"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  Main area: the sleeve stack and the information panel  -->
+            <Grid
+                Grid.Row="3"
+                Padding="16,12"
+                ColumnDefinitions="3*,2*"
+                ColumnSpacing="16">
+                <controls:SleeveStack
+                    x:Name="Stack"
+                    Grid.Column="0"
+                    ActivateCommand="{Binding PlayHereCommand}"
+                    FocusOnReset="First"
+                    ItemDisplayPath="Station.Name"
+                    ItemTemplate="{StaticResource StationCardTemplate}"
+                    ItemsSource="{Binding Stations}" />
+
+                <ScrollView
+                    Grid.Column="1"
+                    x:DataType="vm:StationListItem"
+                    BindingContext="{Binding FocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
+                    IsVisible="{Binding HasFocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
+                    VerticalOptions="Center">
+                    <Border Style="{StaticResource TocadiscosPanel}">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
+                                <Label
+                                    Grid.Column="0"
+                                    LineBreakMode="TailTruncation"
+                                    MaxLines="3"
+                                    Style="{StaticResource StationNameLabel}"
+                                    Text="{Binding Station.Name}"
+                                    VerticalOptions="Center" />
+                                <ImageButton
+                                    Grid.Column="1"
+                                    behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                    Command="{Binding HeartCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Style="{StaticResource IconButton}"
+                                    VerticalOptions="Start">
+                                    <ImageButton.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsFavorite}"
+                                            TargetType="ImageButton"
+                                            Value="False">
+                                            <Setter Property="Source" Value="ic_heart_outline.png" />
+                                            <Setter Property="SemanticProperties.Description" Value="Añadir a favoritas" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsFavorite}"
+                                            TargetType="ImageButton"
+                                            Value="True">
+                                            <Setter Property="Source" Value="ic_heart.png" />
+                                            <Setter Property="SemanticProperties.Description" Value="Quitar de favoritas" />
+                                        </DataTrigger>
+                                    </ImageButton.Triggers>
+                                </ImageButton>
+                            </Grid>
+                            <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Details}" />
+                            <Label
+                                IsVisible="{Binding IsSelected}"
+                                FontAttributes="Bold"
+                                FontFamily="{DynamicResource AppFontFamilyBold}"
+                                Text="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
+                                TextColor="{DynamicResource TabBarSelectedColor}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </ScrollView>
+
+                <!--  States, in place of the stack  -->
+                <VerticalStackLayout
+                    Grid.ColumnSpan="2"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding IsLoading}"
+                    Spacing="8"
+                    VerticalOptions="Center">
+                    <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                    <Label Style="{StaticResource SecondaryLabel}" Text="Cargando emisoras..." />
+                </VerticalStackLayout>
+
+                <Label
+                    Grid.ColumnSpan="2"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    IsVisible="{Binding IsEmptyPlain}"
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="No se encontraron emisoras."
+                    VerticalOptions="Center" />
+
+                <VerticalStackLayout
+                    Grid.ColumnSpan="2"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding IsEmptyWithPreferences}"
+                    Spacing="12"
+                    VerticalOptions="Center">
+                    <Label
+                        HorizontalTextAlignment="Center"
+                        Style="{StaticResource SecondaryLabel}"
+                        Text="No se encontraron emisoras con tus preferencias." />
+                    <Button
+                        Command="{Binding DeactivateFiltersCommand}"
+                        HorizontalOptions="Center"
+                        Text="Desactivar" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout
+                    Grid.ColumnSpan="2"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding HasError}"
+                    Spacing="12"
+                    VerticalOptions="Center">
+                    <Label
+                        HorizontalTextAlignment="Center"
+                        Style="{StaticResource ErrorLabel}"
+                        Text="{Binding ErrorMessage}" />
+                    <Button
+                        Command="{Binding RetryCommand}"
+                        HorizontalOptions="Center"
+                        Text="Reintentar" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <views:BottomBar Grid.Row="4" ControlTemplate="{StaticResource BottomBarTemplate}" />
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="FavoritosTemplate">
+        <Grid
+            x:DataType="vm:FavoritosViewModel"
+            BackgroundColor="{DynamicResource PageBackgroundColor}"
+            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
+            RowDefinitions="Auto,Auto,*,Auto">
+            <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+
+            <!--  Logged in: compact account row  -->
+            <Grid
+                Grid.Row="1"
+                Padding="16,8,16,0"
+                ColumnDefinitions="*,Auto"
+                ColumnSpacing="8"
+                IsVisible="{Binding IsLoggedIn}">
+                <Label
+                    Grid.Column="0"
+                    LineBreakMode="TailTruncation"
+                    MaxLines="1"
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="{Binding Email}"
+                    VerticalOptions="Center" />
+                <Button
+                    Grid.Column="1"
+                    Padding="12,4"
+                    Command="{Binding LogOutCommand}"
+                    Text="Cerrar sesión" />
+            </Grid>
+
+            <!--  Logged out  -->
+            <VerticalStackLayout
+                Grid.Row="2"
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsLoggedOut}"
+                Spacing="12"
+                VerticalOptions="Center">
+                <Label HorizontalTextAlignment="Center" Text="Inicia sesión para ver tus favoritas." />
+                <Button
+                    Command="{Binding LogInCommand}"
+                    HorizontalOptions="Center"
+                    Text="Iniciar sesión" />
+            </VerticalStackLayout>
+
+            <!--  Logged in: the sleeve stack, the information panel and the states  -->
+            <Grid
+                Grid.Row="2"
+                Padding="16,12"
+                ColumnDefinitions="3*,2*"
+                ColumnSpacing="16"
+                IsVisible="{Binding IsLoggedIn}">
+                <controls:SleeveStack
+                    x:Name="Stack"
+                    Grid.Column="0"
+                    ActivateCommand="{Binding PlayHereCommand}"
+                    FocusOnReset="KeepPosition"
+                    ItemDisplayPath="Station.Name"
+                    ItemTemplate="{StaticResource StationCardTemplate}"
+                    ItemsSource="{Binding Stations}" />
+
+                <ScrollView
+                    Grid.Column="1"
+                    x:DataType="vm:StationListItem"
+                    BindingContext="{Binding FocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
+                    IsVisible="{Binding HasFocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
+                    VerticalOptions="Center">
+                    <Border Style="{StaticResource TocadiscosPanel}">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
+                                <Label
+                                    Grid.Column="0"
+                                    LineBreakMode="TailTruncation"
+                                    MaxLines="3"
+                                    Style="{StaticResource StationNameLabel}"
+                                    Text="{Binding Station.Name}"
+                                    VerticalOptions="Center" />
+                                <ImageButton
+                                    Grid.Column="1"
+                                    behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                    Command="{Binding HeartCommand}"
+                                    CommandParameter="{Binding .}"
+                                    SemanticProperties.Description="Quitar de favoritas"
+                                    Source="ic_heart.png"
+                                    Style="{StaticResource IconButton}"
+                                    VerticalOptions="Start" />
+                            </Grid>
+                            <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Details}" />
+                            <Label
+                                IsVisible="{Binding IsSelected}"
+                                FontAttributes="Bold"
+                                FontFamily="{DynamicResource AppFontFamilyBold}"
+                                Text="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:FavoritosViewModel}}, x:DataType=vm:FavoritosViewModel}"
+                                TextColor="{DynamicResource TabBarSelectedColor}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </ScrollView>
+
+                <VerticalStackLayout
+                    Grid.ColumnSpan="2"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding IsLoading}"
+                    Spacing="8"
+                    VerticalOptions="Center">
+                    <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                    <Label Style="{StaticResource SecondaryLabel}" Text="Cargando favoritas..." />
+                </VerticalStackLayout>
+
+                <Label
+                    Grid.ColumnSpan="2"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    IsVisible="{Binding IsEmpty}"
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="Aún no tienes emisoras favoritas."
+                    VerticalOptions="Center" />
+
+                <VerticalStackLayout
+                    Grid.ColumnSpan="2"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding HasError}"
+                    Spacing="12"
+                    VerticalOptions="Center">
+                    <Label
+                        HorizontalTextAlignment="Center"
+                        Style="{StaticResource ErrorLabel}"
+                        Text="{Binding ErrorMessage}" />
+                    <Button
+                        Command="{Binding RetryCommand}"
+                        HorizontalOptions="Center"
+                        Text="Reintentar" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <views:BottomBar Grid.Row="3" ControlTemplate="{StaticResource BottomBarTemplate}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--  Ajustes: two cream record sleeves on walnut, each with its vinyl peeking out of the right edge  -->
+    <ControlTemplate x:Key="AjustesTemplate">
+        <Grid
+            x:DataType="vm:AjustesViewModel"
+            BackgroundColor="{DynamicResource PageBackgroundColor}"
+            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
+            RowDefinitions="Auto,*,Auto">
+            <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="16,20,64,16" Spacing="20">
+                    <Grid>
+                        <Ellipse
+                            Margin="0,0,-48,0"
+                            Fill="{DynamicResource InputBackgroundColor}"
+                            HorizontalOptions="End"
+                            InputTransparent="True"
+                            Stroke="{DynamicResource DividerColor}"
+                            StrokeThickness="1"
+                            WidthRequest="{Binding Height, Source={RelativeSource Self}, x:DataType=Ellipse}" />
+                        <Button
+                            Command="{Binding OpenPersonalizacionCommand}"
+                            SemanticProperties.Hint="Tema, tipo de letra y tamaño del texto."
+                            Style="{StaticResource TocadiscosCardButton}"
+                            Text="Personalización" />
+                    </Grid>
+                    <Grid>
+                        <Ellipse
+                            Margin="0,0,-48,0"
+                            Fill="{DynamicResource InputBackgroundColor}"
+                            HorizontalOptions="End"
+                            InputTransparent="True"
+                            Stroke="{DynamicResource DividerColor}"
+                            StrokeThickness="1"
+                            WidthRequest="{Binding Height, Source={RelativeSource Self}, x:DataType=Ellipse}" />
+                        <Button
+                            Command="{Binding OpenPreferenciasCommand}"
+                            SemanticProperties.Hint="País, idioma, género y tipo de contenido que se aplican en Inicio."
+                            Style="{StaticResource TocadiscosCardButton}"
+                            Text="Preferencias" />
+                    </Grid>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--
+        Reproductor: header with the house, the turntable (record and tonearm) with the information panel and the status
+        line, and the record crate at the bottom instead of the bottom bar. The audio player is not here: it belongs to
+        the window.
+    -->
+    <ControlTemplate x:Key="ReproductorTemplate">
+        <Grid
+            x:DataType="vm:ReproductorViewModel"
+            BackgroundColor="{DynamicResource PageBackgroundColor}"
+            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
+            RowDefinitions="Auto,5*,2*">
+            <ContentView Grid.Row="0" ControlTemplate="{StaticResource ReproductorHeaderTemplate}" />
+
+            <Grid
+                Grid.Row="1"
+                Padding="16,12"
+                ColumnDefinitions="3*,2*"
+                ColumnSpacing="16">
+                <controls:VinylDisc
+                    Grid.Column="0"
+                    IsBlank="{Binding HasNoStation}"
+                    IsSpinning="{Binding IsActive}"
+                    LogoSource="{Binding LogoUrl}" />
+                <controls:Tonearm
+                    Grid.Column="0"
+                    Command="{Binding ToggleCommand}"
+                    IsEnabled="{Binding HasStation}"
+                    IsLowered="{Binding IsActive}" />
+
+                <ScrollView Grid.Column="1" VerticalOptions="Center">
+                    <Border Style="{StaticResource TocadiscosPanel}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label
+                                IsVisible="{Binding HasNoStation}"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="Selecciona una emisora en Inicio o en tus favoritas" />
+
+                            <Grid
+                                ColumnDefinitions="*,Auto"
+                                ColumnSpacing="4"
+                                IsVisible="{Binding HasStation}">
+                                <Label
+                                    Grid.Column="0"
+                                    LineBreakMode="TailTruncation"
+                                    MaxLines="3"
+                                    Style="{StaticResource StationNameLabel}"
+                                    Text="{Binding StationName}"
+                                    VerticalOptions="Center" />
+                                <ImageButton
+                                    Grid.Column="1"
+                                    behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                    Command="{Binding ToggleFavoriteCommand}"
+                                    Style="{StaticResource IconButton}"
+                                    VerticalOptions="Start">
+                                    <ImageButton.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsFavorite}"
+                                            TargetType="ImageButton"
+                                            Value="False">
+                                            <Setter Property="Source" Value="ic_heart_outline.png" />
+                                            <Setter Property="SemanticProperties.Description" Value="Añadir a favoritas" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsFavorite}"
+                                            TargetType="ImageButton"
+                                            Value="True">
+                                            <Setter Property="Source" Value="ic_heart.png" />
+                                            <Setter Property="SemanticProperties.Description" Value="Quitar de favoritas" />
+                                        </DataTrigger>
+                                    </ImageButton.Triggers>
+                                </ImageButton>
+                            </Grid>
+                            <Label
+                                IsVisible="{Binding HasDetails}"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="{Binding Details}" />
+
+                            <!--  Status line  -->
+                            <Label
+                                IsVisible="{Binding HasStation}"
+                                FontAttributes="Bold"
+                                FontFamily="{DynamicResource AppFontFamilyBold}"
+                                Text="{Binding StatusText}"
+                                TextColor="{DynamicResource TabBarSelectedColor}" />
+                            <Label
+                                IsVisible="{Binding HasError}"
+                                Style="{StaticResource ErrorLabel}"
+                                Text="{Binding ErrorMessage}" />
+                            <Button
+                                Command="{Binding RetryCommand}"
+                                HorizontalOptions="Start"
+                                IsVisible="{Binding HasError}"
+                                Text="Reintentar" />
+                        </VerticalStackLayout>
+                    </Border>
+                </ScrollView>
+            </Grid>
+
+            <controls:RecordCrate
+                Grid.Row="2"
+                EmptyText="Aún no tienes emisoras favoritas."
+                IsLoggedIn="{Binding IsLoggedIn}"
+                ItemDisplayPath="Station.Name"
+                ItemIsCurrentPath="IsSelected"
+                ItemTemplate="{StaticResource CrateRecordTemplate}"
+                ItemsSource="{Binding Favorites}"
+                LogInCommand="{Binding LogInCommand}"
+                LoggedOutText="Inicia sesión para ver tus favoritas"
+                SelectCommand="{Binding SelectFavoriteCommand}" />
+        </Grid>
+    </ControlTemplate>
+
+</ResourceDictionary>

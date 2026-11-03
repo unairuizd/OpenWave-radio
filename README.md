@@ -213,8 +213,8 @@ The buttons on either side of play/stop (`Emisora favorita anterior` and `Emisor
 
 Limitations:
 
-- **Playback is tied to the Reproductor page.** Going to another page (Inicio, Favoritos or Ajustes) stops the audio. When you come back, the same station is shown as `Detenido` and you press `Reproducir` to listen again.
-- **No mini-player** outside Reproductor.
+- **Playback continues across pages.** The app has one audio player that belongs to the window, not to a page or a theme, so the audio keeps playing while you go to Inicio, Favoritos or Ajustes, and while you change the theme. It stops only when you stop it, choose another station, the stream fails or the app goes to the background.
+- **No mini-player:** Moderno shows the controls only in Reproductor; Tocadiscos also plays and stops from the sleeves in Inicio and Favoritos.
 - **No background playback.** Minimising the app or sending it to the background stops the audio.
 
 ## Account in the app
@@ -273,7 +273,7 @@ Every page except `Iniciar sesión` and `Crear cuenta` has the same frame, drawn
 
 `Personalización` works without an account; logging in or out does not change it.
 
-- **Selectors:** `Tema` (every registered theme; today only `Moderno`), `Variante` (`Claro`, `Oscuro`; shown only when the theme has more than one), `Tipo de letra` (each font name is written in its own font) and `Tamaño del texto` (`Pequeño`, `Normal`, `Grande`, `Muy grande`, `Enorme`). The current choices are selected when the page opens.
+- **Selectors:** `Tema` (every registered theme: `Moderno` and `Tocadiscos`), `Variante` (`Claro`, `Oscuro`; shown only for a theme with more than one), `Tipo de letra` (each font name is written in its own font) and `Tamaño del texto` (`Pequeño`, `Normal`, `Grande`, `Muy grande`, `Enorme`). The current choices are selected when the page opens.
 - **No save button:** as the page says ("Los cambios se aplican y se guardan al momento."), every change applies at once to every page, the header and the bottom bar, and is stored on the device.
 - **`Vista previa`:** a card with a sample title, body text, secondary text and button in the current theme, font and size.
 - **`Restablecer valores por defecto`:** returns to `Moderno` `Claro`, `Ubuntu` and `Normal`.
@@ -303,8 +303,8 @@ The app's look (theme, variant, font and text size) is set by `AppearanceService
 
 | Preference key | Default | Values |
 |---|---|---|
-| `appearance_theme` | `moderno` | `moderno` (Moderno) |
-| `appearance_theme_variant` | `light` | `light` (Claro), `dark` (Oscuro) |
+| `appearance_theme` | `moderno` | `moderno` (Moderno), `tocadiscos` (Tocadiscos) |
+| `appearance_theme_variant` | `light` | `light` (Claro), `dark` (Oscuro); kept while Tocadiscos (one palette) is selected, so Moderno comes back with its variant |
 | `appearance_font` | `Ubuntu` | `Ubuntu`, `Dosis`, `Caladea`, `Cormorant Garamond`, `Recursive`, `Pixelify Sans` |
 | `appearance_font_scale` | `1.0` | `0.85` Pequeño, `1.0` Normal, `1.2` Grande, `1.4` Muy grande, `1.6` Enorme |
 
@@ -318,7 +318,9 @@ A theme is three things in `Resources/Themes/`:
 - **A layout:** the page templates and the shared pieces: `HeaderTemplate`, `BottomBarTemplate`, `StationCardTemplate`, `InicioTemplate`, `ReproductorTemplate`, `FavoritosTemplate`, `AjustesTemplate` and `SettingsPageTemplate`. Pages pick their template with `DynamicResource`, so switching theme swaps the layout.
 - **An entry in `ThemeCatalog`.**
 
-Pages, layouts and styles never contain literal colours, fonts or sizes: colours come only from the palettes, and the font family and sizes only from `Resources/Styles/Styles.xaml` (replaced at runtime by the appearance settings). Themes never set font families or text sizes. The single audio player (`MediaElement`) is the content of `ReproductorPage`, not part of any layout, so a theme change can never duplicate or restart it.
+Pages, layouts and styles never contain literal colours, fonts or sizes: colours come only from the palettes, and the font family and sizes only from `Resources/Styles/Styles.xaml` (replaced at runtime by the appearance settings). Themes never set font families or text sizes. The single audio player (`MediaElement`) is created once with the window by `MediaElementAudioPlayer` (on Windows its 1×1 view sits in the window, outside every page; `Platforms/Windows/AudioHost.Windows.cs`), so no page or layout owns it and a theme change can never stop, duplicate or restart it.
+
+`Personalización` does not use `SettingsPageTemplate`: the theme is chosen on that page, and moving its radio buttons into a new frame while it is shown makes them re-select the previous theme. It takes only `HeaderTemplate`, `BottomBarTemplate` and the layout's optional `SettingsPanelStyle`, so it still changes at once.
 
 **Moderno** (`ModernoLayout.xaml`) has two variants:
 
@@ -326,6 +328,14 @@ Pages, layouts and styles never contain literal colours, fonts or sizes: colours
 - **Oscuro** (`ModernoDarkPalette.xaml`): true black background (`#000000`), near-white text and a lighter accent (the colours of the former Negro).
 
 Each palette also sets the light or dark mode of the native controls (text inputs, pickers and dialogs).
+
+**Tocadiscos** (`TocadiscosLayout.xaml`, one palette `TocadiscosPalette.xaml`, dark) is a 1960s–70s record player: walnut wood, cream record sleeves, brass and vinyl black. Light text always sits on wood or on brass; the cream only carries logos and dark text.
+
+- **Inicio and Favoritos:** a stack of record sleeves on the left (the focused station big, the next two smaller and dimmed) and an information panel on the right (name, details, heart, and the play state when it is the current station). Swipe, the mouse wheel or the Up/Down keys move one station at a time; pressing a smaller sleeve brings it to the front. Pressing the big sleeve plays the station without leaving the page (pressing it again stops it). The current station's sleeve has a brass outline and its record peeks out.
+- **Reproductor:** a house button (Inicio) and the gear in the header; a turntable whose record label is the station logo and whose tonearm is the play/stop control; the information panel with the status line and `Reintentar`; and a record crate with your favourites (two compartments of three, six per page, arrows and swipe when there are more). There is no bottom bar and no previous/next buttons: the crate replaces them.
+- **Ajustes:** the two cards drawn as cream sleeves with a peeking vinyl; Personalización and Preferencias sit on a framed wood panel.
+
+The custom controls are UI only and live in `Views/Controls/`: `VinylDisc`, `Tonearm`, `SleeveStack`, `RecordCrate` (plus `PageAwareView` and `MotionSettings`). They get everything through bindable properties and never call a service. **Animations only observe `PlaybackService.State`** (through the view models): the tonearm lands in about 600 ms with a short settle and lifts in about 500 ms, and the record speeds up over 1.2 s and slows down over 1.8 s from its current angle. They stop while the page is hidden, and with reduced motion (Windows animations off, Android animator duration scale 0) the tonearm moves at once and the record stays still. All the Tocadiscos art is original and drawn with shapes in XAML (`Resources/Images/Tocadiscos/LICENSE.txt`, also shipped as `Licences/Tocadiscos-LICENSE.txt`).
 
 ### Contrast
 
@@ -349,6 +359,21 @@ Every text or icon colour has a contrast ratio of at least 4.5:1 with the backgr
 | Marked bottom bar button | `TabBarSelectedColor` on `TabBarBackgroundColor` | 5.34:1 | 8.54:1 |
 | Other bottom bar buttons | `TabBarUnselectedColor` on `TabBarBackgroundColor` | 6.36:1 | 7.11:1 |
 
+Tocadiscos:
+
+| Where | Pair | Contrast |
+|---|---|---|
+| Page text, Personalización, Preferencias | `PrimaryTextColor` on `PageBackgroundColor` | 12.31:1 |
+| Information panel, preview card | `PrimaryTextColor` on `SurfaceColor` | 9.76:1 |
+| Search box | `PrimaryTextColor` on `InputBackgroundColor` | 15.99:1 |
+| Details, captions | `SecondaryTextColor` on `PageBackgroundColor` / `SurfaceColor` | 8.71:1 / 6.91:1 |
+| Errors | `ErrorTextColor` on `PageBackgroundColor` / `SurfaceColor` | 7.58:1 / 6.01:1 |
+| Brass buttons | `AccentTextColor` on `AccentColor` | 7.82:1 |
+| Ajustes cards (cream) | `AccentTextColor` on `TabBarUnselectedColor` | 12.87:1 |
+| Header title, play state, marked bar button | `TabBarSelectedColor` on `TabBarBackgroundColor` | 10.68:1 |
+| Other bar buttons | `TabBarUnselectedColor` on `TabBarBackgroundColor` | 12.74:1 |
+| Hearts | `FavoriteIconColor` on `SurfaceColor` | 6.63:1 |
+
 ### Fonts and text size
 
 The six fonts are bundled in `Resources/Fonts/`, each with its licence file next to it. The licences are also copied into the app's `Licences/` folder.
@@ -369,7 +394,7 @@ The text size scales four base sizes: caption 12, body 16, subtitle 18 and title
 ### How to add a theme
 
 1. **Palettes:** copy `Resources/Themes/ModernoLightPalette.xaml` and its `.xaml.cs` for each variant (for example `RetroPalette.xaml`), rename the class and change the colours. Keep all 14 keys.
-2. **Layout:** copy `ModernoLayout.xaml` and its `.xaml.cs` (for example `RetroLayout.xaml`), rename the class, and change the templates as you like. Keep every template key and the bindings and commands they use (the page view models, `AppNavigation` for the gear and the bar, the `ContentPresenter` in `ReproductorTemplate` and `SettingsPageTemplate`). Use only palette keys for colours and the named styles for text: never set a font family or a font size.
+2. **Layout:** copy `ModernoLayout.xaml` (or `TocadiscosLayout.xaml`) and its `.xaml.cs` (for example `RetroLayout.xaml`), rename the class, and change the templates as you like. Keep every template key and the bindings and commands they use (the page view models, `AppNavigation` for the gear and the bar, the `ContentPresenter` in `SettingsPageTemplate`); `SettingsPanelStyle` is optional. Use only palette keys for colours and the named styles for text: never set a font family or a font size. The controls in `Views/Controls/` can be reused.
 3. **Registry:** add one entry to `ThemeCatalog.All` in `ThemeCatalog.cs`:
 
    ```csharp
@@ -391,7 +416,7 @@ No page, view model, service or style needs to change; the theme appears in `Per
 4. Use the bottom bar to switch between Inicio, Reproductor and Favoritos: the current one is marked. Press the current section's button: nothing changes. Press the gear: `AJUSTES` opens with no bar button marked; press the gear again: nothing changes.
 5. Inicio shows portrait cards: logo, name, details, play button and heart; cards in a row have the same height. Widen the Windows window: more columns appear; narrow it: never fewer than two. Tap a card (or its play button): Reproductor opens with its large logo (or the placeholder), name and details, the status goes `Cargando…` → `Reproduciendo`, and you hear audio. Back in Inicio, that card is highlighted; selecting another one moves the highlight.
 6. In Reproductor, press the stop icon (`Detener`): audio stops, the status shows `Detenido` and the centre shows the play icon. Press it (`Reproducir`): it plays again. Restart the app and open Reproductor first: `Selecciona una emisora en Inicio` and the play/stop control is disabled.
-7. Switch to Favoritos while audio plays: the audio stops. Return to Reproductor: the same station shows `Detenido`. Select another station in Inicio: the new station starts and the old one does not keep playing.
+7. Switch to Favoritos while audio plays: the audio keeps playing. Return to Reproductor: the same station shows `Reproduciendo`. Minimise the app: the audio stops. Select another station in Inicio: the new station starts and the old one does not keep playing.
 8. Let Inicio load the list, then turn off the computer's internet connection (on the emulator: turn on airplane mode) and select a station: within 15 seconds the status shows `Error`, `No se pudo reproducir esta emisora.` and `Reintentar`. The app keeps working. Turn the connection back on and press `Reintentar`: the station plays.
 9. Stop the API and relaunch the app: Inicio shows `No hay conexión con el servidor.` with a `Reintentar` button, and the app keeps working. Start the API again and press `Reintentar`: the list loads without restarting the app.
 10. Run the API with two invalid mirrors and search in the app: Inicio shows `No se pudo obtener el catálogo de emisoras.` For example:
@@ -421,6 +446,12 @@ No page, view model, service or style needs to change; the theme appears in `Per
 26. Migration: close the app, set `appearance_theme` to `black` in the preferences file (Windows: `%LOCALAPPDATA%\User Name\com.openwave.app\Settings\preferences.dat`) and start the app: it opens in `Moderno` `Oscuro` and the file now holds `moderno` and `dark`. With `white` it opens in `Claro`; with an unknown value it opens in `Moderno` `Claro` without crashing.
 27. Keyboard (Windows): with Tab you reach the gear, the search box, `Buscar`, `Limpiar búsqueda`, each card's play button and heart, and the bottom bar; the focused control shows an outline, and Enter or Space activates it. On a card's play button, Enter opens Reproductor and plays the station.
 28. Screen reader (Narrator on Windows, TalkBack on Android): the gear is read as `Ajustes`, a card's buttons as `Reproducir <name>` and `Añadir a favoritas` / `Quitar de favoritas`, Reproductor's as `Emisora favorita anterior`, `Reproducir` / `Detener` and `Emisora favorita siguiente`, and the marked bar button with `, seleccionado`.
+29. Tocadiscos: in `Personalización` select `Tocadiscos` while a station plays: every page changes at once, `Variante` disappears, and the audio keeps playing. Select `Moderno` again: the variant you had comes back. Restart the app: it opens in the last theme chosen.
+30. Tocadiscos Inicio: the wheel, Up/Down, swipe and pressing a smaller sleeve move the stack one station at a time and the panel follows. Press the big sleeve: it plays and Inicio stays on screen (`Reproduciendo` in the panel); press it again: it stops. The playing station's sleeve has the brass outline and the peeking record. Search: the first result is focused.
+31. Tocadiscos Favoritos: remove the focused favourite with its heart: the next one is focused (the previous one when it was the last).
+32. Tocadiscos Reproductor: open it while playing: the tonearm is already on the record and the record is turning. Press the tonearm: it lifts and the record slows down to a stop; press it again: it lands and the station plays. A broken stream lifts the arm and shows `Error` and `Reintentar`. The house opens Inicio and the gear Ajustes; there is no bottom bar.
+33. Tocadiscos crate: logged out it reads `Inicia sesión para ver tus favoritas` and opens the login page. With 8 favourites: 6 records, arrows and `1/2`; the next arrow (or a swipe) shows the other 2. Pressing a record plays it, and its record is raised and outlined. On Windows, Right/Left move between records and Enter plays.
+34. Reduced motion: with Windows animations turned off (Settings > Accessibility > Visual effects) or Android's animator duration scale at 0, the tonearm moves at once and the record does not turn.
 
 ## Notes
 

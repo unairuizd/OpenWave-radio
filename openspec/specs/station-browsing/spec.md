@@ -8,13 +8,13 @@ Lets the user browse, search and select real stations in Inicio and understand w
 
 ### Requirement: Station list in Inicio
 
-When the station list loads successfully, `Inicio` SHALL show the stations returned by the API as a grid of station cards, one card per station, with at least two columns on a phone and more columns on wider windows. The list SHALL contain every station returned by the API. Without an active search, `Inicio` SHALL request and show the top stations from the catalogue.
+When the station list loads successfully, `Inicio` SHALL show every station returned by the API, one entry per station: in `Moderno` as a grid of station cards with at least two columns on a phone and more columns on wider windows, and in `Tocadiscos` as the stack of record sleeves. Without an active search, `Inicio` SHALL request and show the top stations from the catalogue.
 
 #### Scenario: API is running
 
 - **WHEN** the API is running and the user opens `Inicio`
-- **THEN** the page lists the stations returned by the API as cards
-- **AND** each visible card shows the station name
+- **THEN** the page lists the stations returned by the API as cards in `Moderno`, or as sleeves in `Tocadiscos`
+- **AND** each visible card, or the focused sleeve's information panel, shows the station name
 
 #### Scenario: Loading the list
 
@@ -29,8 +29,13 @@ When the station list loads successfully, `Inicio` SHALL show the stations retur
 
 #### Scenario: Wide window
 
-- **WHEN** the Windows window is widened
+- **WHEN** the Windows window is widened in `Moderno`
 - **THEN** the grid shows more columns, about one for every 170 units of width, and never fewer than two
+
+#### Scenario: Up to a hundred stations
+
+- **WHEN** the API returns 100 stations and `Tocadiscos` is selected
+- **THEN** the user can reach every station in the sleeve stack and the page stays responsive
 
 ### Requirement: Error state with retry
 
@@ -57,14 +62,20 @@ When the station request fails, `Inicio` SHALL show an error message in Spanish 
 
 ### Requirement: Selecting a station
 
-Tapping a station card in `Inicio`, or its play button, SHALL select that station, navigate to `Reproductor`, and start its stream. If another station was playing, the previous stream SHALL stop.
+Selecting a station in `Inicio` SHALL select it and start its stream, stopping the previous one. In `Moderno`, tapping a station card or its play button SHALL also open `Reproductor`. In `Tocadiscos`, pressing the focused sleeve SHALL play the station and stay in `Inicio`, and pressing it again while it is the current station SHALL toggle play and stop.
 
 #### Scenario: Selecting a station
 
-- **WHEN** the user taps a station card or its play button
+- **WHEN** the user taps a station card or its play button in `Moderno`
 - **THEN** `Reproductor` is shown
 - **AND** it displays the name and country of that station
 - **AND** playback of that station starts
+
+#### Scenario: Selecting a station in Tocadiscos
+
+- **WHEN** the user presses the focused sleeve of a station that is not playing in `Tocadiscos`
+- **THEN** playback of that station starts
+- **AND** `Inicio` stays on screen and its information panel shows `Cargando…` and then `Reproduciendo`
 
 ### Requirement: Station search by name
 
@@ -90,7 +101,7 @@ Tapping a station card in `Inicio`, or its play button, SHALL select that statio
 
 ### Requirement: Selected station is identifiable
 
-`Inicio` SHALL visibly highlight the station currently selected in the app. The highlight SHALL move when another station is selected and SHALL be restored when `Inicio` is shown again. `Reproductor` SHALL identify the same station by showing its name and country.
+`Inicio` SHALL visibly mark the station currently selected in the app: in `Moderno` with the card highlight, and in `Tocadiscos` with the peeking disc and outline on its sleeve. The mark SHALL move when another station is selected and SHALL be restored when `Inicio` is shown again. `Reproductor` SHALL identify the same station by showing its name and country.
 
 #### Scenario: Highlighting the selected station
 
@@ -178,7 +189,7 @@ When preferences are applied and the request returns no stations, `Inicio` SHALL
 
 ### Requirement: Station cards
 
-Each station card SHALL be taller than it is wide and show, from top to bottom: the station logo (or the fallback image when it is missing or fails), the name (bold, at most two lines, ending with `…`), the characteristics (country · language, then up to three tags; at most two lines, ending with `…`), and a row with a play button on the left and a heart on the right.
+In `Moderno`, each station card SHALL be taller than it is wide and show, from top to bottom: the station logo (or the fallback image when it is missing or fails), the name (bold, at most two lines, ending with `…`), the characteristics (country · language, then up to three tags; at most two lines, ending with `…`), and a row with a play button on the left and a heart on the right.
 
 #### Scenario: Card content
 

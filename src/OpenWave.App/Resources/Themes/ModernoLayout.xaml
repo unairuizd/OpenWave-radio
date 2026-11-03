@@ -613,8 +613,8 @@
     </ControlTemplate>
 
     <!--
-        Reproductor. The page's content is its single audio player (a MediaElement that belongs to no layout); the
-        1x1 ContentPresenter shows it outside the artwork, so its platform view can never draw over the logo.
+        Reproductor. The app's single audio player belongs to the window, not to this page or layout; the 1x1
+        ContentPresenter only presents the page's (empty) content.
     -->
     <ControlTemplate x:Key="ReproductorTemplate">
         <Grid

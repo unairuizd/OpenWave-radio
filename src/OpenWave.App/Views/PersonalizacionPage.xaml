@@ -5,89 +5,102 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:services="clr-namespace:OpenWave.App.Services"
     xmlns:themes="clr-namespace:OpenWave.App.Resources.Themes"
+    xmlns:views="clr-namespace:OpenWave.App.Views"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:PersonalizacionViewModel"
     Title="Personalización"
-    ControlTemplate="{DynamicResource SettingsPageTemplate}"
     Shell.NavBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Style="{StaticResource SecondaryLabel}" Text="Los cambios se aplican y se guardan al momento." />
+    <!--
+        The theme is chosen on this page, so its content must never be moved to a new frame while it is shown (MAUI's
+        radio groups then keep re-selecting the previous theme). Instead of a page template, only the header and the
+        bottom bar come from the active layout, and the panel takes the layout's optional SettingsPanelStyle.
+    -->
+    <Grid RowDefinitions="Auto,*,Auto">
+        <ContentView Grid.Row="0" ControlTemplate="{DynamicResource HeaderTemplate}" />
 
-            <!--  Theme  -->
-            <Label Style="{StaticResource StationNameLabel}" Text="Tema" />
-            <VerticalStackLayout
-                BindableLayout.ItemsSource="{Binding Themes}"
-                RadioButtonGroup.GroupName="theme"
-                RadioButtonGroup.SelectedValue="{Binding SelectedThemeId}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="themes:AppThemeDefinition">
-                        <RadioButton Content="{Binding DisplayName}" Value="{Binding Id}" />
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </VerticalStackLayout>
+        <Border Grid.Row="1" Style="{DynamicResource SettingsPanelStyle}">
+            <ScrollView>
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <Label Style="{StaticResource SecondaryLabel}" Text="Los cambios se aplican y se guardan al momento." />
 
-            <!--  Variant: only for a theme with more than one palette  -->
-            <VerticalStackLayout IsVisible="{Binding ShowPaletteChoice}" Spacing="12">
-                <Label Style="{StaticResource StationNameLabel}" Text="Variante" />
-                <VerticalStackLayout
-                    BindableLayout.ItemsSource="{Binding Palettes}"
-                    RadioButtonGroup.GroupName="palette"
-                    RadioButtonGroup.SelectedValue="{Binding SelectedPaletteId}">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="themes:ThemePalette">
-                            <RadioButton Content="{Binding DisplayName}" Value="{Binding Id}" />
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
+                    <!--  Theme  -->
+                    <Label Style="{StaticResource StationNameLabel}" Text="Tema" />
+                    <VerticalStackLayout
+                        BindableLayout.ItemsSource="{Binding Themes}"
+                        RadioButtonGroup.GroupName="theme"
+                        RadioButtonGroup.SelectedValue="{Binding SelectedThemeId}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="themes:AppThemeDefinition">
+                                <RadioButton Content="{Binding DisplayName}" Value="{Binding Id}" />
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <!--  Variant: only for a theme with more than one palette  -->
+                    <VerticalStackLayout IsVisible="{Binding ShowPaletteChoice}" Spacing="12">
+                        <Label Style="{StaticResource StationNameLabel}" Text="Variante" />
+                        <VerticalStackLayout
+                            BindableLayout.ItemsSource="{Binding Palettes}"
+                            RadioButtonGroup.GroupName="palette"
+                            RadioButtonGroup.SelectedValue="{Binding SelectedPaletteId}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="themes:ThemePalette">
+                                    <RadioButton Content="{Binding DisplayName}" Value="{Binding Id}" />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!--  Font: each name is written in its own font  -->
+                    <Label Style="{StaticResource StationNameLabel}" Text="Tipo de letra" />
+                    <VerticalStackLayout
+                        BindableLayout.ItemsSource="{Binding Fonts}"
+                        RadioButtonGroup.GroupName="font"
+                        RadioButtonGroup.SelectedValue="{Binding SelectedFont}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="services:FontOption">
+                                <RadioButton
+                                    Content="{Binding Name}"
+                                    FontFamily="{Binding Name}"
+                                    Value="{Binding Name}" />
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <!--  Text size  -->
+                    <Label Style="{StaticResource StationNameLabel}" Text="Tamaño del texto" />
+                    <VerticalStackLayout
+                        BindableLayout.ItemsSource="{Binding Scales}"
+                        RadioButtonGroup.GroupName="scale"
+                        RadioButtonGroup.SelectedValue="{Binding SelectedScale}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="services:FontScaleOption">
+                                <RadioButton Content="{Binding DisplayName}" Value="{Binding Scale}" />
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <!--  Preview: the normal styles, so it shows exactly what the app shows  -->
+                    <Label Style="{StaticResource StationNameLabel}" Text="Vista previa" />
+                    <Border Style="{StaticResource StationCard}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Style="{StaticResource PageTitleLabel}" Text="Título de ejemplo" />
+                            <Label Text="Así se ve el texto normal de la aplicación." />
+                            <Label Style="{StaticResource SecondaryLabel}" Text="Texto secundario, como el país de una emisora." />
+                            <Button HorizontalOptions="Start" Text="Botón de ejemplo" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Button
+                        Margin="0,8,0,0"
+                        Command="{Binding ResetToDefaultsCommand}"
+                        Text="Restablecer valores por defecto" />
                 </VerticalStackLayout>
-            </VerticalStackLayout>
+            </ScrollView>
+        </Border>
 
-            <!--  Font: each name is written in its own font  -->
-            <Label Style="{StaticResource StationNameLabel}" Text="Tipo de letra" />
-            <VerticalStackLayout
-                BindableLayout.ItemsSource="{Binding Fonts}"
-                RadioButtonGroup.GroupName="font"
-                RadioButtonGroup.SelectedValue="{Binding SelectedFont}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="services:FontOption">
-                        <RadioButton
-                            Content="{Binding Name}"
-                            FontFamily="{Binding Name}"
-                            Value="{Binding Name}" />
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </VerticalStackLayout>
-
-            <!--  Text size  -->
-            <Label Style="{StaticResource StationNameLabel}" Text="Tamaño del texto" />
-            <VerticalStackLayout
-                BindableLayout.ItemsSource="{Binding Scales}"
-                RadioButtonGroup.GroupName="scale"
-                RadioButtonGroup.SelectedValue="{Binding SelectedScale}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="services:FontScaleOption">
-                        <RadioButton Content="{Binding DisplayName}" Value="{Binding Scale}" />
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </VerticalStackLayout>
-
-            <!--  Preview: the normal styles, so it shows exactly what the app shows  -->
-            <Label Style="{StaticResource StationNameLabel}" Text="Vista previa" />
-            <Border Style="{StaticResource StationCard}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Style="{StaticResource PageTitleLabel}" Text="Título de ejemplo" />
-                    <Label Text="Así se ve el texto normal de la aplicación." />
-                    <Label Style="{StaticResource SecondaryLabel}" Text="Texto secundario, como el país de una emisora." />
-                    <Button HorizontalOptions="Start" Text="Botón de ejemplo" />
-                </VerticalStackLayout>
-            </Border>
-
-            <Button
-                Margin="0,8,0,0"
-                Command="{Binding ResetToDefaultsCommand}"
-                Text="Restablecer valores por defecto" />
-        </VerticalStackLayout>
-    </ScrollView>
+        <views:BottomBar Grid.Row="2" ControlTemplate="{DynamicResource BottomBarTemplate}" />
+    </Grid>
 
 </ContentPage>

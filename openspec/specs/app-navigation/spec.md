@@ -8,7 +8,7 @@ Defines the three top-level destinations of the app and how the user moves betwe
 
 ### Requirement: Top-level destinations
 
-The app SHALL present exactly three top-level sections, in this order: `Inicio`, `Reproductor` and `Favoritos`, reachable on Android and Windows from a bottom bar that is part of every themed page. `Ajustes` SHALL NOT be a section of that bar. The app SHALL open on `Inicio`.
+The app SHALL present exactly three top-level sections, in this order: `Inicio`, `Reproductor` and `Favoritos`, reachable on Android and Windows from a bottom bar on the themed pages. `Ajustes` SHALL NOT be a section of that bar. A theme MAY leave the bar out of `Reproductor` only if that page offers its own way back to `Inicio` and to `Ajustes`. The app SHALL open on `Inicio`.
 
 #### Scenario: App start
 
@@ -20,7 +20,7 @@ The app SHALL present exactly three top-level sections, in this order: `Inicio`,
 
 - **WHEN** the user selects `Reproductor` or `Favoritos` in the bottom bar
 - **THEN** the corresponding page is shown without restarting the app
-- **AND** the user can return to any other section from the same bar
+- **AND** the user can return to any other section from the same bar, or from `Reproductor` with its own buttons when the theme shows no bar there
 
 #### Scenario: Returning to a destination
 
@@ -45,12 +45,17 @@ The `Ajustes` page SHALL open from the header's gear button and SHALL show two c
 
 ### Requirement: Common header
 
-Every themed page SHALL show a header row with the page title in upper case, centred on the full width of the page, and a gear button `Ajustes` on its right edge. The titles SHALL be `INICIO`, `REPRODUCTOR`, `FAVORITOS`, `AJUSTES`, `PERSONALIZACIÓN` and `PREFERENCIAS`. `Iniciar sesión` and `Crear cuenta` SHALL keep the platform header with its back action.
+Every themed page SHALL show a header row with the page title in upper case, centred on the full width of the page, and a gear button `Ajustes` on its right edge. The titles SHALL be `INICIO`, `REPRODUCTOR`, `FAVORITOS`, `AJUSTES`, `PERSONALIZACIÓN` and `PREFERENCIAS`. A theme MAY add a house button `Inicio` on the left of the `Reproductor` header. `Iniciar sesión` and `Crear cuenta` SHALL keep the platform header with its back action.
 
 #### Scenario: Header in Inicio
 
 - **WHEN** the user opens `Inicio`
 - **THEN** the header shows `INICIO` centred on the page and the gear on the right
+
+#### Scenario: House button in Reproductor
+
+- **WHEN** the user opens `Reproductor` in `Tocadiscos` and activates the house button
+- **THEN** `Inicio` is shown and its bottom bar button is marked
 
 ### Requirement: Gear opens Ajustes
 
@@ -69,7 +74,7 @@ The gear SHALL always lead to the main `Ajustes` page. From `Personalización` o
 
 ### Requirement: Bottom bar
 
-Every themed page SHALL show a bottom bar fixed at the bottom, clear of the system's gesture and navigation areas, with the buttons `Inicio`, `Reproductor` and `Favoritos`, each an icon with a label. The current section's button SHALL be marked, and screen readers SHALL announce which button is selected. On `Ajustes`, `Personalización` and `Preferencias` no button SHALL be marked.
+Every themed page that shows a bottom bar SHALL show it fixed at the bottom, clear of the system's gesture and navigation areas, with the buttons `Inicio`, `Reproductor` and `Favoritos`, each an icon with a label. The current section's button SHALL be marked, and screen readers SHALL announce which button is selected. On `Ajustes`, `Personalización` and `Preferencias` no button SHALL be marked. In `Moderno` every themed page shows it; in `Tocadiscos` every themed page except `Reproductor` does.
 
 #### Scenario: Marked section
 
@@ -80,6 +85,12 @@ Every themed page SHALL show a bottom bar fixed at the bottom, clear of the syst
 
 - **WHEN** the user is in `Ajustes`, `Personalización` or `Preferencias`
 - **THEN** no bottom bar button is marked
+
+#### Scenario: Reproductor without a bar
+
+- **WHEN** the user opens `Reproductor` in `Tocadiscos`
+- **THEN** no bottom bar is shown
+- **AND** the house button leads to `Inicio` and the gear to `Ajustes`
 
 ### Requirement: Navigating with the bottom bar
 

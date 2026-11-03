@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    A vinyl record: black disc with grooves and a label showing the station logo (cropped to a circle, over the fallback
+    image), a fixed shine and a spindle. Only the inner "Rotor" turns; nothing is redrawn while it spins. Original art
+    for OpenWave; every colour comes from the palette.
+-->
+<controls:PageAwareView
+    x:Class="OpenWave.App.Views.Controls.VinylDisc"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:OpenWave.App.Views.Controls"
+    AutomationProperties.IsInAccessibleTree="False"
+    InputTransparent="True">
+
+    <Grid x:Name="Disc" HorizontalOptions="Center" VerticalOptions="Center">
+
+        <!--  Turning part: disc, grooves and label  -->
+        <Grid x:Name="Rotor">
+            <Ellipse Fill="{DynamicResource InputBackgroundColor}" />
+            <Ellipse Scale="0.94" Stroke="{DynamicResource DividerColor}" StrokeThickness="1" />
+            <Ellipse Scale="0.86" Stroke="{DynamicResource DividerColor}" StrokeThickness="1" />
+            <Ellipse Scale="0.78" Stroke="{DynamicResource DividerColor}" StrokeThickness="1" />
+            <Ellipse Scale="0.70" Stroke="{DynamicResource DividerColor}" StrokeThickness="1" />
+            <Ellipse Scale="0.62" Stroke="{DynamicResource DividerColor}" StrokeThickness="1" />
+            <Ellipse Scale="0.54" Stroke="{DynamicResource DividerColor}" StrokeThickness="1" />
+            <Ellipse Scale="0.46" Stroke="{DynamicResource DividerColor}" StrokeThickness="2" />
+
+            <!--  Label  -->
+            <Ellipse Fill="{DynamicResource TabBarUnselectedColor}" Scale="0.38" />
+            <Image
+                x:Name="Fallback"
+                Aspect="AspectFill"
+                HorizontalOptions="Center"
+                Source="station_placeholder.png"
+                VerticalOptions="Center" />
+            <Image
+                x:Name="Logo"
+                Aspect="AspectFill"
+                HorizontalOptions="Center"
+                VerticalOptions="Center" />
+            <!--  A small mark on the label edge, so the turning is visible even with a round logo  -->
+            <Ellipse
+                x:Name="LabelMark"
+                Fill="{DynamicResource AccentColor}"
+                HorizontalOptions="Center"
+                VerticalOptions="Start" />
+        </Grid>
+
+        <!--  Fixed parts: shine and spindle  -->
+        <Ellipse Opacity="0.14">
+            <Ellipse.Fill>
+                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                    <GradientStop Offset="0" Color="{DynamicResource PrimaryTextColor}" />
+                    <GradientStop Offset="0.45" Color="{DynamicResource InputBackgroundColor}" />
+                    <GradientStop Offset="0.55" Color="{DynamicResource InputBackgroundColor}" />
+                    <GradientStop Offset="1" Color="{DynamicResource PrimaryTextColor}" />
+                </LinearGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+        <Ellipse
+            x:Name="Spindle"
+            Fill="{DynamicResource AccentColor}"
+            HorizontalOptions="Center"
+            Stroke="{DynamicResource InputBackgroundColor}"
+            StrokeThickness="1"
+            VerticalOptions="Center" />
+    </Grid>
+
+</controls:PageAwareView>

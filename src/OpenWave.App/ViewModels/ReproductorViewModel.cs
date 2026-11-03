@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,8 +22,31 @@ public partial class ReproductorViewModel : ObservableObject
         _favorites = favorites;
         _session = session;
         _playback.PropertyChanged += OnPlaybackPropertyChanged;
-        _favorites.FavoritesChanged += (_, _) => OnPropertyChanged(nameof(IsFavorite));
+        _favorites.FavoritesChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(IsFavorite));
+            RefreshFavorites();
+        };
+        _session.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(SessionService.CurrentUser))
+            {
+                OnPropertyChanged(nameof(IsLoggedIn));
+                RefreshFavorites();
+            }
+        };
+        RefreshFavorites();
     }
+
+    /// <summary>
+    /// The user's favourites in the Favoritos order (newest first), for themes that let the user change favourite
+    /// from Reproductor (for example the record crate). Empty when logged out.
+    /// </summary>
+    public ObservableCollection<StationListItem> Favorites { get; } = [];
+
+    public bool IsLoggedIn => _session.IsLoggedIn;
+
+    public bool HasNoFavorites => _session.IsLoggedIn && Favorites.Count == 0;
 
     public StationDto? CurrentStation => _playback.CurrentStation;
 
@@ -89,6 +113,23 @@ public partial class ReproductorViewModel : ObservableObject
             : Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Selects and plays a favourite, stopping the previous station.
+    /// </summary>
+    [RelayCommand]
+    private Task SelectFavoriteAsync(StationListItem? item)
+    {
+        return item is null ? Task.CompletedTask : _playback.SelectStationAsync(item.Station);
+    }
+
+    [RelayCommand]
+    private Task LogInAsync()
+    {
+        // Opened from here, not from a heart: nothing to add after logging in.
+        _favorites.PendingStation = null;
+        return Shell.Current.GoToAsync("login");
+    }
+
     [RelayCommand]
     private Task PreviousFavoriteAsync() => MoveToFavoriteAsync(-1);
 
@@ -148,11 +189,40 @@ public partial class ReproductorViewModel : ObservableObject
     private List<StationDto> CurrentFavorites() =>
         _favorites.Favorites.Where(f => _favorites.IsFavorite(f.Id)).ToList();
 
+    private void RefreshFavorites()
+    {
+        Favorites.Clear();
+        if (_session.IsLoggedIn)
+        {
+            var currentId = _playback.CurrentStation?.Id;
+            foreach (var station in CurrentFavorites())
+            {
+                Favorites.Add(new StationListItem(station)
+                {
+                    PlayCommand = SelectFavoriteCommand,
+                    IsFavorite = true,
+                    IsSelected = station.Id == currentId,
+                });
+            }
+        }
+
+        OnPropertyChanged(nameof(HasNoFavorites));
+    }
+
     private void OnPlaybackPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(PlaybackService.CurrentStation) or nameof(PlaybackService.State))
         {
             Notice = null;
+        }
+
+        if (e.PropertyName == nameof(PlaybackService.CurrentStation))
+        {
+            var currentId = _playback.CurrentStation?.Id;
+            foreach (var item in Favorites)
+            {
+                item.IsSelected = item.Station.Id == currentId;
+            }
         }
 
         OnPropertyChanged(nameof(CurrentStation));

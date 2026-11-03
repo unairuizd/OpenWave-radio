@@ -1,27 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    The look comes from the active theme layout (ReproductorTemplate). The page's only content is the app's single
-    audio player, so it belongs to no layout: a theme change never recreates or duplicates it.
+    The look comes from the active theme layout (ReproductorTemplate); the page keeps only its view model.
+    The app's single audio player is not here: it belongs to the window (MediaElementAudioPlayer), so leaving this
+    page or changing the theme never stops or duplicates the audio.
 -->
 <ContentPage
     x:Class="OpenWave.App.Views.ReproductorPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:services="clr-namespace:OpenWave.App.Services"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:ReproductorViewModel"
     Title="Reproductor"
     services:AppNavigation.Section="Reproductor"
     ControlTemplate="{DynamicResource ReproductorTemplate}"
-    Shell.NavBarIsVisible="False">
-
-    <!--  Audio-only player: 1x1 and never collapsed, so the platform player stays alive while audio plays.  -->
-    <toolkit:MediaElement
-        x:Name="Player"
-        HeightRequest="1"
-        HorizontalOptions="Start"
-        ShouldShowPlaybackControls="False"
-        WidthRequest="1" />
-
-</ContentPage>
+    Shell.NavBarIsVisible="False" />

@@ -123,6 +123,27 @@ public partial class InicioViewModel : ObservableObject
         await Shell.Current.GoToAsync("//reproductor");
     }
 
+    /// <summary>
+    /// The play state, for themes that show it next to the station (for example "Reproduciendo").
+    /// </summary>
+    public string PlaybackStatusText => _playback.StatusText;
+
+    /// <summary>
+    /// Plays <paramref name="item"/> without leaving Inicio; on the current station it toggles play and stop.
+    /// </summary>
+    [RelayCommand]
+    private Task PlayHereAsync(StationListItem? item)
+    {
+        if (item is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _playback.CurrentStation?.Id == item.Station.Id
+            ? _playback.ToggleAsync()
+            : _playback.SelectStationAsync(item.Station);
+    }
+
     [RelayCommand(AllowConcurrentExecutions = true)]
     private Task ToggleFavoriteAsync(StationListItem? item)
     {
@@ -217,6 +238,11 @@ public partial class InicioViewModel : ObservableObject
 
     private void OnPlaybackPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(PlaybackService.StatusText))
+        {
+            OnPropertyChanged(nameof(PlaybackStatusText));
+        }
+
         if (e.PropertyName != nameof(PlaybackService.CurrentStation))
         {
             return;

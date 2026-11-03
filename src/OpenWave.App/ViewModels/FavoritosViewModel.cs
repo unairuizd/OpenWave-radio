@@ -82,6 +82,27 @@ public partial class FavoritosViewModel : ObservableObject
         await Shell.Current.GoToAsync("//reproductor");
     }
 
+    /// <summary>
+    /// The play state, for themes that show it next to the station (for example "Reproduciendo").
+    /// </summary>
+    public string PlaybackStatusText => _playback.StatusText;
+
+    /// <summary>
+    /// Plays <paramref name="item"/> without leaving Favoritos; on the current station it toggles play and stop.
+    /// </summary>
+    [RelayCommand]
+    private Task PlayHereAsync(StationListItem? item)
+    {
+        if (item is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _playback.CurrentStation?.Id == item.Station.Id
+            ? _playback.ToggleAsync()
+            : _playback.SelectStationAsync(item.Station);
+    }
+
     [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task RemoveAsync(StationListItem? item)
     {
@@ -154,6 +175,11 @@ public partial class FavoritosViewModel : ObservableObject
 
     private void OnPlaybackPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(PlaybackService.StatusText))
+        {
+            OnPropertyChanged(nameof(PlaybackStatusText));
+        }
+
         if (e.PropertyName != nameof(PlaybackService.CurrentStation))
         {
             return;

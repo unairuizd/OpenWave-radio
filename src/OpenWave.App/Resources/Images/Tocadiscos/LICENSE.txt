@@ -1,0 +1,15 @@
+OpenWave - Tocadiscos theme art
+===============================
+
+All the art of the Tocadiscos theme (record with grooves, shine, label and spindle,
+tonearm, record sleeves, the small "peeking" disc, the record crate with its front,
+partition and slots, and the wooden strips) is original work drawn for the OpenWave
+course project. It is drawn as vector shapes in XAML (Views/Controls/ and
+Resources/Themes/TocadiscosLayout.xaml) and takes every colour from the theme palette.
+
+It is not copied or derived from the design, logo or name of any real turntable,
+record label or brand, and it uses no third-party glyphs or images.
+
+The theme also reuses the OpenWave icons in Resources/Images (see Icons-LICENSE.txt).
+
+It may be used under the same terms as the rest of the OpenWave source code.

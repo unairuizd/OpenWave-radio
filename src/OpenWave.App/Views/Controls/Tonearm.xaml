@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    The tonearm of the turntable, placed over a VinylDisc in the same cell: a pivot outside the record (top right), the
+    arm with its counterweight and headshell, and a transparent button along the whole arm that is the play/stop
+    control. Original art for OpenWave; every colour comes from the palette.
+-->
+<controls:PageAwareView
+    x:Class="OpenWave.App.Views.Controls.Tonearm"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:OpenWave.App.Views.Controls">
+
+    <Grid CascadeInputTransparent="False" InputTransparent="True">
+
+        <!--  Pivot base (does not turn)  -->
+        <Ellipse
+            x:Name="PivotBase"
+            Fill="{DynamicResource DividerColor}"
+            HorizontalOptions="Start"
+            InputTransparent="True"
+            Stroke="{DynamicResource AccentColor}"
+            StrokeThickness="2"
+            VerticalOptions="Start" />
+
+        <!--  The arm turns around the pivot  -->
+        <Grid
+            x:Name="Arm"
+            HorizontalOptions="Start"
+            VerticalOptions="Start">
+            <BoxView
+                x:Name="Rod"
+                CornerRadius="2"
+                HorizontalOptions="Center"
+                InputTransparent="True"
+                Color="{DynamicResource AccentColor}" />
+            <BoxView
+                x:Name="Counterweight"
+                CornerRadius="3"
+                HorizontalOptions="Center"
+                InputTransparent="True"
+                VerticalOptions="Start"
+                Color="{DynamicResource DividerColor}" />
+            <BoxView
+                x:Name="Headshell"
+                CornerRadius="2"
+                HorizontalOptions="Center"
+                InputTransparent="True"
+                VerticalOptions="End"
+                Color="{DynamicResource AccentColor}" />
+            <!--  The real control: wide and invisible, so the thin arm is easy to press and to focus  -->
+            <Button
+                x:Name="HitArea"
+                Padding="0"
+                BackgroundColor="Transparent"
+                BorderWidth="0"
+                Clicked="OnHitAreaClicked" />
+        </Grid>
+    </Grid>
+
+</controls:PageAwareView>

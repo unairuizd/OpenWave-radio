@@ -90,7 +90,8 @@ During task group 2 it starts as a copy of Moderno's templates, so the theme is 
 - **`FavoritosTemplate`:** the same, with the compact account row instead of the search row. The logged-out, loading, error and empty states sit in the main area, centred.
 - **`ReproductorTemplate`**, rows: `ReproductorHeaderTemplate` / turntable area (`3*,2*`: record + tonearm, information panel + status line) / `RecordCrate`, about 28% of the height. No `BottomBar`.
 - **`AjustesTemplate`:** header, the two cards, bottom bar. Each card is a `Grid`: a vinyl `Ellipse` peeking out on the right behind a `Button` with a cream background (`TabBarUnselectedColor`), `AccentTextColor` text and an `AccentColor` border. The button is the only interactive element.
-- **`SettingsPageTemplate`:** wood background, header, a rounded `Border` (`TabBarBackgroundColor`) around the `ContentPresenter`, then the bottom bar.
+- **`SettingsPageTemplate`:** wood background, header, a rounded wood-framed `Border` around the `ContentPresenter`, then the bottom bar.
+- **Found during implementation:** `Personalización` cannot use `SettingsPageTemplate`. A theme change moves its content into the new layout's frame while the page is shown, and MAUI's radio groups then keep re-selecting the previous theme in an endless loop. `Personalización` therefore builds its own frame from the layout's `HeaderTemplate` and `BottomBarTemplate` plus an optional `SettingsPanelStyle` key, which Tocadiscos defines and Moderno does not, so Moderno looks the same. `Preferencias` keeps `SettingsPageTemplate`. The panel uses `PageBackgroundColor` with a wood frame, because the shared radio-button style paints each option with the page colour.
 
 **Header and bar:**
 - `HeaderTemplate` and `BottomBarTemplate` reuse `AppNavigation`, `BottomBar` and `IconTint` exactly like Moderno, styled as a wooden strip with brass icons.

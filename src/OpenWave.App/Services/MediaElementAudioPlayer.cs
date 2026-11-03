@@ -1,11 +1,13 @@
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
+using Microsoft.Maui.Platform;
 
 namespace OpenWave.App.Services;
 
 /// <summary>
-/// <see cref="IAudioPlayer"/> backed by the <see cref="MediaElement"/> hosted on the player page.
-/// A stream requested before the page attaches its element starts when it attaches.
+/// <see cref="IAudioPlayer"/> backed by the app's single <see cref="MediaElement"/>. The element belongs to no page
+/// and no theme layout: it is created once with the window, so audio keeps playing while the user changes page or
+/// theme. A stream requested before the window exists starts when the element is created.
 /// </summary>
 public sealed class MediaElementAudioPlayer : IAudioPlayer
 {
@@ -23,17 +25,21 @@ public sealed class MediaElementAudioPlayer : IAudioPlayer
 
     public event EventHandler<string>? Failed;
 
-    public void Attach(MediaElement element)
+    /// <summary>
+    /// Creates the audio element and its platform player and places it in <paramref name="window"/>, outside every page.
+    /// Call once, when the app window has been created.
+    /// </summary>
+    public void CreateElement(Window window)
     {
-        if (_element == element)
+        if (_element is not null || window.Handler?.MauiContext is not { } context)
         {
             return;
         }
 
-        if (_element is not null)
-        {
-            Detach(_element);
-        }
+        // Audio only: a 1x1 element that needs no place in any page.
+        var element = new MediaElement { ShouldShowPlaybackControls = false, WidthRequest = 1, HeightRequest = 1 };
+        _ = element.ToPlatform(context);
+        AudioHost.Attach(element, window);
 
         _element = element;
         _element.ShouldAutoPlay = true;
@@ -44,22 +50,6 @@ public sealed class MediaElementAudioPlayer : IAudioPlayer
         {
             Start(_pendingUrl);
         }
-    }
-
-    /// <summary>
-    /// Stops playback and releases <paramref name="element"/>.
-    /// </summary>
-    public void Detach(MediaElement element)
-    {
-        if (_element != element)
-        {
-            return;
-        }
-
-        Stop();
-        _element.StateChanged -= OnElementStateChanged;
-        _element.MediaFailed -= OnElementMediaFailed;
-        _element = null;
     }
 
     public void Play(string streamUrl)

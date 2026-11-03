@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using OpenWave.App.Services;
 using OpenWave.App.Views;
 

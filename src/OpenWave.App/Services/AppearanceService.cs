@@ -30,6 +30,9 @@ public partial class AppearanceService : ObservableObject
     private ResourceDictionary? _paletteDictionary;
     private ResourceDictionary? _layoutDictionary;
 
+    // True while a theme is being applied.
+    private bool _applying;
+
     [ObservableProperty]
     public partial string ThemeId { get; private set; } = ThemeCatalog.DefaultId;
 
@@ -60,12 +63,14 @@ public partial class AppearanceService : ObservableObject
     public void SetTheme(string id)
     {
         var theme = ThemeCatalog.Find(id);
-        if (theme is null)
+        if (theme is null || _applying)
         {
             return;
         }
 
-        var palette = theme.FindPalette(PaletteId) ?? theme.Palettes[0];
+        // The variant last chosen is remembered even while a single-palette theme is shown, so it comes back with
+        // its theme.
+        var palette = theme.FindPalette(ReadString(PaletteKey)) ?? theme.FindPalette(PaletteId) ?? theme.Palettes[0];
         ApplyTheme(theme, palette);
         StoreTheme(theme, palette);
     }
@@ -77,7 +82,7 @@ public partial class AppearanceService : ObservableObject
     {
         var theme = ThemeCatalog.Find(ThemeId) ?? ThemeCatalog.Default;
         var palette = theme.FindPalette(id);
-        if (palette is null)
+        if (palette is null || _applying)
         {
             return;
         }
@@ -146,10 +151,14 @@ public partial class AppearanceService : ObservableObject
         return (theme, theme.FindPalette(paletteId) ?? theme.Palettes[0]);
     }
 
+    // A theme with a single palette leaves the stored variant alone, so the other theme's variant is kept.
     private static void StoreTheme(AppThemeDefinition theme, ThemePalette palette)
     {
         Preferences.Default.Set(ThemeKey, theme.Id);
-        Preferences.Default.Set(PaletteKey, palette.Id);
+        if (theme.Palettes.Count > 1)
+        {
+            Preferences.Default.Set(PaletteKey, palette.Id);
+        }
     }
 
     private void ApplyTheme(AppThemeDefinition theme, ThemePalette palette)
@@ -180,8 +189,19 @@ public partial class AppearanceService : ObservableObject
 
         // Native controls (inputs, pickers, dialogs) follow the palette's light or dark mode.
         app.UserAppTheme = palette.BaseTheme;
-        ThemeId = theme.Id;
-        PaletteId = palette.Id;
+
+        // The palette first: listeners that rebuild their variant list when the theme changes then already see the
+        // new variant. Selections echoed back while this runs are ignored (see SetTheme and SetPalette).
+        _applying = true;
+        try
+        {
+            PaletteId = palette.Id;
+            ThemeId = theme.Id;
+        }
+        finally
+        {
+            _applying = false;
+        }
     }
 
     private void ApplyFont(string name)

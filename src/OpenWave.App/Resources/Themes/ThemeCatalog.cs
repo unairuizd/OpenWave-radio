@@ -1,4 +1,4 @@
-namespace OpenWave.App.Resources.Themes;
+﻿namespace OpenWave.App.Resources.Themes;
 
 /// <summary>
 /// One colour variant of a theme: the resource dictionary with its colours and the light/dark mode that
@@ -41,7 +41,12 @@ public static class ThemeCatalog
         [
             new(DefaultPaletteId, "Claro", typeof(ModernoLightPalette), AppTheme.Light),
             new("dark", "Oscuro", typeof(ModernoDarkPalette), AppTheme.Dark),
-        ]),    ];
+        ]),
+        new("tocadiscos", "Tocadiscos", typeof(TocadiscosLayout),
+        [
+            new("standard", "Estándar", typeof(TocadiscosPalette), AppTheme.Dark),
+        ]),
+    ];
 
     public static AppThemeDefinition Default => Find(DefaultId)!;
 

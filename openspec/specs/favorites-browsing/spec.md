@@ -8,7 +8,7 @@ Lets a logged-in user mark stations as favourites from `Inicio` and `Reproductor
 
 ### Requirement: Favourite toggle on stations
 
-Every station card in `Inicio` and the selected station in `Reproductor` SHALL show a heart toggle. It SHALL appear as a filled heart when the station is one of the logged-in user's stored favourites, and as an outline heart when it is not or when no user is logged in. Its accessible name SHALL be `Quitar de favoritas` when filled and `Añadir a favoritas` when outlined.
+Every station shown in `Inicio` and the selected station in `Reproductor` SHALL have a heart toggle: on each card in `Moderno`, and next to the name in the information panel in `Tocadiscos`. It SHALL appear as a filled heart when the station is one of the logged-in user's stored favourites, and as an outline heart when it is not or when no user is logged in. Its accessible name SHALL be `Quitar de favoritas` when filled and `Añadir a favoritas` when outlined.
 
 #### Scenario: Favourites loaded after login
 
@@ -71,13 +71,13 @@ The heart state SHALL match the stored favourites in every screen. A change made
 
 ### Requirement: Favoritos list
 
-For a logged-in user, `Favoritos` SHALL show their favourite stations newest first, as the same station cards and grid used in `Inicio`. While loading it SHALL show a loading indicator, and when the user has none it SHALL show `Aún no tienes emisoras favoritas.` The logged-in email and `Cerrar sesión` SHALL be shown in one compact row directly under the header.
+For a logged-in user, `Favoritos` SHALL show their favourite stations newest first, in the same presentation as `Inicio`: cards in a grid in `Moderno`, the sleeve stack in `Tocadiscos`. While loading it SHALL show a loading indicator, and when the user has none it SHALL show `Aún no tienes emisoras favoritas.` The logged-in email and `Cerrar sesión` SHALL be shown in one compact row directly under the header.
 
 #### Scenario: User with favourites
 
 - **WHEN** a logged-in user with favourites opens `Favoritos`
 - **THEN** a loading indicator is shown while the list loads
-- **AND** the favourites are shown newest first as cards with their names and filled hearts
+- **AND** the favourites are shown newest first with their names and filled hearts
 - **AND** the email and `Cerrar sesión` are shown above them
 
 #### Scenario: User without favourites
@@ -112,17 +112,22 @@ When no user is logged in, `Favoritos` SHALL show `Inicia sesión para ver tus f
 
 ### Requirement: Playing a favourite
 
-Activating a station card in `Favoritos`, or its play button, SHALL select it, open `Reproductor` and start its playback, exactly as selecting a station in `Inicio` does.
+Playing a station from `Favoritos` SHALL behave exactly as selecting a station in `Inicio` does in the same theme: in `Moderno` a card or its play button selects it, opens `Reproductor` and starts its playback; in `Tocadiscos` the focused sleeve starts it and the page stays on `Favoritos`.
 
 #### Scenario: Playing from Favoritos
 
-- **WHEN** a logged-in user taps a station card in `Favoritos`
+- **WHEN** a logged-in user taps a station card in `Favoritos` in `Moderno`
 - **THEN** `Reproductor` opens with that station's name and country
 - **AND** its playback starts
 
+#### Scenario: Playing from Favoritos in Tocadiscos
+
+- **WHEN** a logged-in user presses the focused sleeve in `Favoritos` in `Tocadiscos`
+- **THEN** its playback starts and `Favoritos` stays on screen
+
 ### Requirement: Removing a favourite from Favoritos
 
-The filled heart of each card in `Favoritos` SHALL remove the station immediately, without confirmation, and update the list. If removal fails, the station SHALL stay in the list and the app SHALL show `No se pudo actualizar tus favoritas.`
+The filled heart of a station in `Favoritos` (on its card, or in the information panel in `Tocadiscos`) SHALL remove the station immediately, without confirmation, and update the list. If removal fails, the station SHALL stay in the list and the app SHALL show `No se pudo actualizar tus favoritas.`
 
 #### Scenario: Removing a favourite
 
