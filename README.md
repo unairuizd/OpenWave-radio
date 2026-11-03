@@ -263,6 +263,8 @@ Every page except `Iniciar sesión` and `Crear cuenta` has the same frame, drawn
 
 **Station cards** (Inicio and Favoritos) are taller than wide: logo, name (bold, up to two lines), details (country · language, then up to three tags, up to two lines; `Desconocido` for a missing country or language), and a row with the play button on the left and the heart on the right. The grid has one column for about every 170 units of width, and never fewer than two. Tapping the card or its play button plays the station; the heart never selects it.
 
+**App icon:** the OpenWave logo (the play button with a cable and the "W" with radio waves) on white, in `src/OpenWave.App/Resources/AppIcon/appiconfg.png` over the white `appicon.svg`. The `MauiIcon` item scales it to 70% (`ForegroundScale="0.7"`) so Android's round and squircle icon shapes never cut it; Windows uses the same image for the `.exe`, the taskbar and Alt+Tab. After changing it, uninstall the app on Android (launchers cache icons) before deploying again.
+
 **Icons** are original 24×24 single-colour drawings made for this project (`Resources/Images/ic_*.svg`, see `Icons-LICENSE.txt`, also shipped in the app's `Licences/` folder). They are tinted at runtime with the palette colours, and their size follows the title text size.
 
 **Known limitation (Windows):** after a text size change in `Personalización`, icons on pages that were already open keep their previous size; the text resizes at once. Pages opened afterwards, and every page after restarting the app, show the icons at the new size. The CommunityToolkit tint draws each icon at the size it had when it was first drawn. Android resizes every icon immediately.
