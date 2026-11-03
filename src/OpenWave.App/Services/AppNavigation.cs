@@ -31,15 +31,20 @@ public static class AppNavigation
 
     public static void SetSection(BindableObject page, AppSection value) => page.SetValue(SectionProperty, value);
 
+    // The commands are static, so every button of every layout ever shown stays subscribed to them. Allowing concurrent
+    // executions keeps CanExecute always true: the commands never raise CanExecuteChanged, which would otherwise reach
+    // buttons of layouts already removed by a theme change (whose native views are disposed) and crash the app.
+    private const AsyncRelayCommandOptions Options = AsyncRelayCommandOptions.AllowConcurrentExecutions;
+
     /// <summary>
     /// The header's gear: opens Ajustes, returns to it from its sub-pages, and does nothing on Ajustes itself.
     /// </summary>
-    public static ICommand OpenAjustesCommand { get; } = new AsyncRelayCommand(OpenAjustesAsync);
+    public static ICommand OpenAjustesCommand { get; } = new AsyncRelayCommand(OpenAjustesAsync, Options);
 
     /// <summary>
     /// A bottom bar button; the parameter is the section's route (<c>inicio</c>, <c>reproductor</c> or <c>favoritos</c>).
     /// </summary>
-    public static ICommand GoToSectionCommand { get; } = new AsyncRelayCommand<string>(GoToSectionAsync);
+    public static ICommand GoToSectionCommand { get; } = new AsyncRelayCommand<string>(GoToSectionAsync, Options);
 
     private static Task OpenAjustesAsync()
     {
@@ -61,21 +66,31 @@ public static class AppNavigation
         return shell.GoToAsync("ajustes");
     }
 
-    private static Task GoToSectionAsync(string? route)
+    private static async Task GoToSectionAsync(string? route)
     {
         var shell = Shell.Current;
         if (route is null || !Enum.TryParse<AppSection>(route, ignoreCase: true, out var section))
         {
-            return Task.CompletedTask;
+            return;
         }
 
         // Already on that section's own page: nothing to do (playback in Reproductor goes on).
         if (shell.Navigation.NavigationStack.Count <= 1 && shell.CurrentPage is { } page && GetSection(page) == section)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        // An absolute route also closes any settings pages pushed on top.
-        return shell.GoToAsync("//" + route);
+        // Settings pages pushed on the current section stay in that section's stack when another section is shown,
+        // and would come back on top of it later, so close them first.
+        if (shell.Navigation.NavigationStack.Count > 1)
+        {
+            await shell.Navigation.PopToRootAsync(animated: false);
+            if (shell.CurrentPage is { } root && GetSection(root) == section)
+            {
+                return;
+            }
+        }
+
+        await shell.GoToAsync("//" + route);
     }
 }

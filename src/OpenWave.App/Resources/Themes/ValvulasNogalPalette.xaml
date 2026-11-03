@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Radio de válvulas "Nogal" palette: dark walnut cabinet, warm ivory text and a glowing green magic eye. The selected-item colour is the outline of the current station on the dial. Same colour keys as every palette.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.ValvulasNogalPalette"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Pages and surfaces -->
+    <Color x:Key="PageBackgroundColor">#24170E</Color>
+    <Color x:Key="SurfaceColor">#352418</Color>
+    <Color x:Key="InputBackgroundColor">#0F0A06</Color>
+    <Color x:Key="DividerColor">#5A4330</Color>
+    <Color x:Key="SelectedItemBackgroundColor">#7BD49A</Color>
+
+    <!-- Text -->
+    <Color x:Key="PrimaryTextColor">#F1E4C8</Color>
+    <Color x:Key="SecondaryTextColor">#CDB892</Color>
+    <Color x:Key="ErrorTextColor">#FF9E85</Color>
+
+    <!-- Accent: buttons, magic eye, heart and needle -->
+    <Color x:Key="AccentColor">#7BD49A</Color>
+    <Color x:Key="AccentTextColor">#0D2416</Color>
+    <Color x:Key="FavoriteIconColor">#F2B35B</Color>
+
+    <!-- Wooden strip: header and bottom bar -->
+    <Color x:Key="TabBarBackgroundColor">#170F09</Color>
+    <Color x:Key="TabBarSelectedColor">#8FE0AA</Color>
+    <Color x:Key="TabBarUnselectedColor">#E3D5B8</Color>
+
+</ResourceDictionary>

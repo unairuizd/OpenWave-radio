@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Casete portátil "Metal azul" palette: a blue metal body, a darker cassette window, light text, orange foam keys
+    and brushed silver for the keys and the J-card paper. The selected-item colour is the orange outline of the
+    current tape. Orange is never text on SurfaceColor (3.88:1), and text on the silver is dark (AccentTextColor).
+    Same colour keys as every palette.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.CaseteMetalPalette"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Pages and surfaces -->
+    <Color x:Key="PageBackgroundColor">#1F3A5F</Color>
+    <Color x:Key="SurfaceColor">#2A4A73</Color>
+    <Color x:Key="InputBackgroundColor">#0E1A2B</Color>
+    <Color x:Key="DividerColor">#4D6A90</Color>
+    <Color x:Key="SelectedItemBackgroundColor">#FF8C1A</Color>
+
+    <!-- Text -->
+    <Color x:Key="PrimaryTextColor">#F2F6FB</Color>
+    <Color x:Key="SecondaryTextColor">#C3D1E3</Color>
+    <Color x:Key="ErrorTextColor">#FFB4A8</Color>
+
+    <!-- Accent: the orange foam of the PLAY key and the buttons; hearts -->
+    <Color x:Key="AccentColor">#FF8C1A</Color>
+    <Color x:Key="AccentTextColor">#2A1400</Color>
+    <Color x:Key="FavoriteIconColor">#FFB24D</Color>
+
+    <!-- The darker edge strip with the silver keys -->
+    <Color x:Key="TabBarBackgroundColor">#152A45</Color>
+    <Color x:Key="TabBarSelectedColor">#FFB24D</Color>
+    <Color x:Key="TabBarUnselectedColor">#D5DEEA</Color>
+
+</ResourceDictionary>

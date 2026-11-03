@@ -37,7 +37,7 @@ See proposal.md for the motivation. The briefs in `openspec/theme-briefs/` and t
 
 **Non-Goals:**
 - No theme-specific fonts, no raster art, no sound, no real audio levels.
-- No change to services other than `AppearanceService`, to view models, the API or the database.
+- No change to services other than `AppearanceService`, to view models, the API or the database. One exception, decided during group 6: `PlaybackService` also writes its `IsActive` to a small static, bindable `PlaybackIndicator`, so the Mesa de DJ `EN DIRECTO` tag can light on every page, including the settings pages whose view models do not know the play state. In group 7 it also carries `StatusText`, so the MP3 line shared by Inicio and Favoritos can show the current station's play state.
 - No change to the eight-key layout contract or the 14-key palette contract.
 - No navigation change: Clásico de rueda keeps a bottom bar, and `MENÚ` only opens `Inicio`.
 
@@ -221,6 +221,7 @@ Rules carried into the layouts:
 - **Válvulas `Baquelita`:** text on the wooden strip uses the bar colours, never `PrimaryTextColor` (1.16:1).
 - **Casete:** orange is never used for text on `SurfaceColor` (3.88:1).
 - **Rueda `Blanco`:** text on the highlighted row is `AccentTextColor`.
+- **Rueda `Negro` (changed in group 8):** one layout serves both palettes, so the highlighted row's text is `AccentTextColor` in `Negro` too. Its accent is therefore a deep blue `#2E63C0` with white `AccentTextColor` (5.73:1; 7.06:1 on the highlighted row) instead of the brief's light blue with dark text; the light blue stays for the hearts and the marked bar item.
 
 ### 11. Art and licence
 

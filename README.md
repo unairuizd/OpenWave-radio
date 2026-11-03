@@ -305,8 +305,8 @@ The app's look (theme, variant, font and text size) is set by `AppearanceService
 
 | Preference key | Default | Values |
 |---|---|---|
-| `appearance_theme` | `moderno` | `moderno` (Moderno), `tocadiscos` (Tocadiscos) |
-| `appearance_theme_variant` | `light` | `light` (Claro), `dark` (Oscuro); kept while Tocadiscos (one palette) is selected, so Moderno comes back with its variant |
+| `appearance_theme` | `moderno` | `moderno` (Moderno), `tocadiscos` (Tocadiscos), `valvulas` (Radio de válvulas), `casete` (Casete portátil), `boombox` (Boombox), `mesadj` (Mesa de DJ), `mp3` (MP3), `rueda` (Clásico de rueda) |
+| `appearance_theme_variant` | `light` | the palette id: `light` (Claro), `dark` (Oscuro), `baquelita`, `nogal`, `blanco`, `negro`. Kept while a one-palette theme (Tocadiscos, Casete portátil, Boombox, Mesa de DJ, MP3) is selected. A theme without the stored palette uses its palette of the same light or dark kind, so Moderno `Oscuro` → Radio de válvulas gives `Nogal`, and back gives `Oscuro` |
 | `appearance_font` | `Ubuntu` | `Ubuntu`, `Dosis`, `Caladea`, `Cormorant Garamond`, `Recursive`, `Pixelify Sans` |
 | `appearance_font_scale` | `1.0` | `0.85` Pequeño, `1.0` Normal, `1.2` Grande, `1.4` Muy grande, `1.6` Enorme |
 
@@ -338,6 +338,51 @@ Each palette also sets the light or dark mode of the native controls (text input
 - **Ajustes:** the two cards drawn as cream sleeves with a peeking vinyl; Personalización and Preferencias sit on a framed wood panel.
 
 The custom controls are UI only and live in `Views/Controls/`: `VinylDisc`, `Tonearm`, `SleeveStack`, `RecordCrate` (plus `PageAwareView` and `MotionSettings`). They get everything through bindable properties and never call a service. **Animations only observe `PlaybackService.State`** (through the view models): the tonearm lands in about 600 ms with a short settle and lifts in about 500 ms, and the record speeds up over 1.2 s and slows down over 1.8 s from its current angle. They stop while the page is hidden, and with reduced motion (Windows animations off, Android animator duration scale 0) the tonearm moves at once and the record stays still. All the Tocadiscos art is original and drawn with shapes in XAML (`Resources/Images/Tocadiscos/LICENSE.txt`, also shipped as `Licences/Tocadiscos-LICENSE.txt`).
+
+**Radio de válvulas** (`ValvulasLayout.xaml`) is a 1940s–50s valve table radio, with two variants: **Baquelita** (`ValvulasBaquelitaPalette.xaml`, light: cream bakelite, dark brown text, bottle green) and **Nogal** (`ValvulasNogalPalette.xaml`, dark: walnut, ivory text, glowing green). The header and the bottom bar are a wooden strip; the bar has three round ivory buttons.
+
+- **Inicio:** the stations sit along a glass tuning dial with a printed scale; the focused one is under the red needle in the lit window, with two neighbours on each side, and `emisora {n} de {total}` below. A swipe on the dial, the tuning knob (a press steps to the next station; on Windows Left/Right step and Enter or Space plays), the mouse wheel on Windows and pressing a neighbour move one station at a time. Below, on the speaker grille, the information panel shows the name, details, heart, the play state and `Escuchar`, which plays without leaving the page (`Apagar` while it plays). Pressing the focused station on the dial does the same. The current station is marked with the lit fill (Baquelita) or an outline (Nogal).
+- **Favoritos:** the account row, then the radio log: one dial label per favourite (logo, name, details, play state, `Escuchar` and the heart that removes it). Pressing a label plays it in place.
+- **Reproductor:** the house and the gear in the header; the dial with only the current station, the magic eye and the power knob (`Reproducir` / `Detener`); the panel with the logo, details, heart, status line and `Reintentar`; and five ivory preset keys with your favourites (`Presintonía {n}: {nombre}`), the current one pressed down, with arrow keys and `1/2` when there are more. No bottom bar. When the radio is turned on, the dial window glows in over 1.5 s and the magic eye closes over 0.8 s; on stop both return in 0.6 s. With reduced motion, or a page shown while playing, the final state appears at once.
+- **Ajustes:** the two entries as wide ivory keys; Personalización and Preferencias sit on a rounded cloth panel.
+
+**Casete portátil** (`CaseteLayout.xaml`, one palette `CaseteMetalPalette.xaml` "Metal azul", dark) is a 1980s portable cassette player: blue metal, a dark cassette window, brushed silver keys and paper, and orange foam. The bottom bar is three silver keys `INICIO`, `REPRODUCTOR` and `FAVORITAS`; the current one is pushed in.
+
+- **Inicio:** the stations are cassette spines in a shoebox (logo, name on the label band, heart). Pressing a spine pulls it out with an insert below it (details, play state and `Reproducir`, which plays without leaving the page and reads `Detener` while it plays); pressing the pulled-out spine again does the same. Only one spine is out at a time, and a new search goes back to the first. On Windows, Up/Down move between spines and Enter plays. The current station's spine has the orange outline.
+- **Favoritos:** the account row, then the silver J-card `Mis favoritas` with `CARA A` and `CARA B`, five numbered favourites each (`Cara A, pista {n}: {nombre}`). Pressing a line plays it in place, its button removes it, and `Dar la vuelta` shows the next ten (`1/2`); on Windows Left/Right change the side. The current line is an orange band.
+- **Reproductor:** the keys `REW` (`Favorita anterior`), `PLAY` (`Reproducir`, stays pushed in while playing), `STOP` (`Detener`, only while playing) and `FF` (`Favorita siguiente`); the cassette window with the station logo and name on its label and two reels that turn while playing (half a turn per second, speeding up over 0.8 s and slowing down over 1 s); the panel with details, heart, status line and `Reintentar`; and side A of the J-card with five favourites. No bottom bar.
+- **Ajustes:** two big silver keys; Personalización and Preferencias sit on a brushed panel.
+
+**Boombox** (`BoomboxLayout.xaml`, one palette `BoomboxCromadoPalette.xaml` "Cromado", dark) is a 1980s street boombox: black plastic, gunmetal, chrome trim, hot pink keys, cyan display digits and yellow hearts. The header has a chrome trim line; the bottom bar has three rubber buttons, the current one with a lit cyan LED.
+
+- **Inicio:** the stations are rows on a dark tuner display (`TUNING · {n} emisoras`) between two speakers: beside it on windows at least 720 wide, as short strips above and below it on narrower ones (a phone in portrait). Pressing a row plays it without leaving the page; pressing the current row again stops it. The current row has the pink outline and a pink `▶`. On Windows, Up/Down move between rows and Enter plays.
+- **Favoritos:** the account row, a closed cassette door labelled `MIS FAVORITAS` and the same display with only the favourites; the heart removes one.
+- **Reproductor:** the carrying handle and antenna above the header (house and gear); two speakers that pulse while playing, framing a cyan level meter with a pink peak; the display with the logo, the name in large digits, details, status line and `Reintentar`; the keys `◀◀` (`Favorita anterior`), `▶ PLAY` / `■ STOP` and `▶▶` (`Favorita siguiente`) and the heart; and the memories `M1`–`M6` (`Memoria {n}: {nombre}`), the current one lit cyan, with arrows and `1/2` when there are more (Left/Right move between them on Windows). No bottom bar.
+- **Ajustes:** two wide rubber buttons on a gunmetal panel; Personalización and Preferencias sit inside a chrome border.
+
+**Mesa de DJ** (`MesaDjLayout.xaml`, one palette `MesaDjClubPalette.xaml` "Club", dark) is a club DJ booth with a single deck: a near-black body, dark screens, a cyan accent and orange hearts. Every visible label is Spanish (`CARGAR`, `ATRÁS`, `SIGUIENTE`, `EN DIRECTO`); the `FORMATO` column shows the station's first tag as the API gives it. The header has an `EN DIRECTO` tag under the title that lights while a station is buffering or playing, on every page: it reads `PlaybackIndicator`, which `PlaybackService` keeps up to date for page chrome whose view model does not know the play state. The bottom bar is three flat buttons with a cyan underline under the current section.
+
+- **Inicio:** a track browser with the headings `NOMBRE`, `PAÍS` and `FORMATO`; each row has the logo, name, country and format (one secondary line on windows narrower than 720, such as a phone), the heart and `CARGAR`. Pressing a row or `CARGAR` plays it without leaving the page; on the current station it stops it. The current row has the teal background and a cyan bar on its left. Rows are at least 48 units tall. On Windows, Up/Down move between rows and Enter loads.
+- **Favoritos:** the account row, a tab `Favoritas ({n})` and the same browser with only the favourites; the heart removes one.
+- **Reproductor:** the house and the gear; the jog wheel with the logo in its centre (it turns like the Tocadiscos record), a vertical level meter, the station, details, heart, status line and `Reintentar`; `ATRÁS` (`Favorita anterior`), the round play/stop button (`Reproducir` / `Detener`) and `SIGUIENTE` (`Favorita siguiente`); and eight pads in a 4×2 grid (`Pad {n}: {nombre}`), the current one orange and glowing slowly while playing, with arrows and `1/2` when there are more (the arrow keys move between pads on Windows). No bottom bar.
+- **Ajustes:** two large pads; Personalización and Preferencias sit on a screen panel.
+
+**MP3** (`Mp3Layout.xaml`, one palette `Mp3AzulPalette.xaml` "Azul", dark) is a mid-2000s MP3 stick with a blue back-lit LCD. The header is the LCD's status line with a decorative battery; the bottom bar is three rubber buttons `INICIO`, `REPRODUCTOR` and `FAVORITAS`, the current one light blue. On the inverted cursor row only the body text colour is readable, so every text on an LCD line uses it.
+
+- **Inicio:** the stations are lines on the LCD under `/EMISORAS/`, with the counter `{n}/{total}`. The cursor line is inverted, shows `▶` and the characteristics; the current station's line shows `♪` and its play state (from `PlaybackIndicator`, because the line is shared with Favoritos). `▲` (`Subir`), `▼` (`Bajar`) and `OK` (`Aceptar: reproducir {nombre}`) move the cursor and play in place; touching a line moves the cursor there and touching it again plays it; `OK` on the current station stops it. A new search puts the cursor on the first line. On Windows, Up/Down move and Enter plays.
+- **Favoritos:** the email and `Cerrar sesión` on the LCD, then `/FAVORITAS/` with the same cursor and buttons; the heart removes the line and the cursor moves to the next (or the previous after the last).
+- **Reproductor:** the house, battery and gear; the LCD now-playing screen with the logo in a framed square, the name (it scrolls sideways at 40 units/s with 1 s pauses when it does not fit; with reduced motion it wraps to two lines), the characteristics, an 8-bar equaliser and the status line with `Reintentar`; and the pad `◀◀` (`Favorita anterior`), `▶❙❙` (`Reproducir` / `Detener`), `▶▶` (`Favorita siguiente`) and the heart. No bottom bar and no other favourites control.
+- **Ajustes:** an LCD menu with the lines `Preferencias` and `Personalización`; the settings pages sit inside an LCD bezel.
+
+**Clásico de rueda** (`RuedaLayout.xaml`) is a mid-2000s pocket player with a screen of menus and a round click wheel, with two variants: **Blanco** (`RuedaBlancoPalette.xaml`, light: white body, grey-blue screen, blue highlighted row) and **Negro** (`RuedaNegroPalette.xaml`, dark: black body, dark screen, dark blue highlighted row). The highlighted row's text is `AccentTextColor` (white) in both; for that, Negro's accent is a deep blue with white text instead of the brief's light blue. Inicio, Reproductor and Favoritos are a device centred with a maximum width: the screen on top with its title bar (a play-state glyph, the title and the gear), the wheel under it (its size never depends on the text size), and a slim bottom bar under the wheel on every page.
+
+- **Wheel:** `MENÚ` (`Menú`) at the top, `◀◀` on the left, `▶▶` on the right, play/pause at the bottom and the centre button, all real buttons; sliding a finger around the ring (`Rueda: desliza en círculo para moverte por la lista`) moves the cursor one row about every 24°. The buttons give an 80 ms press feedback. On Windows, Up/Down, the mouse wheel and Enter work on the menu, Space is play/pause, Left/Right are `◀◀`/`▶▶` and Escape is `MENÚ` (except while typing in the search box).
+- **Inicio:** the search row and the filters bar, then the Emisoras menu (name, heart, `›`). The centre (`Seleccionar`) plays the cursor's station in place (or stops the current one), play/pause (`Reproducir o pausar`) toggles the current station, `◀◀`/`▶▶` (`Anterior`/`Siguiente`) move one screen of rows, and touching a row moves the cursor (touching it again plays it). The current station's row shows ▶ or ❙❙. `MENÚ` is disabled here.
+- **Favoritos:** the account row first, then the Favoritas menu with the same wheel; the heart removes a row. Logged out: `Inicia sesión para ver tus favoritas.` and an `Iniciar sesión` row. `MENÚ` opens Inicio.
+- **Reproductor:** the Reproduciendo screen (the logo large and square, name, details, a full bar labelled `En directo`, status line and `Reintentar`). On the wheel, play/pause is `Reproducir` / `Detener`, `◀◀`/`▶▶` are `Favorita anterior` / `Favorita siguiente`, the centre is the heart, the ring does nothing and is not read, and `MENÚ` opens Inicio.
+- **Ajustes:** a screen menu with `Preferencias ›` and `Personalización ›`; the settings pages keep the title bar and the slim bar.
+
+Shared controls added for the retro themes, also UI only and in `Views/Controls/`: `SpinDriver` (the record's speed-up and slow-down, now used by `VinylDisc`), `PagedSlots` (a paged grid of favourites with its own `PagedSlot` numbers), `CursorList` (a list with a cursor), `LevelMeter` (a decorative level meter) and `ButtonSwipe` (reads swipes that start on a button on Android). Radio de válvulas adds `TuningDial` (with `DialSlot` and `TuningKnob`), `MagicEye` and `WarmUpGlow`; Casete portátil adds `CassetteReels` (on `SpinDriver`); Boombox adds `SpeakerCone` (a 450 ms pulse while playing, still with reduced motion) and uses `LevelMeter`; Mesa de DJ adds `JogWheel` (on `SpinDriver`) and `GlowPulse` (the current pad's 1 s glow); MP3 adds `MarqueeLabel` (screen readers read its full text once); Clásico de rueda adds `ClickWheel` (the ring reads the finger's angle from the touch or pointer position on each platform). The art of the retro themes is original and drawn with shapes (`Resources/Images/Themes/LICENSE.txt`, also shipped as `Licences/Themes-LICENSE.txt`).
 
 ### Contrast
 
@@ -375,6 +420,104 @@ Tocadiscos:
 | Header title, play state, marked bar button | `TabBarSelectedColor` on `TabBarBackgroundColor` | 10.68:1 |
 | Other bar buttons | `TabBarUnselectedColor` on `TabBarBackgroundColor` | 12.74:1 |
 | Hearts | `FavoriteIconColor` on `SurfaceColor` | 6.63:1 |
+
+Radio de válvulas. Text on the wooden strip uses the bar colours, and text on the ivory keys uses the wood colour (`PrimaryTextColor` would be 1.16:1 on the wood in Baquelita and 1.15:1 on the keys in Nogal). The lit fill of the current station is drawn only in Baquelita; Nogal marks it with an outline, because its selected colour is too light for text.
+
+| Where | Pair | Baquelita | Nogal |
+|---|---|---|---|
+| Page text, Personalización, Preferencias | `PrimaryTextColor` on `PageBackgroundColor` | 13.03:1 | 13.85:1 |
+| Panel, radio log, lit window on the dial | `PrimaryTextColor` on `SurfaceColor` | 14.61:1 | 11.77:1 |
+| Dial labels, search box, logged-out text on blank keys | `PrimaryTextColor` on `InputBackgroundColor` | 11.21:1 | 15.63:1 |
+| Current station on the lit fill (Baquelita only) | `PrimaryTextColor` on `SelectedItemBackgroundColor` | 10.54:1 | — |
+| Details on the lit fill (Baquelita only) | `SecondaryTextColor` on `SelectedItemBackgroundColor` | 5.57:1 | — |
+| Error on the lit fill (Baquelita only) | `ErrorTextColor` on `SelectedItemBackgroundColor` | 4.68:1 | — |
+| Details, captions, position | `SecondaryTextColor` on `PageBackgroundColor` / `SurfaceColor` | 6.89:1 / 7.73:1 | 9.03:1 / 7.67:1 |
+| Scale numbers, empty-favourites text on blank keys | `SecondaryTextColor` on `InputBackgroundColor` | 5.93:1 | 10.19:1 |
+| Play state in the panel | `AccentColor` on `SurfaceColor` | 5.59:1 | 8.28:1 |
+| Errors | `ErrorTextColor` on `PageBackgroundColor` / `SurfaceColor` | 5.79:1 / 6.49:1 | 8.71:1 / 7.40:1 |
+| Green buttons (`Escuchar`, `Reintentar`) | `AccentTextColor` on `AccentColor` | 6.34:1 | 9.15:1 |
+| Header title, marked bar label | `TabBarSelectedColor` on `TabBarBackgroundColor` | 8.78:1 | 12.10:1 |
+| Other bar labels | `TabBarUnselectedColor` on `TabBarBackgroundColor` | 10.52:1 | 13.06:1 |
+| Ivory keys and bar buttons (text and icons) | `TabBarBackgroundColor` on `TabBarUnselectedColor` | 10.52:1 | 13.06:1 |
+| Pressed preset key, marked bar button | `TabBarBackgroundColor` on `TabBarSelectedColor` | 8.78:1 | 12.10:1 |
+
+Casete portátil. Text on the silver keys and the J-card is dark, and orange is never text on the blue panels (`AccentColor` on `SurfaceColor` is 3.88:1). The current J-card line is an orange band with dark text, because an orange outline on the silver would be 1.71:1.
+
+| Where | Pair | Contrast |
+|---|---|---|
+| Page text, Personalización, Preferencias | `PrimaryTextColor` on `PageBackgroundColor` | 10.58:1 |
+| Spine names, inserts, information panel, play state | `PrimaryTextColor` on `SurfaceColor` | 8.32:1 |
+| Search box | `PrimaryTextColor` on `InputBackgroundColor` | 16.11:1 |
+| Details, captions | `SecondaryTextColor` on `PageBackgroundColor` / `SurfaceColor` | 7.41:1 / 5.83:1 |
+| Errors | `ErrorTextColor` on `PageBackgroundColor` / `SurfaceColor` | 6.75:1 / 5.31:1 |
+| Orange buttons and the PLAY key, current J-card line | `AccentTextColor` on `AccentColor` | 7.52:1 |
+| Silver keys, J-card text, cassette label | `AccentTextColor` on `TabBarUnselectedColor` | 12.90:1 |
+| Pushed-in bar key | `AccentTextColor` on `TabBarSelectedColor` | 9.78:1 |
+| Header title and icons | `TabBarUnselectedColor` on `TabBarBackgroundColor` | 10.67:1 |
+| Hearts | `FavoriteIconColor` on `SurfaceColor` / `InputBackgroundColor` | 5.04:1 / 9.76:1 |
+
+Boombox:
+
+| Where | Pair | Contrast |
+|---|---|---|
+| Page text, Personalización, Preferencias, header title | `PrimaryTextColor` on `PageBackgroundColor` | 16.10:1 |
+| Rubber buttons, filter bar, cursor row | `PrimaryTextColor` on `SurfaceColor` | 12.84:1 |
+| Search box, Ajustes buttons | `PrimaryTextColor` on `InputBackgroundColor` | 17.87:1 |
+| Station names, display name, `TUNING`, play state | `TabBarSelectedColor` on `InputBackgroundColor` / `SurfaceColor` | 11.97:1 / 8.60:1 |
+| Details | `SecondaryTextColor` on `InputBackgroundColor` / `SurfaceColor` / `PageBackgroundColor` | 10.34:1 / 7.43:1 / 9.32:1 |
+| Errors | `ErrorTextColor` on `InputBackgroundColor` / `PageBackgroundColor` | 8.61:1 / 7.76:1 |
+| The `▶` of the current row | `AccentColor` on `InputBackgroundColor` | 6.40:1 |
+| Pink keys and buttons | `AccentTextColor` on `AccentColor` | 6.50:1 |
+| Memories, `MIS FAVORITAS` label | `AccentTextColor` on `TabBarUnselectedColor` | 12.42:1 |
+| Current memory | `AccentTextColor` on `TabBarSelectedColor` | 12.16:1 |
+| Header icons, arrows | `TabBarUnselectedColor` on `TabBarBackgroundColor` | 11.91:1 |
+| Hearts | `FavoriteIconColor` on `InputBackgroundColor` / `SurfaceColor` | 13.62:1 / 9.78:1 |
+
+Mesa de DJ:
+
+| Where | Pair | Contrast |
+|---|---|---|
+| Page text, Personalización, Preferencias, header title | `PrimaryTextColor` on `PageBackgroundColor` | 17.06:1 |
+| Browser rows, deck screen, flat buttons, `Favoritas ({n})` | `PrimaryTextColor` on `SurfaceColor` | 14.87:1 |
+| Current row | `PrimaryTextColor` / `SecondaryTextColor` on `SelectedItemBackgroundColor` | 11.83:1 / 6.07:1 |
+| Search box, pad names, Ajustes pads | `PrimaryTextColor` on `InputBackgroundColor` | 18.02:1 |
+| Details, columns, headings | `SecondaryTextColor` on `SurfaceColor` / `PageBackgroundColor` | 7.63:1 / 8.75:1 |
+| Errors | `ErrorTextColor` on `SurfaceColor` / `PageBackgroundColor` | 6.63:1 / 7.60:1 |
+| Play state, pad numbers | `AccentColor` on `SurfaceColor` / `InputBackgroundColor` | 8.92:1 / 10.81:1 |
+| `CARGAR`, the lit `EN DIRECTO` tag, the round button | `AccentTextColor` on `AccentColor` | 9.69:1 |
+| Current pad | `AccentTextColor` on `FavoriteIconColor` | 7.72:1 |
+| Marked / other bar items, dim `EN DIRECTO` | `TabBarSelectedColor` / `TabBarUnselectedColor` on `TabBarBackgroundColor` | 10.62:1 / 6.66:1 |
+| Hearts | `FavoriteIconColor` on `SurfaceColor` / `SelectedItemBackgroundColor` | 7.11:1 / 5.65:1 |
+
+MP3. On the cursor row (`SelectedItemBackgroundColor`) `SecondaryTextColor` would be 3.94:1, `ErrorTextColor` 3.93:1 and `AccentColor` 4.28:1, so lines use only `PrimaryTextColor`.
+
+| Where | Pair | Contrast |
+|---|---|---|
+| LCD lines, status line title, menu lines | `PrimaryTextColor` on `SurfaceColor` | 11.54:1 |
+| Cursor row (name, `▶`, characteristics, play state) | `PrimaryTextColor` on `SelectedItemBackgroundColor` | 6.64:1 |
+| Page text, Personalización, Preferencias | `PrimaryTextColor` on `PageBackgroundColor` | 12.65:1 |
+| Search box | `PrimaryTextColor` on `InputBackgroundColor` | 15.43:1 |
+| Path, counter, characteristics on the now-playing screen | `SecondaryTextColor` on `SurfaceColor` | 6.85:1 |
+| Play state on the now-playing screen | `AccentColor` on `SurfaceColor` | 7.45:1 |
+| Errors | `ErrorTextColor` on `SurfaceColor` / `PageBackgroundColor` | 6.83:1 / 7.49:1 |
+| Rubber buttons | `PrimaryTextColor` on `DividerColor` | 8.43:1 |
+| `OK`, `▶❙❙`, current bar button | `AccentTextColor` on `AccentColor` | 9.41:1 |
+| Hearts | `FavoriteIconColor` on `SurfaceColor` / `SelectedItemBackgroundColor` / `TabBarBackgroundColor` | 10.11:1 / 5.82:1 / 12.83:1 |
+
+Clásico de rueda. On the highlighted row the name, glyph, heart and `›` use `AccentTextColor`.
+
+| Where | Pair | Blanco | Negro |
+|---|---|---|---|
+| Screen text, menu rows, title bar | `PrimaryTextColor` on `SurfaceColor` | 15.93:1 | 16.74:1 |
+| Highlighted row | `AccentTextColor` on `SelectedItemBackgroundColor` | 5.71:1 | 7.06:1 |
+| Page text, Personalización, Preferencias | `PrimaryTextColor` on `PageBackgroundColor` | 16.90:1 | 13.83:1 |
+| Search box | `PrimaryTextColor` on `InputBackgroundColor` | 18.61:1 | 11.78:1 |
+| Details, `En directo`, email | `SecondaryTextColor` on `SurfaceColor` | 5.87:1 | 8.42:1 |
+| Errors | `ErrorTextColor` on `SurfaceColor` | 5.60:1 | 8.23:1 |
+| Buttons | `AccentTextColor` on `AccentColor` | 5.71:1 | 5.73:1 |
+| Wheel labels | `TabBarUnselectedColor` on `InputBackgroundColor` | 6.43:1 | 5.92:1 |
+| Slim bar: other / marked items | `TabBarUnselectedColor` / `TabBarSelectedColor` on `TabBarBackgroundColor` | 5.84:1 / 5.18:1 | 7.88:1 / 7.06:1 |
+| Hearts | `FavoriteIconColor` on `SurfaceColor` / `InputBackgroundColor` | 4.89:1 / 5.71:1 | 7.54:1 / 5.31:1 |
 
 ### Fonts and text size
 
@@ -454,6 +597,37 @@ No page, view model, service or style needs to change; the theme appears in `Per
 32. Tocadiscos Reproductor: open it while playing: the tonearm is already on the record and the record is turning. Press the tonearm: it lifts and the record slows down to a stop; press it again: it lands and the station plays. A broken stream lifts the arm and shows `Error` and `Reintentar`. The house opens Inicio and the gear Ajustes; there is no bottom bar.
 33. Tocadiscos crate: logged out it reads `Inicia sesión para ver tus favoritas` and opens the login page. With 8 favourites: 6 records, arrows and `1/2`; the next arrow (or a swipe) shows the other 2. Pressing a record plays it, and its record is raised and outlined. On Windows, Right/Left move between records and Enter plays.
 34. Reduced motion: with Windows animations turned off (Settings > Accessibility > Visual effects) or Android's animator duration scale at 0, the tonearm moves at once and the record does not turn.
+35. Radio de válvulas: in `Personalización` select it while a station plays: every page changes at once, `Variante` shows `Baquelita` and `Nogal`, and the audio keeps playing. From Moderno `Oscuro` it opens in `Nogal`; choose `Baquelita` and go back to Moderno: it opens in `Claro`.
+36. Radio de válvulas Inicio: a swipe on the dial, a press on the knob, the mouse wheel over the dial and (with the knob focused) Left/Right move one station at a time; the knob is read as `Sintonizar, emisora {n} de {total}: {nombre}` and the caption shows the position. Pressing a neighbour tunes to it. `Escuchar` (or pressing the station under the needle) plays without leaving Inicio and the panel shows `Cargando…`, then `Reproduciendo`, and the button reads `Apagar`; press it to stop. The current station is lit (Baquelita) or outlined (Nogal). A new search puts the first station under the needle.
+37. Radio de válvulas Favoritos: pressing a label plays it in place and shows its play state; its heart removes it. Logged out, empty, loading and error show the same texts as in Moderno.
+38. Radio de válvulas Reproductor: with no station the dial is empty and the panel reads `Selecciona una emisora en Inicio o en tus favoritas`. Press the power knob: the station plays, the dial window glows in and the magic eye closes; press it again: it stops and both return. A broken stream shows `Error` and `Reintentar`. With reduced motion the glow and the eye change at once.
+39. Radio de válvulas presets: logged out, the keys are blank and pressing them opens `Iniciar sesión`. With no favourites they are blank and read `Aún no tienes emisoras favoritas.` With seven favourites the keys show the first five and `1/2`; the next arrow shows the other two and three blank keys. The current station's key is pressed down, and pressing a key plays it.
+40. Radio de válvulas keyboard (Windows): Tab reaches the gear, the search row, the filters, the knob, the panel and the bar in that order; on the knob Right twice and then Enter plays the station two places further. At `Pequeño` and `Enorme` every Personalización and Preferencias control is usable and the dial keeps its height.
+41. Casete portátil: select it while a station plays: every page changes at once, `Variante` disappears and the audio keeps playing. Moderno comes back with the variant it had.
+42. Casete portátil Inicio: press a spine: it is pulled out with its insert and any other goes back. `Reproducir` (or pressing the pulled-out spine again) plays without leaving Inicio and reads `Detener` while it plays. The current station's spine has the orange outline. A new search goes back to the first spine. On Windows, Down moves to the next spine and Enter plays it.
+43. Casete portátil Favoritos: with twelve favourites the J-card shows ten (`CARA A` and `CARA B`) and `1/2`; `Dar la vuelta` flips to the other two. Removing the only favourite of the last side shows the previous one. Pressing a line plays it in place; its button removes it. On Windows, Left/Right change the side. Logged out, empty, loading and error replace the card.
+44. Casete portátil Reproductor: `PLAY` plays and stays pushed in; the reels speed up and turn; `STOP` stops (the reels slow down) and becomes disabled. `REW`/`FF` play the previous/next favourite. With no station the label is blank and the panel reads `Selecciona una emisora en Inicio o en tus favoritas`. Side A shows five favourites; logged out it reads `Inicia sesión para ver tus favoritas` and opens the login page. With reduced motion the reels do not turn and the card flips at once. Narrator reads `Favorita anterior`, `Reproducir`, `Detener`, `Favorita siguiente`, `Dar la vuelta a la cinta` and `Cara A, pista {n}: {nombre}`.
+45. Casete portátil at `Pequeño` and `Enorme`: every page, Personalización and Preferencias stay usable.
+46. Boombox: select it while a station plays: every page changes at once, `Variante` disappears and the audio keeps playing. The bar button of the current section has its LED lit.
+47. Boombox Inicio: on a wide window the speakers are beside the display; make the window narrow (or use a phone): they become strips above and below and every row stays fully visible. Pressing a row plays it in place with the pink outline and `▶`; pressing it again stops. A new search goes back to the first row. On Windows, Down to the third row and Enter plays it.
+48. Boombox Favoritos: the cassette door reads `MIS FAVORITAS`; pressing a row plays it in place and its filled heart removes it at once. Logged out, empty, loading and error replace the display.
+49. Boombox Reproductor: with no station the display reads `Selecciona una emisora en Inicio o en tus favoritas` and the speakers are still. `▶ PLAY` plays (the key reads `■ STOP`), the speakers pulse and the meter moves; stop: the speakers settle and the meter empties. `◀◀`/`▶▶` play the previous/next favourite. With eight favourites the memories show `M1`–`M6` and `1/2`; the current one is lit cyan; logged out, pressing them opens `Iniciar sesión`. With reduced motion the speakers are still and the meter shows a fixed middle level while playing. On the Android emulator the page stays responsive while everything moves. Narrator reads `Memoria {n}: {nombre}` and skips the speakers, handle, grilles and meter.
+50. Boombox keyboard and text size: Tab, arrows and Enter reach and use every control on Windows; at `Pequeño` and `Enorme` every page stays usable.
+51. Mesa de DJ: select it while a station plays: every page changes at once, `Variante` disappears and the audio keeps playing. `EN DIRECTO` is lit on every page (Inicio, Favoritos, Reproductor, Ajustes, Personalización, Preferencias) and dim when stopped, without blinking. No visible label is in English.
+52. Mesa de DJ Inicio: on a wide window `PAÍS` and `FORMATO` have their own columns; on a narrow one (or a phone) each row shows one secondary line and stays at least 48 units tall. `CARGAR` or pressing a row plays it in place (teal row, cyan bar); on the current station it stops. A new search goes back to the first row. On Windows, Down to a row and Enter loads it.
+53. Mesa de DJ Favoritos: the tab reads `Favoritas ({n})`; `CARGAR` plays a favourite in place and its heart removes it. Logged out, empty, loading and error replace the browser.
+54. Mesa de DJ Reproductor: with no station the jog wheel's centre is blank and the page reads `Selecciona una emisora en Inicio o en tus favoritas`. The round button plays (the wheel turns, the meter moves) and stops (the wheel slows down; the button shows the play icon). `ATRÁS`/`SIGUIENTE` play the previous/next favourite. With ten favourites the pads show eight and `1/2`; the current pad is orange and glows; logged out, pressing them opens `Iniciar sesión`. On Windows, arrow keys move between pads and Enter plays. With reduced motion the wheel does not turn and the pad does not glow. Narrator reads `Cargar y reproducir {nombre}` and `Pad {n}: {nombre}` and skips the wheel and meter.
+55. Mesa de DJ at `Pequeño` and `Enorme`: every page, Personalización and Preferencias stay usable.
+56. MP3: select it while a station plays: every page changes at once, `Variante` disappears and the audio keeps playing. The header shows the title, the battery and the gear.
+57. MP3 Inicio: `▼` moves the cursor one line and the counter changes; `OK` plays the cursor's station in place (`♪ Cargando…`, then `♪ Reproduciendo` on its line); `OK` again stops it. Touching a line moves the cursor; touching it again plays it. A new search puts the cursor on the first line; going to another page and back keeps it. On Windows, Down twice and Enter plays the station two lines below.
+58. MP3 Favoritos: the email and `Cerrar sesión` are on the LCD; removing the cursor's favourite moves the cursor to the next one (the previous one when it was the last). Logged out, empty, loading and error show on the LCD.
+59. MP3 Reproductor: with no station the LCD reads `Selecciona una emisora en Inicio o en tus favoritas`. A long name (for example `Deutschlandfunk | DLF | MP3 128k`) scrolls sideways with pauses at each end; a short one stays still. `▶❙❙` plays (its name becomes `Detener`) and the equaliser moves; stopped, it is empty. `◀◀`/`▶▶` play the previous/next favourite. With reduced motion the name wraps to two lines with `…` and the equaliser shows a fixed level while playing. Narrator reads the full name once and skips the battery and equaliser.
+60. MP3 Ajustes and text size: the LCD menu opens `Preferencias` and `Personalización`; at `Pequeño` and `Enorme` every page stays usable.
+61. Clásico de rueda: in `Personalización` it offers `Blanco` and `Negro`. Moderno `Oscuro` → Radio de válvulas gives `Nogal` → Clásico de rueda gives `Negro` → Moderno gives `Oscuro`; Clásico de rueda `Blanco` → Boombox → Moderno gives `Claro`. Switching while a station plays keeps the audio.
+62. Clásico de rueda wheel: a quarter turn of a finger around the ring in Inicio moves the cursor about four rows (three or four). The four edge buttons and the centre are real buttons read as `Menú`, `Anterior`, `Siguiente`, `Reproducir o pausar` and `Seleccionar`. On Windows, Up/Down and the mouse wheel move the cursor, Enter plays, Space is play/pause, Left/Right move one screen and Escape is `MENÚ` (not while typing in the search box). Down three times and Enter plays the station three rows below the first.
+63. Clásico de rueda Inicio and Favoritos: `MENÚ` is disabled in Inicio; the centre plays the cursor's station in place and stops the current one; play/pause toggles the current station; touching a row moves the cursor and touching it again plays it; the current station's row shows ▶ or ❙❙ even when the cursor is elsewhere. A search puts the cursor on the first result. In Favoritos the account row comes first, `Cerrar sesión` logs out, the heart removes a row (the cursor moves to the next one, or the previous after the last), and `MENÚ` opens Inicio.
+64. Clásico de rueda Reproductor: the slim bar is shown with `Reproductor` marked; the screen shows the logo, name, details, `En directo` and the status line (or `Selecciona una emisora en Inicio o en tus favoritas`). Play/pause reads `Reproducir`/`Detener`, `◀◀`/`▶▶` play the previous/next favourite, the centre adds or removes the favourite (its heart fills), sliding on the ring does nothing, and `MENÚ` opens Inicio.
+65. Clásico de rueda at `Pequeño` and `Enorme`: menu rows truncate or scroll, the wheel and the slim bar keep their size; Ajustes, Personalización and Preferencias stay usable. With reduced motion the list jumps to the cursor and the wheel buttons have no press animation.
 
 ## Notes
 

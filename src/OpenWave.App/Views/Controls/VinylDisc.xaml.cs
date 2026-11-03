@@ -29,14 +29,12 @@ public partial class VinylDisc : PageAwareView
     private const double LabelSize = 0.38;
     private const double LogoSize = 0.30;
 
-    private IDispatcherTimer? _timer;
-    private DateTime _lastTick;
-    private double _speed;
-    private bool _reducedMotion;
+    private readonly SpinDriver _spin;
 
     public VinylDisc()
     {
         InitializeComponent();
+        _spin = new SpinDriver(Dispatcher, TurnSpeed, SpinUpSeconds, SpinDownSeconds, degrees => Rotor.Rotation = (Rotor.Rotation + degrees) % 360);
         SizeChanged += (_, _) => UpdateSize();
         UpdateLabel();
     }
@@ -100,53 +98,14 @@ public partial class VinylDisc : PageAwareView
 
     private void UpdateMotion(bool jumpToState)
     {
-        _reducedMotion = MotionSettings.IsReducedMotion;
-        var target = IsSpinning && IsShown && !_reducedMotion ? TurnSpeed : 0;
+        var moving = IsSpinning && IsShown && !MotionSettings.IsReducedMotion;
         if (jumpToState || !IsShown)
         {
-            _speed = target;
+            _spin.SnapToState(moving);
         }
-
-        if (!IsShown || (_speed == 0 && target == 0))
+        else
         {
-            StopTimer();
-            return;
+            _spin.SetMoving(moving);
         }
-
-        if (_timer is null)
-        {
-            _timer = Dispatcher.CreateTimer();
-            _timer.Interval = TimeSpan.FromMilliseconds(16);
-            _timer.Tick += OnTick;
-        }
-
-        if (!_timer.IsRunning)
-        {
-            _lastTick = DateTime.UtcNow;
-            _timer.Start();
-        }
-    }
-
-    private void OnTick(object? sender, EventArgs e)
-    {
-        var now = DateTime.UtcNow;
-        var seconds = Math.Min(0.1, (now - _lastTick).TotalSeconds);
-        _lastTick = now;
-
-        var target = IsSpinning && !_reducedMotion ? TurnSpeed : 0;
-        var step = TurnSpeed * seconds / (target > _speed ? SpinUpSeconds : SpinDownSeconds);
-        _speed = target > _speed ? Math.Min(target, _speed + step) : Math.Max(target, _speed - step);
-
-        Rotor.Rotation = (Rotor.Rotation + _speed * seconds) % 360;
-
-        if (_speed == 0 && target == 0)
-        {
-            StopTimer();
-        }
-    }
-
-    private void StopTimer()
-    {
-        _timer?.Stop();
     }
 }

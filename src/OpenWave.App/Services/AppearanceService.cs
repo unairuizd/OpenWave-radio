@@ -58,7 +58,7 @@ public partial class AppearanceService : ObservableObject
     }
 
     /// <summary>
-    /// Switches to another theme, keeping the current variant when the new theme has it.
+    /// Switches to another theme, keeping the stored variant, or its light or dark kind, when the new theme has it.
     /// </summary>
     public void SetTheme(string id)
     {
@@ -70,7 +70,7 @@ public partial class AppearanceService : ObservableObject
 
         // The variant last chosen is remembered even while a single-palette theme is shown, so it comes back with
         // its theme.
-        var palette = theme.FindPalette(ReadString(PaletteKey)) ?? theme.FindPalette(PaletteId) ?? theme.Palettes[0];
+        var palette = theme.ChoosePalette(ReadString(PaletteKey) ?? PaletteId);
         ApplyTheme(theme, palette);
         StoreTheme(theme, palette);
     }
@@ -127,7 +127,8 @@ public partial class AppearanceService : ObservableObject
 
     /// <summary>
     /// The stored theme and palette. Values of the previous version are migrated and written back;
-    /// an unknown theme becomes the default, and an unknown palette the theme's first one.
+    /// an unknown theme becomes the default, and a palette the theme does not have becomes its palette of the same
+    /// light or dark kind, or its first one.
     /// </summary>
     private static (AppThemeDefinition Theme, ThemePalette Palette) ReadStoredTheme()
     {
@@ -148,7 +149,7 @@ public partial class AppearanceService : ObservableObject
             paletteId = ThemeCatalog.DefaultPaletteId;
         }
 
-        return (theme, theme.FindPalette(paletteId) ?? theme.Palettes[0]);
+        return (theme, theme.ChoosePalette(paletteId));
     }
 
     // A theme with a single palette leaves the stored variant alone, so the other theme's variant is kept.

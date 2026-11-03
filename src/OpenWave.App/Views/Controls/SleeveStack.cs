@@ -189,6 +189,7 @@ public class SleeveStack : ContentView
                 VerticalOptions = LayoutOptions.Start,
             };
             button.Clicked += (_, _) => OnSleevePressed(index);
+            ButtonSwipe.Attach(button, horizontal: false, MoveFocus);
 
             _sleeves[slot] = sleeve;
             _buttons[slot] = button;

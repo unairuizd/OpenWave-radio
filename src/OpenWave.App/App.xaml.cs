@@ -26,6 +26,9 @@ public partial class App : Application
 		// The single audio element lives with the window, not with a page, so audio survives page and theme changes.
 		// It is created once the window shows its content.
 		shell.Loaded += (_, _) => _audioPlayer.CreateElement(window);
+#if WINDOWS
+		shell.Loaded += (_, _) => WinUI.TitleBarText.Attach(window);
+#endif
 		return window;
 	}
 

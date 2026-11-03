@@ -13,7 +13,7 @@ The app SHALL provide a `Personalización` page with a theme selector listing ev
 #### Scenario: Opening Personalización
 
 - **WHEN** the user opens `Personalización` with `Moderno` selected
-- **THEN** the theme selector offers `Moderno` and `Tocadiscos`
+- **THEN** the theme selector offers, in this order, `Moderno`, `Tocadiscos`, `Radio de válvulas`, `Casete portátil`, `Boombox`, `Mesa de DJ`, `MP3` and `Clásico de rueda`
 - **AND** the variant selector offers `Claro` and `Oscuro`
 - **AND** the font selector offers `Ubuntu`, `Dosis`, `Caladea`, `Cormorant Garamond`, `Recursive` and `Pixelify Sans`, each displayed in that font
 - **AND** the text size selector offers `Pequeño`, `Normal`, `Grande`, `Muy grande` and `Enorme`
@@ -21,19 +21,24 @@ The app SHALL provide a `Personalización` page with a theme selector listing ev
 
 #### Scenario: Theme with a single palette
 
-- **WHEN** the selected theme has only one palette, such as `Tocadiscos`
+- **WHEN** the selected theme has only one palette, such as `Tocadiscos`, `Casete portátil`, `Boombox`, `Mesa de DJ` or `MP3`
 - **THEN** no variant selector is shown
 - **AND** the preview uses that theme's palette
+
+#### Scenario: Theme with two palettes
+
+- **WHEN** the selected theme is `Radio de válvulas` or `Clásico de rueda`
+- **THEN** the variant selector offers `Baquelita` and `Nogal`, or `Blanco` and `Negro`
+- **AND** the preview uses the selected palette
 
 #### Scenario: Restoring the defaults
 
 - **WHEN** the user activates `Restablecer valores por defecto`, in any theme
 - **THEN** the theme becomes `Moderno` `Claro`, the font `Ubuntu` and the text size `Normal` on every page
 - **AND** the selectors and the preview show those values
-
 ### Requirement: Themes
 
-The app SHALL offer two themes. `Moderno` SHALL have two variants: `Claro`, with a white page background, near-black text and the colours of the former `Blanco`, and `Oscuro`, with a pure black page background (`#000000`), near-white text and the colours of the former `Negro`. `Tocadiscos` SHALL have one palette, a record player look with walnut, cream and brass. Every palette SHALL give every visible element readable contrast.
+The app SHALL offer eight themes. `Moderno` SHALL have two variants: `Claro`, with a white page background, near-black text and the colours of the former `Blanco`, and `Oscuro`, with a pure black page background (`#000000`), near-white text and the colours of the former `Negro`. `Tocadiscos` SHALL have one palette, a record player look with walnut, cream and brass. `Radio de válvulas`, `Casete portátil`, `Boombox`, `Mesa de DJ`, `MP3` and `Clásico de rueda` SHALL each be defined by their own theme specification. Every palette SHALL give every visible element readable contrast.
 
 #### Scenario: Readable Negro theme
 
@@ -45,6 +50,10 @@ The app SHALL offer two themes. `Moderno` SHALL have two variants: `Claro`, with
 - **WHEN** the user opens the theme selector
 - **THEN** `Tocadiscos` can be selected next to `Moderno`
 
+#### Scenario: Every theme available
+
+- **WHEN** the user selects each of the eight themes in turn
+- **THEN** every themed page shows that theme's look, and the app keeps working in each one
 ### Requirement: Theme applied immediately
 
 Selecting a theme or a variant SHALL apply it at once to every page, the header, the bottom bar and the platform's native controls (text inputs, selectors and dialogs), without restarting the app and in both directions between themes, including on pages that were already open. The app SHALL NOT follow the operating system's light or dark setting; the default SHALL be `Moderno` `Claro`.
@@ -66,6 +75,10 @@ Selecting a theme or a variant SHALL apply it at once to every page, the header,
 - **WHEN** the user has opened every page, selects `Tocadiscos`, visits every page, then selects `Moderno` again
 - **THEN** every page shows the selected theme each time, including `Reproductor`, without restarting the app
 
+#### Scenario: Cycling through every theme
+
+- **WHEN** the user has opened every page and selects each of the eight themes in turn, visiting `Inicio`, `Reproductor` and `Favoritos` after each
+- **THEN** every page shows the selected theme each time without restarting the app
 ### Requirement: Font family
 
 The app SHALL bundle the fonts `Ubuntu` (the default), `Dosis`, `Caladea`, `Cormorant Garamond`, `Recursive` and `Pixelify Sans`, each with its licence text, and SHALL offer exactly these six. Selecting a font SHALL apply it at once to all text in the app, on every page.
@@ -87,7 +100,7 @@ The app SHALL scale its four text sizes (caption 12, body 16, subtitle 18, title
 
 ### Requirement: Appearance remembered on the device
 
-The selected theme, variant, font and text size SHALL be stored on the device and applied when the app starts, before the first page is displayed, so the wrong look is never shown first. Selecting a theme with a single palette SHALL keep the stored variant of the other theme. A missing, unknown or corrupt stored value SHALL fall back to its default (`Moderno` `Claro`, `Ubuntu`, `Normal`) without crashing. The appearance SHALL NOT be stored in the database, SHALL work without logging in, and SHALL NOT change when the user logs in or out.
+The selected theme, variant, font and text size SHALL be stored on the device and applied when the app starts, before the first page is displayed, so the wrong look is never shown first. Every palette SHALL be either the light or the dark palette of its theme. Selecting a theme SHALL keep the user's light or dark choice when that theme has a palette of the same kind; selecting a theme with a single palette SHALL keep the stored variant. A missing, unknown or corrupt stored value SHALL fall back to its default (`Moderno` `Claro`, `Ubuntu`, `Normal`) without crashing. The appearance SHALL NOT be stored in the database, SHALL work without logging in, and SHALL NOT change when the user logs in or out.
 
 #### Scenario: Restarting the app
 
@@ -111,6 +124,21 @@ The selected theme, variant, font and text size SHALL be stored on the device an
 - **THEN** the app starts in `Tocadiscos` after the restart
 - **AND** selecting `Moderno` restores `Oscuro`
 
+#### Scenario: Light or dark kept across themes
+
+- **WHEN** the user selects `Moderno` `Oscuro` and then `Radio de válvulas`
+- **THEN** `Radio de válvulas` opens with `Nogal`
+- **AND** selecting `Clásico de rueda` then opens it with `Negro`, and selecting `Moderno` again restores `Oscuro`
+
+#### Scenario: Light choice in a two-palette theme
+
+- **WHEN** the user selects `Clásico de rueda` `Blanco`, then `Boombox`, then `Moderno`
+- **THEN** `Moderno` opens with `Claro`
+
+#### Scenario: Unknown stored variant
+
+- **WHEN** the stored variant is unknown for the stored theme
+- **THEN** the theme opens with its first palette and the app does not crash
 ### Requirement: No hard-coded appearance values
 
 Pages, layouts, templates and controls SHALL NOT contain literal colours, font families or font sizes. Every colour SHALL come from the palette files, and every font family and font size from the style resources, so that a change of theme, variant, font or size updates every element that uses them.
@@ -143,7 +171,7 @@ A theme SHALL consist of one or more palette files, one layout file and one entr
 
 ### Requirement: Same functions in every theme
 
-A theme SHALL change only the appearance and where its controls are placed. Every function SHALL be available and behave the same in every theme: search, the filter bar, selecting and playing a station, play/stop, retry, the current-station marking, hearts, the `Favoritos` actions, `Cerrar sesión`, `Personalización`, `Preferencias`, and the loading, error and empty states. Changing favourite from `Reproductor` SHALL be possible in every theme: with previous and next buttons in `Moderno` and with the record crate in `Tocadiscos`.
+A theme SHALL change only the appearance and where its controls are placed. Every function SHALL be available and behave the same in every theme: search, the filter bar, selecting and playing a station, play/stop, retry, the current-station marking, hearts, the `Favoritos` actions, `Cerrar sesión`, `Personalización`, `Preferencias`, and the loading, error and empty states. Changing favourite from `Reproductor` SHALL be possible in every theme: with previous and next buttons in `Moderno`, `Casete portátil`, `Boombox`, `Mesa de DJ`, `MP3` and `Clásico de rueda`, with the record crate in `Tocadiscos`, and with the preset keys in `Radio de válvulas`.
 
 #### Scenario: Functions after a theme change
 
@@ -155,6 +183,10 @@ A theme SHALL change only the appearance and where its controls are placed. Ever
 - **WHEN** the user selects `Tocadiscos` and then searches, applies and turns off the preference filters, plays and stops a station, retries a failed station, toggles a heart, removes a favourite and logs out
 - **THEN** each action has the same result as in `Moderno`
 
+#### Scenario: Functions in every new theme
+
+- **WHEN** the user selects any of `Radio de válvulas`, `Casete portátil`, `Boombox`, `Mesa de DJ`, `MP3` or `Clásico de rueda` and then searches, applies and turns off the preference filters, plays and stops a station, retries a failed station, toggles a heart, changes favourite from `Reproductor`, removes a favourite and logs out
+- **THEN** each action has the same result as in `Moderno`
 ### Requirement: Audio player independent of the theme
 
 The app SHALL use a single audio player that does not belong to any theme layout or page. Changing the theme or variant SHALL never create a second player, crash, stop, restart or otherwise change the playback.
@@ -169,6 +201,10 @@ The app SHALL use a single audio player that does not belong to any theme layout
 - **WHEN** a station is playing and the user switches from `Moderno` to `Tocadiscos` and back
 - **THEN** the same station keeps playing without interruption and only one stream is heard
 
+#### Scenario: Cycling every theme while a station plays
+
+- **WHEN** a station is playing and the user selects each of the eight themes in turn
+- **THEN** the same station keeps playing without interruption and only one stream is heard
 ### Requirement: Themes never set fonts or text sizes
 
 Palettes and layouts SHALL NOT choose font families or text sizes. All text SHALL use the font and size chosen in `Personalización`.
@@ -214,3 +250,36 @@ From `Pequeño` to `Enorme`, the themed pages SHALL show no clipped text and no 
 - **WHEN** `Enorme` is selected on an Android phone and the user opens `Reproductor`
 - **THEN** every control can be reached by scrolling the content
 - **AND** the header and bottom bar stay visible
+
+### Requirement: Theme animations follow the playback state
+
+Animations of any theme (spinning records and reels, pulsing speakers, level meters, glowing lamps, scrolling text) SHALL only show the current playback state and SHALL never start, stop or change playback. They SHALL run only while their page is visible and SHALL stop when it is hidden. A page shown while a station plays SHALL show the playing state at once.
+
+#### Scenario: Leaving an animated page
+
+- **WHEN** a station plays in `Reproductor` with an animation running and the user opens `Inicio`
+- **THEN** the animation in `Reproductor` stops and the audio keeps playing
+
+#### Scenario: Opening a page while playing
+
+- **WHEN** the user opens `Reproductor` while a station plays
+- **THEN** its animated parts already show the playing state, without a start-up transition
+
+### Requirement: Reduced motion in every theme
+
+When the operating system asks for reduced motion (Windows animations turned off, or Android's animator duration scale at 0), every theme SHALL replace its movements with instant changes and SHALL keep showing the playback state by other means, such as colour, position or text.
+
+#### Scenario: Animations turned off
+
+- **WHEN** Windows animations are turned off and a station plays in `Boombox`
+- **THEN** the speakers do not pulse and the level meter does not move
+- **AND** the page still shows that the station is playing
+
+### Requirement: Decorative theme parts
+
+Parts of a theme that only decorate (speaker grilles, antennas, scales, meters, lamps, reels, the battery icon) SHALL NOT be focusable, SHALL be hidden from screen readers, and SHALL NOT look like a control that does nothing. Every part that looks pressable SHALL work.
+
+#### Scenario: Screen reader in Boombox
+
+- **WHEN** a screen reader moves through `Reproductor` in `Boombox`
+- **THEN** it reaches the transport keys, the heart and the memories, and skips the speakers and the level meter

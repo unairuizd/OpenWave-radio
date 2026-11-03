@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Clásico de rueda "Blanco" palette: a white body, a light grey-blue screen, near-black text and a blue highlighted menu row with white text (AccentTextColor). Same colour keys as every palette.
+-->
+<ResourceDictionary
+    x:Class="OpenWave.App.Resources.Themes.RuedaBlancoPalette"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Pages and surfaces -->
+    <Color x:Key="PageBackgroundColor">#F4F4F2</Color>
+    <Color x:Key="SurfaceColor">#E9EEF2</Color>
+    <Color x:Key="InputBackgroundColor">#FFFFFF</Color>
+    <Color x:Key="DividerColor">#C9CDD2</Color>
+    <Color x:Key="SelectedItemBackgroundColor">#2A62C8</Color>
+
+    <!-- Text -->
+    <Color x:Key="PrimaryTextColor">#111316</Color>
+    <Color x:Key="SecondaryTextColor">#555B63</Color>
+    <Color x:Key="ErrorTextColor">#B3261E</Color>
+
+    <!-- Accent: buttons; AccentTextColor is also the text of the highlighted menu row; hearts -->
+    <Color x:Key="AccentColor">#2A62C8</Color>
+    <Color x:Key="AccentTextColor">#FFFFFF</Color>
+    <Color x:Key="FavoriteIconColor">#2A62C8</Color>
+
+    <!-- The wheel area and the slim bar -->
+    <Color x:Key="TabBarBackgroundColor">#F4F4F2</Color>
+    <Color x:Key="TabBarSelectedColor">#2A62C8</Color>
+    <Color x:Key="TabBarUnselectedColor">#5A5F66</Color>
+
+</ResourceDictionary>
