@@ -32,13 +32,18 @@ Defines the `Radio de válvulas` theme: a 1940s–50s valve table radio in which
 
 ### Requirement: Radio de válvulas header and bottom bar
 
-Every themed page SHALL show a wooden header strip with the page title in upper case centred and the gear `Ajustes` on the right; in `Reproductor` it SHALL also show a house button `Inicio` on the left. `Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` SHALL show a wooden bottom bar with three round ivory buttons and labels; `Reproductor` SHALL NOT show it.
+`Inicio`, `Reproductor` and `Favoritos` SHALL show a wooden header strip with the page title in upper case centred and the gear `Ajustes` on the right; in `Reproductor` it SHALL also show a house button `Inicio` on the left. `Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` SHALL show the shared icon bottom bar in the theme's palette; `Reproductor` SHALL NOT show it.
 
 #### Scenario: Header in Reproductor
 
 - **WHEN** the user opens `Reproductor` in `Radio de válvulas`
 - **THEN** the header shows the house button, `REPRODUCTOR` centred and the gear
 - **AND** no bottom bar is shown
+
+#### Scenario: Bar in Inicio
+
+- **WHEN** the user opens `Inicio` in `Radio de válvulas`
+- **THEN** the bottom bar shows the three icons with `Inicio` marked, in the palette's colours
 
 ### Requirement: Tuning dial
 
@@ -142,15 +147,6 @@ When playback starts, the dial window SHALL brighten over about 1.5 s and the ma
 
 - **WHEN** the operating system asks for reduced motion and the user turns the radio on
 - **THEN** the dial is lit and the magic eye closed at once
-
-### Requirement: Radio de válvulas Ajustes and settings pages
-
-`Ajustes` SHALL show its two entries as wide ivory keys with engraved labels on the cabinet, each the only control of its entry. `Personalización` and `Preferencias` SHALL show their content on a rounded cloth-grille panel and keep every control usable.
-
-#### Scenario: Opening a settings entry
-
-- **WHEN** the user presses the `Personalización` key in `Ajustes`
-- **THEN** `Personalización` opens
 
 ### Requirement: Radio de válvulas accessibility and keyboard
 

@@ -43,12 +43,12 @@ Every themed page in `Tocadiscos` SHALL show the page title in upper case centre
 
 ### Requirement: Tocadiscos bottom bar
 
-`Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` in `Tocadiscos` SHALL show a wooden bottom bar with brass icons `Inicio`, `Reproductor` and `Favoritos`, marking the current section as in `Moderno`. `Reproductor` SHALL NOT show the bottom bar; the record crate takes its place.
+`Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` in `Tocadiscos` SHALL show the shared icon bottom bar in the Tocadiscos palette, marking the current section as in every theme. `Reproductor` SHALL NOT show the bottom bar; the record crate takes its place.
 
 #### Scenario: Bar in Favoritos
 
 - **WHEN** the user opens `Favoritos` in `Tocadiscos`
-- **THEN** the bottom bar shows `Inicio`, `Reproductor` and `Favoritos` with `Favoritos` marked
+- **THEN** the bottom bar shows the icons for `Inicio`, `Reproductor` and `Favoritos` with `Favoritos` marked
 
 #### Scenario: No bar in Reproductor
 
@@ -243,15 +243,6 @@ When no user is logged in, every slot SHALL be empty, the crate SHALL show `Inic
 
 - **WHEN** a logged-out user presses the crate
 - **THEN** `Iniciar sesión` opens and nothing is added to the favourites
-
-### Requirement: Tocadiscos Ajustes and settings pages
-
-`Ajustes` in `Tocadiscos` SHALL keep the `Moderno` structure: the header, the cards `PERSONALIZACIÓN` and `PREFERENCIAS` at full width, drawn as cream record sleeves with a vinyl peeking out and a brass border, and the bottom bar with nothing marked. `Personalización` and `Preferencias` SHALL keep their content and behaviour on a rounded wood panel.
-
-#### Scenario: Opening a settings card
-
-- **WHEN** the user activates the `PREFERENCIAS` card in `Tocadiscos`
-- **THEN** `Preferencias` opens with its usual pickers and buttons inside the Tocadiscos frame
 
 ### Requirement: Tocadiscos accessible names
 

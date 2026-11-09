@@ -27,12 +27,12 @@ The palette SHALL use a black plastic body, gunmetal panels, chrome trim, a hot 
 
 ### Requirement: Boombox header and bottom bar
 
-Every themed page SHALL show the title in upper case centred under a chrome trim line and the gear `Ajustes` on the right; in `Reproductor` the header SHALL also show a house button `Inicio` on the left and a decorative carrying handle above it. `Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` SHALL show a bottom bar of three rubber buttons with labels, the current one with a lit cyan LED; `Reproductor` SHALL NOT show it.
+`Inicio`, `Reproductor` and `Favoritos` SHALL show the title in upper case centred under a chrome trim line and the gear `Ajustes` on the right; in `Reproductor` the header SHALL also show a house button `Inicio` on the left and a decorative carrying handle above it. `Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` SHALL show the shared icon bottom bar in the theme's palette, the current section marked; `Reproductor` SHALL NOT show it.
 
 #### Scenario: Marked button
 
 - **WHEN** the user opens `Inicio`
-- **THEN** the `INICIO` button's LED is lit and the other two are not
+- **THEN** the `Inicio` icon is marked and the other two are not
 
 ### Requirement: Tuner display
 
@@ -96,15 +96,6 @@ While a station is buffering or playing, both speaker cones SHALL pulse gently i
 
 - **WHEN** the operating system asks for reduced motion and a station plays
 - **THEN** the speakers are still and the meter shows a fixed middle level, and it shows empty when stopped
-
-### Requirement: Boombox Ajustes and settings pages
-
-`Ajustes` SHALL show its two entries as wide rubber buttons on gunmetal. `Personalización` and `Preferencias` SHALL show their content on a gunmetal panel with a chrome border and keep every control usable.
-
-#### Scenario: Opening a settings entry
-
-- **WHEN** the user presses the `Personalización` button
-- **THEN** `Personalización` opens
 
 ### Requirement: Boombox accessibility and keyboard
 

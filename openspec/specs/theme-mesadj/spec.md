@@ -27,21 +27,26 @@ The palette SHALL use a near-black controller body, dark screen panels, light te
 
 ### Requirement: Spanish booth labels
 
-Every visible label of the theme SHALL be in Spanish, including `CARGAR`, `ATRÁS`, `SIGUIENTE` and `EN DIRECTO`. No English DJ term SHALL be shown.
+Every visible label of the theme SHALL be in the app language, including `CARGAR`, `ATRÁS`, `SIGUIENTE` and `EN DIRECTO` in `Español`. With `Español` selected, no English DJ term SHALL be shown.
 
 #### Scenario: Reviewing the labels
 
-- **WHEN** every page of `Mesa de DJ` is reviewed
+- **WHEN** every page of `Mesa de DJ` is reviewed with `Español` selected
 - **THEN** no visible label is in English
+
+#### Scenario: Labels in English
+
+- **WHEN** the app is in `English`
+- **THEN** the booth labels are shown in English
 
 ### Requirement: Mesa de DJ header and bottom bar
 
-Every themed page SHALL show a thin title bar with the title in upper case centred, the gear `Ajustes` on the right and a tag `EN DIRECTO` lit while a station is buffering or playing; in `Reproductor` it SHALL also show a house button `Inicio` on the left. `Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` SHALL show a flat bottom bar with a cyan underline under the current section; `Reproductor` SHALL NOT show it.
+`Inicio`, `Reproductor` and `Favoritos` SHALL show a thin title bar with the title in upper case centred, the gear `Ajustes` on the right and a tag `EN DIRECTO` lit while a station is buffering or playing; in `Reproductor` it SHALL also show a house button `Inicio` on the left. `Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` SHALL show the shared icon bottom bar in the theme's palette, the current section marked; `Reproductor` SHALL NOT show it. The shared settings pages SHALL NOT show the `EN DIRECTO` tag.
 
 #### Scenario: Live tag
 
 - **WHEN** a station starts playing
-- **THEN** the `EN DIRECTO` tag lights up on every page without blinking
+- **THEN** the `EN DIRECTO` tag lights up in `Inicio`, `Reproductor` and `Favoritos` without blinking
 
 ### Requirement: Track browser
 
@@ -105,15 +110,6 @@ The jog wheel SHALL turn like the Tocadiscos record while a station is buffering
 
 - **WHEN** the operating system asks for reduced motion and a station plays
 - **THEN** the jog wheel does not turn, the pad does not glow, and the play/pause button and `EN DIRECTO` still show the state
-
-### Requirement: Mesa de DJ Ajustes and settings pages
-
-`Ajustes` SHALL show its two entries as large pads with labels. `Personalización` and `Preferencias` SHALL show their content on a screen-like panel and keep every control usable.
-
-#### Scenario: Opening a settings entry
-
-- **WHEN** the user presses the `Preferencias` pad
-- **THEN** `Preferencias` opens
 
 ### Requirement: Mesa de DJ accessibility and keyboard
 

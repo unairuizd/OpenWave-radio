@@ -27,12 +27,12 @@ The palette SHALL use a blue metal body, a darker cassette window, light text, a
 
 ### Requirement: Casete portátil header and bottom bar
 
-Every themed page SHALL show the title in upper case centred and the gear `Ajustes` on the right; in `Reproductor` the header SHALL also show a house button `Inicio` on the left. `Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` SHALL show a bottom bar of three silver mechanical keys `INICIO`, `REPRODUCTOR` and `FAVORITAS`, the current one pushed in; `Reproductor` SHALL NOT show it.
+`Inicio`, `Reproductor` and `Favoritos` SHALL show the title in upper case centred and the gear `Ajustes` on the right; in `Reproductor` the header SHALL also show a house button `Inicio` on the left. `Inicio`, `Favoritos`, `Ajustes`, `Personalización` and `Preferencias` SHALL show the shared icon bottom bar in the theme's palette, the current section marked; `Reproductor` SHALL NOT show it.
 
 #### Scenario: Marked key
 
 - **WHEN** the user opens `Favoritos`
-- **THEN** the `FAVORITAS` key is pushed in and screen readers announce it as selected
+- **THEN** the `Favoritos` icon is marked and screen readers announce it as selected
 
 ### Requirement: Shoebox of cassettes
 
@@ -111,15 +111,6 @@ While a station is buffering or playing, both reels SHALL turn at about half a t
 
 - **WHEN** the operating system asks for reduced motion
 - **THEN** the reels do not turn, the card changes side at once, and `PLAY` still shows the state
-
-### Requirement: Casete portátil Ajustes and settings pages
-
-`Ajustes` SHALL show its two entries as big silver keys with stamped labels. `Personalización` and `Preferencias` SHALL show their content on a rounded brushed panel and keep every control usable.
-
-#### Scenario: Opening a settings entry
-
-- **WHEN** the user presses the `Preferencias` key
-- **THEN** `Preferencias` opens
 
 ### Requirement: Casete portátil accessibility and keyboard
 

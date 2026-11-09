@@ -36,12 +36,12 @@ Defines the `Clásico de rueda` theme: a mid-2000s pocket player with a screen o
 
 ### Requirement: Clásico de rueda header and bottom bar
 
-The screen's title bar SHALL show the page title in upper case centred, a play-state glyph on the left and the gear `Ajustes` on the right. Every themed page, including `Reproductor`, SHALL show the slim bottom bar with `Inicio`, `Reproductor` and `Favoritos`, the current one marked.
+The screen's title bar of `Inicio`, `Reproductor` and `Favoritos` SHALL show the page title in upper case centred, a play-state glyph on the left and the gear `Ajustes` on the right. Every themed page, including `Reproductor`, SHALL show the shared icon bottom bar in the theme's palette, under the wheel where there is one, with the current section marked.
 
 #### Scenario: Bar in Reproductor
 
 - **WHEN** the user opens `Reproductor` in `Clásico de rueda`
-- **THEN** the slim bar is shown with `Reproductor` marked
+- **THEN** the bottom bar is shown under the wheel with the `Reproductor` icon marked
 
 ### Requirement: Click wheel
 
@@ -119,15 +119,6 @@ Moving the cursor SHALL change the highlighted row at once and scroll the list i
 
 - **WHEN** the operating system asks for reduced motion
 - **THEN** the list jumps to keep the cursor visible and the buttons give no press animation
-
-### Requirement: Clásico de rueda Ajustes and settings pages
-
-`Ajustes` SHALL show a screen menu with `Preferencias` and `Personalización`, each a control of its own. `Personalización` and `Preferencias` SHALL show their content in the screen area, scrolling, and keep every control usable. These pages SHALL keep the header and the slim bottom bar.
-
-#### Scenario: Opening a settings entry
-
-- **WHEN** the user touches `Preferencias` in the `Ajustes` menu
-- **THEN** `Preferencias` opens
 
 ### Requirement: Clásico de rueda accessibility and keyboard
 
