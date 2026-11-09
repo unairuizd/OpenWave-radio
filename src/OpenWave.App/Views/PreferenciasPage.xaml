@@ -1,77 +1,165 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Preferencias: the default filters of Inicio. The same in every theme, only the palette colours change. Choices are
+    pending until Guardar; the bar at the bottom says so while they differ from the saved ones.
+-->
 <ContentPage
     x:Class="OpenWave.App.Views.PreferenciasPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
+    xmlns:views="clr-namespace:OpenWave.App.Views"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:PreferenciasViewModel"
-    Title="Preferencias"
-    ControlTemplate="{DynamicResource SettingsPageTemplate}"
+    Title="{loc:Translate Page_Preferencias}"
+    BackgroundColor="{DynamicResource PageBackgroundColor}"
     Shell.NavBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Style="{StaticResource SecondaryLabel}" Text="Se aplican como filtros en Inicio. «Todos» significa sin filtro." />
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
+        <views:SettingsHeader Grid.Row="0" />
 
-            <!--  Loading  -->
-            <VerticalStackLayout IsVisible="{Binding IsLoading}" Spacing="8">
-                <ActivityIndicator IsRunning="{Binding IsLoading}" />
-                <Label HorizontalOptions="Center" Style="{StaticResource SecondaryLabel}" Text="Cargando opciones..." />
-            </VerticalStackLayout>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="8">
 
-            <!--  Lists could not be loaded: the saved values are untouched  -->
-            <VerticalStackLayout IsVisible="{Binding HasError}" Spacing="12">
-                <Label Style="{StaticResource ErrorLabel}" Text="{Binding ErrorMessage}" />
+                <!--  Summary of the pending filters, without a station count  -->
+                <Border Style="{StaticResource StationCard}">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Summary_Title}" />
+                        <Label Style="{StaticResource StationNameLabel}" Text="{Binding Summary}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Loading and error states of the option lists  -->
+                <ActivityIndicator
+                    HorizontalOptions="Center"
+                    IsRunning="{Binding IsLoading}"
+                    IsVisible="{Binding IsLoading}" />
+                <VerticalStackLayout IsVisible="{Binding HasError}" Spacing="8">
+                    <Label Style="{StaticResource ErrorLabel}" Text="{Binding ErrorMessage}" />
+                    <Button
+                        Command="{Binding RetryCommand}"
+                        HorizontalOptions="Start"
+                        Style="{StaticResource OutlineButton}"
+                        Text="{loc:Translate Action_Retry}" />
+                </VerticalStackLayout>
+
+                <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Preferencias_GroupWhere}" />
+                <views:SettingsRow
+                    Command="{Binding OpenFilterCommand}"
+                    CommandParameter="Country"
+                    Detail="{Binding CountryText}"
+                    DetailIsValue="True"
+                    Icon="ic_globe.png"
+                    Title="{loc:Translate Filter_Country}" />
+                <views:SettingsRow
+                    Command="{Binding OpenFilterCommand}"
+                    CommandParameter="Language"
+                    Detail="{Binding LanguageText}"
+                    DetailIsValue="True"
+                    Icon="ic_language.png"
+                    Title="{loc:Translate Filter_Language}" />
+
+                <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Preferencias_GroupWhat}" />
+                <views:SettingsRow
+                    Command="{Binding OpenFilterCommand}"
+                    CommandParameter="Genre"
+                    Detail="{Binding GenreText}"
+                    DetailIsValue="True"
+                    Icon="ic_genre.png"
+                    Title="{loc:Translate Filter_Genre}" />
+
+                <Label
+                    Margin="0,8,0,0"
+                    Style="{StaticResource SettingsRowTitle}"
+                    Text="{loc:Translate Filter_ContentType}" />
+                <FlexLayout BindableLayout.ItemsSource="{Binding ContentTypes}" Wrap="Wrap">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ChoiceItem">
+                            <Grid Padding="0,0,8,8">
+                                <Border Style="{StaticResource Chip}">
+                                    <Border.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="True">
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                            <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="False">
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
+                                            <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Style="{StaticResource ChipLabel}" Text="{Binding Name}">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Label"
+                                                Value="True">
+                                                <Setter Property="TextColor" Value="{DynamicResource AccentTextColor}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Label"
+                                                Value="False">
+                                                <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+                                <Button
+                                    Command="{Binding SelectContentTypeCommand, Source={RelativeSource AncestorType={x:Type vm:PreferenciasViewModel}}, x:DataType=vm:PreferenciasViewModel}"
+                                    CommandParameter="{Binding .}"
+                                    SemanticProperties.Description="{Binding AccessibleName}"
+                                    Style="{StaticResource RowButton}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <Label
+                    IsVisible="{Binding HasStatus}"
+                    SemanticProperties.Description="{Binding StatusMessage}"
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="{Binding StatusMessage}" />
+
                 <Button
-                    Command="{Binding RetryCommand}"
-                    HorizontalOptions="Start"
-                    Text="Reintentar" />
+                    Margin="0,8,0,0"
+                    Command="{Binding ResetCommand}"
+                    Style="{StaticResource OutlineButton}"
+                    Text="{loc:Translate Action_Reset}" />
             </VerticalStackLayout>
+        </ScrollView>
 
-            <!--  Pickers  -->
-            <VerticalStackLayout IsVisible="{Binding IsLoaded}" Spacing="8">
-                <Label Style="{StaticResource StationNameLabel}" Text="País" />
-                <Picker
-                    ItemDisplayBinding="{Binding Label, x:DataType=vm:PreferenceOption}"
-                    ItemsSource="{Binding Countries}"
-                    SelectedItem="{Binding SelectedCountry}" />
-
-                <Label Style="{StaticResource StationNameLabel}" Text="Idioma" />
-                <Picker
-                    ItemDisplayBinding="{Binding Label, x:DataType=vm:PreferenceOption}"
-                    ItemsSource="{Binding Languages}"
-                    SelectedItem="{Binding SelectedLanguage}" />
-
-                <Label Style="{StaticResource StationNameLabel}" Text="Género" />
-                <Picker
-                    ItemDisplayBinding="{Binding Label, x:DataType=vm:PreferenceOption}"
-                    ItemsSource="{Binding Genres}"
-                    SelectedItem="{Binding SelectedGenre}" />
-
-                <Label Style="{StaticResource StationNameLabel}" Text="Tipo de contenido" />
-                <Picker
-                    ItemDisplayBinding="{Binding Label, x:DataType=vm:PreferenceOption}"
-                    ItemsSource="{Binding ContentTypeOptions}"
-                    SelectedItem="{Binding SelectedContentType}" />
-            </VerticalStackLayout>
-
-            <!--  The confirmation sits next to the buttons, so it is visible whenever they are  -->
-            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
-                <Button
+        <!--  Unsaved changes  -->
+        <Border
+            Grid.Row="2"
+            Margin="16,0,16,8"
+            IsVisible="{Binding HasChanges}"
+            Style="{StaticResource SettingsRow}">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                <Label
                     Grid.Column="0"
-                    Command="{Binding SaveCommand}"
-                    Text="Guardar" />
+                    Style="{StaticResource SettingsRowTitle}"
+                    Text="{loc:Translate Preferencias_Unsaved}"
+                    VerticalOptions="Center" />
                 <Button
                     Grid.Column="1"
-                    Command="{Binding ResetCommand}"
-                    Text="Restablecer" />
-                <Label
+                    Command="{Binding DiscardCommand}"
+                    Style="{StaticResource OutlineButton}"
+                    Text="{loc:Translate Action_Discard}" />
+                <Button
                     Grid.Column="2"
-                    IsVisible="{Binding HasStatus}"
-                    Text="{Binding StatusMessage}"
-                    VerticalOptions="Center" />
+                    Command="{Binding SaveCommand}"
+                    Style="{StaticResource AccentButton}"
+                    Text="{loc:Translate Action_Save}" />
             </Grid>
-        </VerticalStackLayout>
-    </ScrollView>
+        </Border>
+
+        <views:BottomBar Grid.Row="3" />
+    </Grid>
 
 </ContentPage>

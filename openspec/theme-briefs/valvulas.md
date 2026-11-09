@@ -81,6 +81,9 @@ TabUnselected/TabBar 13.06.
 ## 4. Pages
 
 ### Header and bottom bar
+
+> **Phase 8:** the bottom bar is now the same icon bar in every theme (`Views/BottomBar.cs`: house, radio and star in the palette's `TabBar*` colours). Only where the theme shows it still comes from this brief; the bar look described here is no longer drawn.
+
 - Header: a wooden strip with the title engraved (`TabBarSelectedColor`) and the gear.
 - Bottom bar: the wooden base of the cabinet with three ivory "feet" buttons (Inicio, Reproductor, Favoritos);
   the marked one is lit in `TabBarSelectedColor`.
@@ -115,8 +118,8 @@ Rows: header (house button to Inicio + gear, like Tocadiscos' `ReproductorHeader
   are blank and pressing any one opens login. No bottom bar on this page.
 
 ### Ajustes and settings pages
-- Ajustes: the two entries as ivory keys with an engraved label, on the cabinet.
-- Settings pages: a rounded panel of cloth grille (`SurfaceColor` with `DividerColor` threads) around the content.
+
+> **Phase 8:** superseded. `Ajustes`, `Personalización`, `Preferencias` and the filter pages are shared by every theme and only take the palette colours (see the README, "Ajustes and Personalización"). The settings look this section described is no longer drawn.
 
 ## 5. Function map
 

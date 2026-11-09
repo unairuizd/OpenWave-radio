@@ -3,6 +3,7 @@
     x:Class="OpenWave.App.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:views="clr-namespace:OpenWave.App.Views"
     Title="OpenWave"
     FlyoutBehavior="Disabled"
@@ -13,15 +14,15 @@
 
     <TabBar>
         <ShellContent
-            Title="Inicio"
+            Title="{loc:Translate Nav_Inicio}"
             Route="inicio"
             ContentTemplate="{DataTemplate views:InicioPage}" />
         <ShellContent
-            Title="Reproductor"
+            Title="{loc:Translate Nav_Reproductor}"
             Route="reproductor"
             ContentTemplate="{DataTemplate views:ReproductorPage}" />
         <ShellContent
-            Title="Favoritos"
+            Title="{loc:Translate Nav_Favoritos}"
             Route="favoritos"
             ContentTemplate="{DataTemplate views:FavoritosPage}" />
     </TabBar>

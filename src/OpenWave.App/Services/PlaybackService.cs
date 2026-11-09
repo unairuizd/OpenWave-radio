@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using OpenWave.Contracts;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Services;
 
@@ -9,7 +10,7 @@ namespace OpenWave.App.Services;
 /// </summary>
 public partial class PlaybackService : ObservableObject
 {
-    private const string PlaybackErrorMessage = "No se pudo reproducir esta emisora.";
+    private static string PlaybackErrorMessage => Localizer.Instance["Playback_Error"];
 
     private readonly IAudioPlayer _player;
     private readonly ILogger<PlaybackService> _logger;
@@ -20,6 +21,13 @@ public partial class PlaybackService : ObservableObject
         _logger = logger;
         _player.StateChanged += OnPlayerStateChanged;
         _player.Failed += OnPlayerFailed;
+
+        // The status text is in the app language: a language change rewrites it.
+        Localizer.Instance.LanguageChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(StatusText));
+            PlaybackIndicator.Current.StatusText = StatusText;
+        };
     }
 
     [ObservableProperty]
@@ -47,10 +55,10 @@ public partial class PlaybackService : ObservableObject
 
     public string StatusText => State switch
     {
-        PlaybackState.Buffering => "Cargando…",
-        PlaybackState.Playing => "Reproduciendo",
-        PlaybackState.Error => "Error",
-        _ => "Detenido"
+        PlaybackState.Buffering => Localizer.Instance["Playback_Buffering"],
+        PlaybackState.Playing => Localizer.Instance["Playback_Playing"],
+        PlaybackState.Error => Localizer.Instance["Playback_Failed"],
+        _ => Localizer.Instance["Playback_Stopped"]
     };
 
     /// <summary>

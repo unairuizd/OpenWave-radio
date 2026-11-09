@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Services;
 
@@ -32,14 +33,14 @@ public enum ApiErrorKind
 }
 
 /// <summary>
-/// Thrown by the account and favourites clients. <see cref="Exception.Message"/> is the Spanish text to show.
+/// Thrown by the account and favourites clients. <see cref="Exception.Message"/> is the text to show, in the app language.
 /// </summary>
 public sealed class ApiRequestException(ApiErrorKind kind, string message, Exception? innerException = null)
     : Exception(message, innerException)
 {
-    public const string UnreachableMessage = "No hay conexión con el servidor.";
-    public const string DatabaseUnavailableMessage = "No se pudo acceder a la base de datos.";
-    public const string UnexpectedMessage = "Ha ocurrido un error inesperado.";
+    public static string UnreachableMessage => Localizer.Instance["Error_Unreachable"];
+    public static string DatabaseUnavailableMessage => Localizer.Instance["Error_DatabaseUnavailable"];
+    public static string UnexpectedMessage => Localizer.Instance["Error_Unexpected"];
 
     public ApiErrorKind Kind { get; } = kind;
 

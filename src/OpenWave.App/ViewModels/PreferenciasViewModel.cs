@@ -1,51 +1,117 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenWave.App.Services;
+using OpenWave.App.Services.Localization;
 using OpenWave.Contracts;
 
 namespace OpenWave.App.ViewModels;
 
 /// <summary>
-/// One choice in a Preferencias picker. A null <see cref="Value"/> is "Todos" (no filter).
+/// Preferencias: the default filters of Inicio. Choices change only the pending values; <c>Guardar</c> stores them,
+/// <c>Descartar</c> brings back the saved ones and <c>Restablecer</c> stores "Todos" for all four at once.
 /// </summary>
-public sealed record PreferenceOption(string? Value, string Label);
-
-public partial class PreferenciasViewModel(PreferencesService preferences, CatalogApiClient catalog) : ObservableObject
+public partial class PreferenciasViewModel : ObservableObject
 {
-    private const string AllLabel = "Todos";
-    private const string SavedMessage = "Preferencias guardadas.";
-    private const string UnreachableMessage = "No hay conexión con el servidor.";
-    private const string CatalogueUnavailableMessage = "No se pudo obtener el catálogo de emisoras.";
+    private readonly PreferencesService _preferences;
+    private readonly CatalogApiClient _catalog;
+    private readonly Localizer _localizer = Localizer.Instance;
+
+    private IReadOnlyList<PreferenceOption> _countries = [];
+    private IReadOnlyList<PreferenceOption> _languages = [];
+    private IReadOnlyList<PreferenceOption> _genres = [];
+
+    public PreferenciasViewModel(PreferencesService preferences, CatalogApiClient catalog)
+    {
+        _preferences = preferences;
+        _catalog = catalog;
+        var saved = preferences.Current;
+        PendingCountry = Option(saved.Country, PreferenceLabels.Country);
+        PendingLanguage = Option(saved.Language, PreferenceLabels.Language);
+        PendingGenre = Option(saved.Genre, PreferenceLabels.Genre);
+        PendingContentType = saved.ContentType;
+    }
+
+    // Pending choices. Null is "Todos".
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CountryText), nameof(Summary), nameof(HasChanges))]
+    public partial PreferenceOption? PendingCountry { get; private set; }
 
     [ObservableProperty]
-    public partial IReadOnlyList<PreferenceOption> Countries { get; private set; } = [];
+    [NotifyPropertyChangedFor(nameof(LanguageText), nameof(Summary), nameof(HasChanges))]
+    public partial PreferenceOption? PendingLanguage { get; private set; }
 
     [ObservableProperty]
-    public partial IReadOnlyList<PreferenceOption> Languages { get; private set; } = [];
+    [NotifyPropertyChangedFor(nameof(GenreText), nameof(Summary), nameof(HasChanges))]
+    public partial PreferenceOption? PendingGenre { get; private set; }
 
     [ObservableProperty]
-    public partial IReadOnlyList<PreferenceOption> Genres { get; private set; } = [];
+    [NotifyPropertyChangedFor(nameof(Summary), nameof(HasChanges))]
+    public partial string? PendingContentType { get; private set; }
 
+    /// <summary>"Todos" followed by the content types, the pending one marked.</summary>
     [ObservableProperty]
-    public partial IReadOnlyList<PreferenceOption> ContentTypeOptions { get; private set; } = [];
+    public partial IReadOnlyList<ChoiceItem> ContentTypes { get; private set; } = [];
 
-    [ObservableProperty]
-    public partial PreferenceOption? SelectedCountry { get; set; }
+    public string CountryText => PendingCountry?.Label ?? _localizer["Filter_All"];
 
-    [ObservableProperty]
-    public partial PreferenceOption? SelectedLanguage { get; set; }
+    public string LanguageText => PendingLanguage?.Label ?? _localizer["Filter_All"];
 
-    [ObservableProperty]
-    public partial PreferenceOption? SelectedGenre { get; set; }
+    public string GenreText => PendingGenre?.Label ?? _localizer["Filter_All"];
 
-    [ObservableProperty]
-    public partial PreferenceOption? SelectedContentType { get; set; }
+    /// <summary>
+    /// The pending filters in words, such as "Emisoras de Spain en Spanish · Jazz", or "Todas las emisoras".
+    /// No station count.
+    /// </summary>
+    public string Summary
+    {
+        get
+        {
+            var contentType = PendingContentType is null ? null : ContentTypeLabel(PendingContentType);
+            if (PendingCountry is null && PendingLanguage is null && PendingGenre is null && contentType is null)
+            {
+                return _localizer["Summary_All"];
+            }
+
+            var text = _localizer["Summary_Stations"];
+            if (PendingCountry is not null)
+            {
+                text += " " + _localizer.Format("Summary_From", PendingCountry.Label);
+            }
+
+            if (PendingLanguage is not null)
+            {
+                text += " " + _localizer.Format("Summary_In", PendingLanguage.Label);
+            }
+
+            foreach (var part in new[] { PendingGenre?.Label, contentType })
+            {
+                if (part is not null)
+                {
+                    text += PreferenceLabels.Separator + part;
+                }
+            }
+
+            return text;
+        }
+    }
+
+    public bool HasChanges
+    {
+        get
+        {
+            var saved = _preferences.Current;
+            return !Same(PendingCountry?.Value, saved.Country)
+                || !Same(PendingLanguage?.Value, saved.Language)
+                || !Same(PendingGenre?.Value, saved.Genre)
+                || !Same(PendingContentType, saved.ContentType);
+        }
+    }
 
     [ObservableProperty]
     public partial bool IsLoading { get; private set; }
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenFilterCommand))]
     public partial bool IsLoaded { get; private set; }
 
     [ObservableProperty]
@@ -68,31 +134,92 @@ public partial class PreferenciasViewModel(PreferencesService preferences, Catal
     [RelayCommand]
     private Task RetryAsync() => LoadAsync();
 
-    [RelayCommand(CanExecute = nameof(IsLoaded))]
+    /// <summary>Opens the selection page of País, Idioma or Género; the parameter is the <see cref="FilterKind"/>.</summary>
+    [RelayCommand(CanExecute = nameof(IsLoaded), AllowConcurrentExecutions = false)]
+    private Task OpenFilterAsync(string kindName)
+    {
+        var kind = Enum.Parse<FilterKind>(kindName);
+        var (options, pending) = kind switch
+        {
+            FilterKind.Country => (_countries, PendingCountry),
+            FilterKind.Language => (_languages, PendingLanguage),
+            _ => (_genres, PendingGenre),
+        };
+
+        // A pending value that is not in the list (a saved value the API no longer returns) is offered too.
+        if (pending is not null && !options.Any(o => Same(o.Value, pending.Value)))
+        {
+            options = [pending, .. options];
+        }
+
+        var request = new FilterRequest(kind, options, pending?.Value, chosen => Choose(kind, chosen));
+        return Shell.Current.GoToAsync("filtro", new ShellNavigationQueryParameters { [nameof(FilterRequest)] = request });
+    }
+
+    [RelayCommand]
+    private void SelectContentType(ChoiceItem item)
+    {
+        PendingContentType = item.Value.Length == 0 ? null : item.Value;
+        StatusMessage = null;
+        UpdateContentTypeSelection();
+    }
+
+    [RelayCommand]
     private void Save()
     {
-        preferences.Save(new UserPreferences(
-            SelectedCountry?.Value,
-            SelectedLanguage?.Value,
-            SelectedGenre?.Value,
-            SelectedContentType?.Value));
-        StatusMessage = SavedMessage;
+        var pending = new UserPreferences(PendingCountry?.Value, PendingLanguage?.Value, PendingGenre?.Value, PendingContentType);
+        _preferences.Save(pending);
+        RecentFilters.Add(FilterKind.Country, pending.Country);
+        RecentFilters.Add(FilterKind.Language, pending.Language);
+        RecentFilters.Add(FilterKind.Genre, pending.Genre);
+        OnPropertyChanged(nameof(HasChanges));
+        StatusMessage = _localizer["Preferencias_Saved"];
+    }
+
+    [RelayCommand]
+    private void Discard()
+    {
+        var saved = _preferences.Current;
+        PendingCountry = Find(_countries, saved.Country, PreferenceLabels.Country);
+        PendingLanguage = Find(_languages, saved.Language, PreferenceLabels.Language);
+        PendingGenre = Find(_genres, saved.Genre, PreferenceLabels.Genre);
+        PendingContentType = saved.ContentType;
+        StatusMessage = null;
+        UpdateContentTypeSelection();
     }
 
     // Works even when the lists could not be loaded: it only needs to store "Todos".
     [RelayCommand]
     private void Reset()
     {
-        preferences.Reset();
-        if (IsLoaded)
+        _preferences.Reset();
+        PendingCountry = null;
+        PendingLanguage = null;
+        PendingGenre = null;
+        PendingContentType = null;
+        UpdateContentTypeSelection();
+        OnPropertyChanged(nameof(HasChanges));
+        StatusMessage = _localizer["Preferencias_Saved"];
+    }
+
+    private void Choose(FilterKind kind, PreferenceOption? chosen)
+    {
+        // "Todos" arrives as an option with a null value.
+        var value = chosen?.Value is null ? null : chosen;
+        switch (kind)
         {
-            SelectedCountry = Countries[0];
-            SelectedLanguage = Languages[0];
-            SelectedGenre = Genres[0];
-            SelectedContentType = ContentTypeOptions[0];
+            case FilterKind.Country:
+                PendingCountry = value;
+                break;
+            case FilterKind.Language:
+                PendingLanguage = value;
+                break;
+            default:
+                PendingGenre = value;
+                break;
         }
 
-        StatusMessage = SavedMessage;
+        StatusMessage = null;
     }
 
     private async Task LoadAsync()
@@ -103,22 +230,38 @@ public partial class PreferenciasViewModel(PreferencesService preferences, Catal
 
         try
         {
-            var countries = catalog.GetCountriesAsync();
-            var languages = catalog.GetLanguagesAsync();
-            var genres = catalog.GetGenresAsync();
-            var contentTypes = catalog.GetContentTypesAsync();
+            var countries = _catalog.GetCountriesAsync();
+            var languages = _catalog.GetLanguagesAsync();
+            var genres = _catalog.GetGenresAsync();
+            var contentTypes = _catalog.GetContentTypesAsync();
             await Task.WhenAll(countries, languages, genres, contentTypes);
 
-            var saved = preferences.Current;
-            (Countries, SelectedCountry) = BuildOptions(countries.Result, saved.Country, PreferenceLabels.Country);
-            (Languages, SelectedLanguage) = BuildOptions(languages.Result, saved.Language, PreferenceLabels.Language);
-            (Genres, SelectedGenre) = BuildOptions(genres.Result, saved.Genre, PreferenceLabels.Genre);
-            (ContentTypeOptions, SelectedContentType) = BuildOptions(contentTypes.Result, saved.ContentType, PreferenceLabels.ContentType);
+            _countries = ToOptions(countries.Result);
+            _languages = ToOptions(languages.Result);
+            _genres = ToOptions(genres.Result);
+
+            // The pending values take the labels of the lists (a saved value keeps its own label when it is missing).
+            PendingCountry = Find(_countries, PendingCountry?.Value, PreferenceLabels.Country);
+            PendingLanguage = Find(_languages, PendingLanguage?.Value, PreferenceLabels.Language);
+            PendingGenre = Find(_genres, PendingGenre?.Value, PreferenceLabels.Genre);
+
+            var contentTypeItems = new List<ChoiceItem> { new(string.Empty, () => _localizer["Filter_All"]) };
+            contentTypeItems.AddRange(contentTypes.Result.Select(c => new ChoiceItem(c.Value, () => c.Label)));
+
+            // A saved content type that the API no longer lists is kept as a chip.
+            if (PendingContentType is { } saved && !contentTypeItems.Any(i => Same(i.Value, saved)))
+            {
+                contentTypeItems.Add(new ChoiceItem(saved, () => PreferenceLabels.ContentType(saved)));
+            }
+
+            ContentTypes = contentTypeItems;
+            UpdateContentTypeSelection();
+            OnPropertyChanged(nameof(Summary));
             IsLoaded = true;
         }
         catch (StationRequestException ex)
         {
-            ErrorMessage = ex.Error == StationRequestError.Unreachable ? UnreachableMessage : CatalogueUnavailableMessage;
+            ErrorMessage = _localizer[ex.Error == StationRequestError.Unreachable ? "Error_Unreachable" : "Error_CatalogueUnavailable"];
         }
         finally
         {
@@ -126,30 +269,26 @@ public partial class PreferenciasViewModel(PreferencesService preferences, Catal
         }
     }
 
-    /// <summary>
-    /// "Todos" first, then the API options. A saved value missing from the list is kept as an option
-    /// and selected, so it is never dropped silently.
-    /// </summary>
-    private static (IReadOnlyList<PreferenceOption> Options, PreferenceOption Selected) BuildOptions(
-        IReadOnlyList<OptionDto> apiOptions,
-        string? savedValue,
-        Func<string, string> labelFor)
+    private void UpdateContentTypeSelection()
     {
-        var options = new List<PreferenceOption> { new(null, AllLabel) };
-        options.AddRange(apiOptions.Select(o => new PreferenceOption(o.Value, o.Label)));
-
-        if (savedValue is null)
+        foreach (var item in ContentTypes)
         {
-            return (options, options[0]);
+            item.IsSelected = Same(item.Value.Length == 0 ? null : item.Value, PendingContentType);
         }
-
-        var selected = options.FirstOrDefault(o => string.Equals(o.Value, savedValue, StringComparison.OrdinalIgnoreCase));
-        if (selected is null)
-        {
-            selected = new PreferenceOption(savedValue, labelFor(savedValue));
-            options.Insert(1, selected);
-        }
-
-        return (options, selected);
     }
+
+    private string ContentTypeLabel(string value) =>
+        ContentTypes.FirstOrDefault(c => Same(c.Value, value))?.Name ?? PreferenceLabels.ContentType(value);
+
+    private static IReadOnlyList<PreferenceOption> ToOptions(IReadOnlyList<OptionDto> options) =>
+        options.Select(o => new PreferenceOption(o.Value, o.Label, o.StationCount)).ToList();
+
+    // The option of the list with that value; a value missing from the list keeps a label of its own.
+    private static PreferenceOption? Find(IReadOnlyList<PreferenceOption> options, string? value, Func<string, string> labelFor) =>
+        value is null ? null : options.FirstOrDefault(o => Same(o.Value, value)) ?? new PreferenceOption(value, labelFor(value));
+
+    private static PreferenceOption? Option(string? value, Func<string, string> labelFor) =>
+        value is null ? null : new PreferenceOption(value, labelFor(value));
+
+    private static bool Same(string? a, string? b) => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 }

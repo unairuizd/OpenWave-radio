@@ -50,6 +50,9 @@ TabSelected/TabBar 9.45, TabUnselected/TabBar 8.12.
 ## 4. Pages
 
 ### Header and bottom bar
+
+> **Phase 8:** the bottom bar is now the same icon bar in every theme (`Views/BottomBar.cs`: house, radio and star in the palette's `TabBar*` colours). Only where the theme shows it still comes from this brief; the bar look described here is no longer drawn.
+
 - Header: the LCD's status line: `EMISORAS`, `FAVORITAS` or `REPRODUCIENDO`, a fake battery icon (decorative) and
   the gear.
 - Bottom bar: the rubber button panel under the screen with the three sections as buttons labelled `INICIO`,
@@ -77,8 +80,8 @@ Rows: header (house + gear) / LCD now-playing / button pad.
 - No crate or presets: favourites are reached with `◀◀`/`▶▶` and in Favoritos. No bottom bar.
 
 ### Ajustes and settings pages
-- Ajustes: an LCD menu with two lines (`Preferencias`, `Personalización`) and the cursor.
-- Settings pages: the content inside an LCD-framed panel.
+
+> **Phase 8:** superseded. `Ajustes`, `Personalización`, `Preferencias` and the filter pages are shared by every theme and only take the palette colours (see the README, "Ajustes and Personalización"). The settings look this section described is no longer drawn.
 
 ## 5. Function map
 

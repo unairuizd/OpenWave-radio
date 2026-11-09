@@ -1,13 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenWave.App.Services;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.ViewModels;
 
 public partial class LoginViewModel(IAuthService authService, SessionService session) : ObservableObject
 {
-    private const string InvalidEmailMessage = "El correo no es válido.";
-    private const string EmptyPasswordMessage = "Introduce la contraseña.";
+    private static string InvalidEmailMessage => Localizer.Instance["Account_InvalidEmail"];
+    private static string EmptyPasswordMessage => Localizer.Instance["Account_EmptyPassword"];
 
     [ObservableProperty]
     public partial string? Email { get; set; }

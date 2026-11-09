@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Views.Controls;
 
@@ -71,7 +72,7 @@ public class PagedSlots : PageAwareView
         nameof(ItemDisplayPath), typeof(string), typeof(PagedSlots), null, propertyChanged: (b, _, _) => ((PagedSlots)b).Refresh());
 
     public static readonly BindableProperty ItemDescriptionFormatProperty = BindableProperty.Create(
-        nameof(ItemDescriptionFormat), typeof(string), typeof(PagedSlots), "Reproducir {0}, favorita {1} de {2}",
+        nameof(ItemDescriptionFormat), typeof(string), typeof(PagedSlots), null,
         propertyChanged: (b, _, _) => ((PagedSlots)b).Refresh());
 
     public static readonly BindableProperty ArrowKeysMoveFocusProperty = BindableProperty.Create(
@@ -126,6 +127,10 @@ public class PagedSlots : PageAwareView
 
     public PagedSlots()
     {
+        // The descriptions follow the app language.
+        Loaded += (_, _) => Localizer.Instance.LanguageChanged += OnLanguageChanged;
+        Unloaded += (_, _) => Localizer.Instance.LanguageChanged -= OnLanguageChanged;
+
         NextPageCommand = new RelayCommand(() => ChangePage(1));
         PreviousPageCommand = new RelayCommand(() => ChangePage(-1));
         TurnPageCommand = new RelayCommand(TurnPage);
@@ -235,9 +240,9 @@ public class PagedSlots : PageAwareView
     /// Accessible name of a filled slot: {0} is the item's name, {1} its number in the list, {2} the count, {3} its
     /// position in its column, {4} its column's letter (A, B, …) and {5} the slot's number on the page.
     /// </summary>
-    public string ItemDescriptionFormat
+    public string? ItemDescriptionFormat
     {
-        get => (string)GetValue(ItemDescriptionFormatProperty);
+        get => (string?)GetValue(ItemDescriptionFormatProperty);
         set => SetValue(ItemDescriptionFormatProperty, value);
     }
 
@@ -489,7 +494,7 @@ public class PagedSlots : PageAwareView
             var name = ItemBinding.Read(item, ItemDisplayPath) as string ?? string.Empty;
             var column = ColumnMajor ? i / Rows : i % Columns;
             var positionInColumn = (ColumnMajor ? i % Rows : i / Columns) + 1;
-            SemanticProperties.SetDescription(_buttons[i], string.Format(ItemDescriptionFormat, name, index + 1, count, positionInColumn, (char)('A' + column), i + 1));
+            SemanticProperties.SetDescription(_buttons[i], string.Format(ItemDescriptionFormat ?? Localizer.Instance["Fmt_PlayFavorite"], name, index + 1, count, positionInColumn, (char)('A' + column), i + 1));
         }
 
         SetValue(PageIndexPropertyKey, _page);
@@ -574,4 +579,6 @@ public class PagedSlots : PageAwareView
         };
 #endif
     }
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => Refresh();
 }

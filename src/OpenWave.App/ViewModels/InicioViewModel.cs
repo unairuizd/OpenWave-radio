@@ -3,13 +3,14 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenWave.App.Services;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.ViewModels;
 
 public partial class InicioViewModel : ObservableObject
 {
-    private const string UnreachableMessage = "No hay conexión con el servidor.";
-    private const string CatalogueUnavailableMessage = "No se pudo obtener el catálogo de emisoras.";
+    private static string UnreachableMessage => Localizer.Instance["Error_Unreachable"];
+    private static string CatalogueUnavailableMessage => Localizer.Instance["Error_CatalogueUnavailable"];
 
     private readonly IStationService _stationService;
     private readonly PlaybackService _playback;
@@ -33,6 +34,8 @@ public partial class InicioViewModel : ObservableObject
         _playback.PropertyChanged += OnPlaybackPropertyChanged;
         _favorites.FavoritesChanged += (_, _) => RefreshFavorites();
         _preferences.Changed += OnPreferencesChanged;
+        // The summary of the filters names the content type in the app language.
+        Localizer.Instance.LanguageChanged += (_, _) => OnPropertyChanged(nameof(FilterSummary));
     }
 
     /// <summary>

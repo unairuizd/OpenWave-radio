@@ -1,106 +1,333 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Personalización: the same in every theme, only the palette colours change. The preview stays at the top while the
+    options scroll under it. No page template is used, so choosing a theme here only recolours the page and keeps
+    its scroll position. Every choice is applied and stored at once.
+-->
 <ContentPage
     x:Class="OpenWave.App.Views.PersonalizacionPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:services="clr-namespace:OpenWave.App.Services"
-    xmlns:themes="clr-namespace:OpenWave.App.Resources.Themes"
+    xmlns:behaviors="clr-namespace:OpenWave.App.Behaviors"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:views="clr-namespace:OpenWave.App.Views"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:PersonalizacionViewModel"
-    Title="Personalización"
+    Title="{loc:Translate Page_Personalizacion}"
+    BackgroundColor="{DynamicResource PageBackgroundColor}"
     Shell.NavBarIsVisible="False">
 
-    <!--
-        The theme is chosen on this page, so its content must never be moved to a new frame while it is shown (MAUI's
-        radio groups then keep re-selecting the previous theme). Instead of a page template, only the header and the
-        bottom bar come from the active layout, and the panel takes the layout's optional SettingsPanelStyle.
-    -->
-    <Grid RowDefinitions="Auto,*,Auto">
-        <ContentView Grid.Row="0" ControlTemplate="{DynamicResource HeaderTemplate}" />
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <views:SettingsHeader Grid.Row="0" />
 
-        <Border Grid.Row="1" Style="{DynamicResource SettingsPanelStyle}">
-            <ScrollView>
-                <VerticalStackLayout Padding="16" Spacing="12">
-                    <Label Style="{StaticResource SecondaryLabel}" Text="Los cambios se aplican y se guardan al momento." />
-
-                    <!--  Theme  -->
-                    <Label Style="{StaticResource StationNameLabel}" Text="Tema" />
-                    <VerticalStackLayout
-                        BindableLayout.ItemsSource="{Binding Themes}"
-                        RadioButtonGroup.GroupName="theme"
-                        RadioButtonGroup.SelectedValue="{Binding SelectedThemeId}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="themes:AppThemeDefinition">
-                                <RadioButton Content="{Binding DisplayName}" Value="{Binding Id}" />
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+        <!--  Fixed preview: a sample station card in the current palette, font, size and language. It does nothing.  -->
+        <VerticalStackLayout Grid.Row="1" Padding="16,12,16,4" Spacing="6">
+            <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Personalizacion_Preview}" />
+            <Border Style="{StaticResource StationCard}">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                        <Label Style="{StaticResource StationNameLabel}" Text="{loc:Translate Personalizacion_SampleName}" />
+                        <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Personalizacion_SampleDetails}" />
                     </VerticalStackLayout>
-
-                    <!--  Variant: only for a theme with more than one palette  -->
-                    <VerticalStackLayout IsVisible="{Binding ShowPaletteChoice}" Spacing="12">
-                        <Label Style="{StaticResource StationNameLabel}" Text="Variante" />
-                        <VerticalStackLayout
-                            BindableLayout.ItemsSource="{Binding Palettes}"
-                            RadioButtonGroup.GroupName="palette"
-                            RadioButtonGroup.SelectedValue="{Binding SelectedPaletteId}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="themes:ThemePalette">
-                                    <RadioButton Content="{Binding DisplayName}" Value="{Binding Id}" />
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </VerticalStackLayout>
-
-                    <!--  Font: each name is written in its own font  -->
-                    <Label Style="{StaticResource StationNameLabel}" Text="Tipo de letra" />
-                    <VerticalStackLayout
-                        BindableLayout.ItemsSource="{Binding Fonts}"
-                        RadioButtonGroup.GroupName="font"
-                        RadioButtonGroup.SelectedValue="{Binding SelectedFont}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="services:FontOption">
-                                <RadioButton
-                                    Content="{Binding Name}"
-                                    FontFamily="{Binding Name}"
-                                    Value="{Binding Name}" />
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
-
-                    <!--  Text size  -->
-                    <Label Style="{StaticResource StationNameLabel}" Text="Tamaño del texto" />
-                    <VerticalStackLayout
-                        BindableLayout.ItemsSource="{Binding Scales}"
-                        RadioButtonGroup.GroupName="scale"
-                        RadioButtonGroup.SelectedValue="{Binding SelectedScale}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="services:FontScaleOption">
-                                <RadioButton Content="{Binding DisplayName}" Value="{Binding Scale}" />
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
-
-                    <!--  Preview: the normal styles, so it shows exactly what the app shows  -->
-                    <Label Style="{StaticResource StationNameLabel}" Text="Vista previa" />
-                    <Border Style="{StaticResource StationCard}">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Style="{StaticResource PageTitleLabel}" Text="Título de ejemplo" />
-                            <Label Text="Así se ve el texto normal de la aplicación." />
-                            <Label Style="{StaticResource SecondaryLabel}" Text="Texto secundario, como el país de una emisora." />
-                            <Button HorizontalOptions="Start" Text="Botón de ejemplo" />
-                        </VerticalStackLayout>
-                    </Border>
-
                     <Button
-                        Margin="0,8,0,0"
-                        Command="{Binding ResetToDefaultsCommand}"
-                        Text="Restablecer valores por defecto" />
-                </VerticalStackLayout>
-            </ScrollView>
-        </Border>
+                        Grid.Column="1"
+                        Style="{StaticResource AccentButton}"
+                        Text="{loc:Translate Action_Play}"
+                        VerticalOptions="Center" />
+                    <ImageButton
+                        Grid.Column="2"
+                        behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                        SemanticProperties.Description="{loc:Translate Action_AddFavorite}"
+                        Source="ic_heart_outline.png"
+                        Style="{StaticResource IconButton}"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
 
-        <views:BottomBar Grid.Row="2" ControlTemplate="{DynamicResource BottomBarTemplate}" />
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,4,16,16" Spacing="8">
+
+                <!--  Theme cards, two per row  -->
+                <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Personalizacion_Theme}" />
+                <FlexLayout BindableLayout.ItemsSource="{Binding Themes}" Wrap="Wrap">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ChoiceItem">
+                            <Grid Padding="4" FlexLayout.Basis="50%">
+                                <Border Padding="12,10" Style="{StaticResource SettingsRow}">
+                                    <Border.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="True">
+                                            <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="False">
+                                            <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+                                            <Setter Property="StrokeThickness" Value="1" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <VerticalStackLayout Spacing="8">
+                                        <HorizontalStackLayout BindableLayout.ItemsSource="{Binding Swatches}" Spacing="4">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="Color">
+                                                    <BoxView
+                                                        CornerRadius="9"
+                                                        HeightRequest="18"
+                                                        WidthRequest="18"
+                                                        Color="{Binding .}" />
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </HorizontalStackLayout>
+                                        <Label
+                                            LineBreakMode="TailTruncation"
+                                            Style="{StaticResource SettingsRowTitle}"
+                                            Text="{Binding Name}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                                <Button
+                                    Command="{Binding SelectThemeCommand, Source={RelativeSource AncestorType={x:Type vm:PersonalizacionViewModel}}, x:DataType=vm:PersonalizacionViewModel}"
+                                    CommandParameter="{Binding .}"
+                                    SemanticProperties.Description="{Binding AccessibleName}"
+                                    Style="{StaticResource RowButton}"
+                                    ToolTipProperties.Text="{Binding Name}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <!--  Variant: a segmented control, only for a theme with more than one palette  -->
+                <Border
+                    Padding="4"
+                    IsVisible="{Binding ShowPaletteChoice}"
+                    Style="{StaticResource Chip}">
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Palettes}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ChoiceItem">
+                                <Grid FlexLayout.Basis="0" FlexLayout.Grow="1">
+                                    <Border Padding="8,6" Style="{StaticResource Chip}">
+                                        <Border.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Border"
+                                                Value="True">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Border"
+                                                Value="False">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Style="{StaticResource ChipLabel}" Text="{Binding Name}">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsSelected}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="TextColor" Value="{DynamicResource AccentTextColor}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsSelected}"
+                                                    TargetType="Label"
+                                                    Value="False">
+                                                    <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <Button
+                                        Command="{Binding SelectPaletteCommand, Source={RelativeSource AncestorType={x:Type vm:PersonalizacionViewModel}}, x:DataType=vm:PersonalizacionViewModel}"
+                                        CommandParameter="{Binding .}"
+                                        SemanticProperties.Description="{Binding AccessibleName}"
+                                        Style="{StaticResource RowButton}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </Border>
+
+                <!--  Fonts: chips written in their own font; the rest behind the last chip, +N  -->
+                <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Personalizacion_Font}" />
+                <FlexLayout BindableLayout.ItemsSource="{Binding FontChips}" Wrap="Wrap">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ChoiceItem">
+                            <Grid Padding="0,0,8,8" IsVisible="{Binding IsShown}">
+                                <Border Style="{StaticResource Chip}">
+                                    <Border.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="True">
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                            <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="False">
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
+                                            <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label
+                                        FontFamily="{Binding FontFamily}"
+                                        Style="{StaticResource ChipLabel}"
+                                        Text="{Binding Name}">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Label"
+                                                Value="True">
+                                                <Setter Property="TextColor" Value="{DynamicResource AccentTextColor}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Label"
+                                                Value="False">
+                                                <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+                                <Button
+                                    Command="{Binding SelectFontCommand, Source={RelativeSource AncestorType={x:Type vm:PersonalizacionViewModel}}, x:DataType=vm:PersonalizacionViewModel}"
+                                    CommandParameter="{Binding .}"
+                                    SemanticProperties.Description="{Binding AccessibleName}"
+                                    Style="{StaticResource RowButton}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <!--  Text size: five steps from smallest to largest, the selected one's name under them  -->
+                <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Personalizacion_Size}" />
+                <Border Padding="4" Style="{StaticResource Chip}">
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Scales}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ChoiceItem">
+                                <Grid FlexLayout.Basis="0" FlexLayout.Grow="1">
+                                    <Border Padding="4" Style="{StaticResource Chip}">
+                                        <Border.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Border"
+                                                Value="True">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Border"
+                                                Value="False">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label
+                                            FontSize="{Binding SampleSize}"
+                                            Style="{StaticResource ChipLabel}"
+                                            Text="A">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsSelected}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="TextColor" Value="{DynamicResource AccentTextColor}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsSelected}"
+                                                    TargetType="Label"
+                                                    Value="False">
+                                                    <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <Button
+                                        Command="{Binding SelectScaleCommand, Source={RelativeSource AncestorType={x:Type vm:PersonalizacionViewModel}}, x:DataType=vm:PersonalizacionViewModel}"
+                                        CommandParameter="{Binding .}"
+                                        SemanticProperties.Description="{Binding AccessibleName}"
+                                        Style="{StaticResource RowButton}"
+                                        ToolTipProperties.Text="{Binding Name}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </Border>
+                <Label
+                    HorizontalTextAlignment="Center"
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="{Binding SelectedScaleName}" />
+
+                <!--  Language  -->
+                <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Personalizacion_Language}" />
+                <Border Padding="4" Style="{StaticResource Chip}">
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Languages}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ChoiceItem">
+                                <Grid FlexLayout.Basis="0" FlexLayout.Grow="1">
+                                    <Border Padding="8,6" Style="{StaticResource Chip}">
+                                        <Border.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Border"
+                                                Value="True">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Border"
+                                                Value="False">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Style="{StaticResource ChipLabel}" Text="{Binding Name}">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsSelected}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="TextColor" Value="{DynamicResource AccentTextColor}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsSelected}"
+                                                    TargetType="Label"
+                                                    Value="False">
+                                                    <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <Button
+                                        Command="{Binding SelectLanguageCommand, Source={RelativeSource AncestorType={x:Type vm:PersonalizacionViewModel}}, x:DataType=vm:PersonalizacionViewModel}"
+                                        CommandParameter="{Binding .}"
+                                        SemanticProperties.Description="{Binding AccessibleName}"
+                                        Style="{StaticResource RowButton}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </Border>
+
+                <Button
+                    Margin="0,16,0,0"
+                    Command="{Binding ResetToDefaultsCommand}"
+                    Style="{StaticResource OutlineButton}"
+                    Text="{loc:Translate Personalizacion_Reset}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <views:BottomBar Grid.Row="3" />
     </Grid>
 
 </ContentPage>

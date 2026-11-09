@@ -24,10 +24,11 @@ public sealed class FavoriteService(
     private const int DuplicateKeyErrorNumber = 1062;
     private const int MissingParentRowErrorNumber = 1452;
 
-    private const string UnknownUserMessage = "El usuario no existe.";
-    private const string InvalidStationMessage = "Los datos de la emisora no son válidos.";
-    private const string AlreadyFavoriteMessage = "La emisora ya está en tus favoritas.";
-    private const string NotFavoriteMessage = "La emisora no está en tus favoritas.";
+    // Keys of Resources/Messages.resx: the controller answers with the text in the request language.
+    private const string UnknownUserMessage = "UnknownUser";
+    private const string InvalidStationMessage = "InvalidStation";
+    private const string AlreadyFavoriteMessage = "AlreadyFavorite";
+    private const string NotFavoriteMessage = "NotFavorite";
 
     public async Task<ServiceResult<IReadOnlyList<StationDto>>> ListAsync(long userId, CancellationToken cancellationToken)
     {

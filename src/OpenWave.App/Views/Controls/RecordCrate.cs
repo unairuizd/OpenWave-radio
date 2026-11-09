@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Input;
 using Microsoft.Maui.Controls.Shapes;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Views.Controls;
 
@@ -55,8 +56,12 @@ public class RecordCrate : PageAwareView
 
     public RecordCrate()
     {
-        _previous = CreateArrow("ic_previous.png", "Favoritas anteriores", -1);
-        _next = CreateArrow("ic_next.png", "Favoritas siguientes", 1);
+        // The descriptions follow the app language.
+        Loaded += (_, _) => Localizer.Instance.LanguageChanged += OnLanguageChanged;
+        Unloaded += (_, _) => Localizer.Instance.LanguageChanged -= OnLanguageChanged;
+
+        _previous = CreateArrow("ic_previous.png", -1);
+        _next = CreateArrow("ic_next.png", 1);
 
         // The box: a dark wooden back, two compartments and a partition, with a lighter front lip.
         var box = new Grid
@@ -243,12 +248,11 @@ public class RecordCrate : PageAwareView
         return compartment;
     }
 
-    private ImageButton CreateArrow(string icon, string description, int step)
+    private ImageButton CreateArrow(string icon, int step)
     {
         var arrow = new ImageButton { Source = icon, VerticalOptions = LayoutOptions.Center };
         arrow.SetDynamicResource(StyleProperty, "IconButton");
         arrow.SetDynamicResource(OpenWave.App.Behaviors.IconTint.ColorProperty, "TabBarSelectedColor");
-        SemanticProperties.SetDescription(arrow, description);
         arrow.Clicked += (_, _) => ChangePage(step);
         return arrow;
     }
@@ -281,6 +285,8 @@ public class RecordCrate : PageAwareView
 
     private void Refresh()
     {
+        SemanticProperties.SetDescription(_previous, Localizer.Instance["Favoritos_PreviousPage"]);
+        SemanticProperties.SetDescription(_next, Localizer.Instance["Favoritos_NextPage"]);
         if (_records[0] is null)
         {
             return;
@@ -303,7 +309,7 @@ public class RecordCrate : PageAwareView
             record.IsVisible = item is not null;
             _buttons[slot].IsVisible = item is not null;
             var name = ItemBinding.Read(item, ItemDisplayPath) as string ?? string.Empty;
-            SemanticProperties.SetDescription(_buttons[slot], $"Reproducir {name}, favorita {index + 1} de {count}");
+            SemanticProperties.SetDescription(_buttons[slot], Localizer.Instance.Format("Fmt_PlayFavorite", name, index + 1, count));
         }
 
         var paged = count > PerPage;
@@ -376,4 +382,6 @@ public class RecordCrate : PageAwareView
         }), true);
 #endif
     }
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => Refresh();
 }

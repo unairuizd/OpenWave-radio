@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using OpenWave.Api.Services;
 using OpenWave.Contracts;
 
@@ -10,8 +11,6 @@ public sealed class CatalogController(
     ICatalogService catalogService,
     ILogger<CatalogController> logger) : ControllerBase
 {
-    private const string CatalogueUnavailableDetail = "No se pudo obtener el catálogo de emisoras.";
-
     /// <summary>
     /// Countries with working stations, sorted by name.
     /// </summary>
@@ -69,7 +68,7 @@ public sealed class CatalogController(
             return Problem(
                 statusCode: StatusCodes.Status502BadGateway,
                 title: "Bad Gateway",
-                detail: CatalogueUnavailableDetail);
+                detail: HttpContext.RequestServices.GetRequiredService<IStringLocalizer<Messages>>()["CatalogueUnavailable"].Value);
         }
     }
 }

@@ -1,14 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenWave.App.Services;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.ViewModels;
 
 public partial class RegisterViewModel(IAuthService authService, SessionService session) : ObservableObject
 {
-    private const string InvalidEmailMessage = "El correo no es válido.";
-    private const string ShortPasswordMessage = "La contraseña debe tener al menos 8 caracteres.";
-    private const string PasswordMismatchMessage = "Las contraseñas no coinciden.";
+    private static string InvalidEmailMessage => Localizer.Instance["Account_InvalidEmail"];
+    private static string ShortPasswordMessage => Localizer.Instance["Account_ShortPassword"];
+    private static string PasswordMismatchMessage => Localizer.Instance["Account_PasswordMismatch"];
 
     [ObservableProperty]
     public partial string? Email { get; set; }

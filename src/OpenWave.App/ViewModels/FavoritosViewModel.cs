@@ -3,6 +3,7 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenWave.App.Services;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.ViewModels;
 
@@ -108,7 +109,7 @@ public partial class FavoritosViewModel : ObservableObject
     {
         if (item is not null && !await _favorites.RemoveAsync(item.Station))
         {
-            await Shell.Current.DisplayAlertAsync("Favoritas", FavoritesService.SaveFailedMessage, "Aceptar");
+            await Shell.Current.DisplayAlertAsync(Localizer.Instance["Favoritos_AlertTitle"], FavoritesService.SaveFailedMessage, Localizer.Instance["Action_Accept"]);
         }
     }
 

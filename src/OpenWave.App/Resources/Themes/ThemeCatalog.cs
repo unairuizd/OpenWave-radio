@@ -5,19 +5,18 @@
 /// native controls should use with it.
 /// </summary>
 /// <param name="Id">Stored in the device preferences; never shown.</param>
-/// <param name="DisplayName">Spanish name shown in Personalización.</param>
 /// <param name="ResourceDictionaryType">A ResourceDictionary class defining every colour key.</param>
 /// <param name="BaseTheme">Light or dark mode for native controls (inputs, pickers, dialogs).</param>
-public sealed record ThemePalette(string Id, string DisplayName, Type ResourceDictionaryType, AppTheme BaseTheme);
+public sealed record ThemePalette(string Id, Type ResourceDictionaryType, AppTheme BaseTheme);
 
 /// <summary>
-/// A selectable theme: a layout (page templates, header, bottom bar, station card) and its palettes.
+/// A selectable theme: a layout (page templates, header, station card) and its palettes. Its name, and its
+/// palettes' names, are the app resources Theme_&lt;id&gt; and Palette_&lt;id&gt;.
 /// </summary>
 /// <param name="Id">Stored in the device preferences; never shown.</param>
-/// <param name="DisplayName">Spanish name shown in Personalización.</param>
 /// <param name="LayoutDictionaryType">A ResourceDictionary class defining every template key.</param>
 /// <param name="Palettes">At least one palette; the first is used when no other applies.</param>
-public sealed record AppThemeDefinition(string Id, string DisplayName, Type LayoutDictionaryType, IReadOnlyList<ThemePalette> Palettes)
+public sealed record AppThemeDefinition(string Id, Type LayoutDictionaryType, IReadOnlyList<ThemePalette> Palettes)
 {
     /// <summary>
     /// The palette with that id, or null when this theme does not have it.
@@ -49,40 +48,40 @@ public static class ThemeCatalog
 
     public static IReadOnlyList<AppThemeDefinition> All { get; } =
     [
-        new(DefaultId, "Moderno", typeof(ModernoLayout),
+        new(DefaultId, typeof(ModernoLayout),
         [
-            new(DefaultPaletteId, "Claro", typeof(ModernoLightPalette), AppTheme.Light),
-            new("dark", "Oscuro", typeof(ModernoDarkPalette), AppTheme.Dark),
+            new(DefaultPaletteId, typeof(ModernoLightPalette), AppTheme.Light),
+            new("dark", typeof(ModernoDarkPalette), AppTheme.Dark),
         ]),
-        new("tocadiscos", "Tocadiscos", typeof(TocadiscosLayout),
+        new("tocadiscos", typeof(TocadiscosLayout),
         [
-            new("standard", "Estándar", typeof(TocadiscosPalette), AppTheme.Dark),
+            new("standard", typeof(TocadiscosPalette), AppTheme.Dark),
         ]),
-        new("valvulas", "Radio de válvulas", typeof(ValvulasLayout),
+        new("valvulas", typeof(ValvulasLayout),
         [
-            new("baquelita", "Baquelita", typeof(ValvulasBaquelitaPalette), AppTheme.Light),
-            new("nogal", "Nogal", typeof(ValvulasNogalPalette), AppTheme.Dark),
+            new("baquelita", typeof(ValvulasBaquelitaPalette), AppTheme.Light),
+            new("nogal", typeof(ValvulasNogalPalette), AppTheme.Dark),
         ]),
-        new("casete", "Casete portátil", typeof(CaseteLayout),
+        new("casete", typeof(CaseteLayout),
         [
-            new("metal", "Metal azul", typeof(CaseteMetalPalette), AppTheme.Dark),
+            new("metal", typeof(CaseteMetalPalette), AppTheme.Dark),
         ]),
-        new("boombox", "Boombox", typeof(BoomboxLayout),
+        new("boombox", typeof(BoomboxLayout),
         [
-            new("cromado", "Cromado", typeof(BoomboxCromadoPalette), AppTheme.Dark),
+            new("cromado", typeof(BoomboxCromadoPalette), AppTheme.Dark),
         ]),
-        new("mesadj", "Mesa de DJ", typeof(MesaDjLayout),
+        new("mesadj", typeof(MesaDjLayout),
         [
-            new("club", "Club", typeof(MesaDjClubPalette), AppTheme.Dark),
+            new("club", typeof(MesaDjClubPalette), AppTheme.Dark),
         ]),
-        new("mp3", "MP3", typeof(Mp3Layout),
+        new("mp3", typeof(Mp3Layout),
         [
-            new("azul", "Azul", typeof(Mp3AzulPalette), AppTheme.Dark),
+            new("azul", typeof(Mp3AzulPalette), AppTheme.Dark),
         ]),
-        new("rueda", "Clásico de rueda", typeof(RuedaLayout),
+        new("rueda", typeof(RuedaLayout),
         [
-            new("blanco", "Blanco", typeof(RuedaBlancoPalette), AppTheme.Light),
-            new("negro", "Negro", typeof(RuedaNegroPalette), AppTheme.Dark),
+            new("blanco", typeof(RuedaBlancoPalette), AppTheme.Light),
+            new("negro", typeof(RuedaNegroPalette), AppTheme.Dark),
         ]),
     ];
 

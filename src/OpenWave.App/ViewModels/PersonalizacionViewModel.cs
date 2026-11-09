@@ -3,114 +3,179 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenWave.App.Resources.Themes;
 using OpenWave.App.Services;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.ViewModels;
 
 /// <summary>
-/// Theme, variant, font and text size selectors. Every change is applied and stored at once by
+/// Theme, variant, font, text size and language. Every change is applied and stored at once by
 /// <see cref="AppearanceService"/>; there is no save button.
 /// </summary>
 public partial class PersonalizacionViewModel : ObservableObject
 {
+    // The first fonts shown as chips; the rest are behind "+N".
+    private const int VisibleFonts = 3;
+
+    private static readonly string[] SwatchKeys = ["PageBackgroundColor", "SurfaceColor", "AccentColor", "PrimaryTextColor"];
+
     private readonly AppearanceService _appearance;
+    private readonly Localizer _localizer = Localizer.Instance;
+
+    // The "+N" chip, after the font chips: it shows the fonts hidden behind it.
+    private readonly ChoiceItem _moreFonts;
 
     public PersonalizacionViewModel(AppearanceService appearance)
     {
         _appearance = appearance;
-        SelectedThemeId = appearance.ThemeId;
-        SelectedPaletteId = appearance.PaletteId;
-        SelectedFont = appearance.FontFamilyId;
-        SelectedScale = appearance.FontScale;
 
-        // Keeps the selection in step when the appearance changes elsewhere (for example, the reset).
+        Themes = ThemeCatalog.All
+            .Select(t => new ChoiceItem(t.Id, () => _localizer[$"Theme_{t.Id}"]) { Swatches = ReadSwatches(t.Palettes[0]) })
+            .ToList();
+        Fonts = AppearanceOptions.Fonts
+            .Select(f => new ChoiceItem(f.Name, () => $"Aa  {f.Name}") { FontFamily = f.Name, Description = () => f.Name })
+            .ToList();
+        var hiddenFonts = Fonts.Count - VisibleFonts;
+        _moreFonts = new ChoiceItem(string.Empty, () => $"+{hiddenFonts}")
+        {
+            Description = () => _localizer.Format("Personalizacion_MoreFonts", hiddenFonts),
+        };
+        FontChips = [.. Fonts, _moreFonts];
+        Scales = AppearanceOptions.Scales
+            .Select((s, i) => new ChoiceItem(
+                s.Scale.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                () => _localizer[$"Scale_{i}"])
+            {
+                SampleSize = Math.Round(AppearanceOptions.BodySize * s.Scale, 1),
+            })
+            .ToList();
+        Languages = LanguageCatalog.All
+            .Select(l => new ChoiceItem(l.Code, () => l.DisplayName))
+            .ToList();
+
+        UpdateSelection();
         _appearance.PropertyChanged += OnAppearanceChanged;
+        _localizer.LanguageChanged += (_, _) => RefreshNames();
     }
 
-    public IReadOnlyList<AppThemeDefinition> Themes => ThemeCatalog.All;
+    public IReadOnlyList<ChoiceItem> Themes { get; }
 
-    /// <summary>
-    /// The variants of the selected theme.
-    /// </summary>
-    public IReadOnlyList<ThemePalette> Palettes => (ThemeCatalog.Find(_appearance.ThemeId) ?? ThemeCatalog.Default).Palettes;
+    /// <summary>The variants of the selected theme.</summary>
+    [ObservableProperty]
+    public partial IReadOnlyList<ChoiceItem> Palettes { get; private set; } = [];
 
-    /// <summary>
-    /// The variant choice is shown only for a theme with more than one palette.
-    /// </summary>
+    /// <summary>The variant choice is shown only for a theme with more than one palette.</summary>
     public bool ShowPaletteChoice => Palettes.Count > 1;
 
-    public IReadOnlyList<FontOption> Fonts => AppearanceOptions.Fonts;
+    public IReadOnlyList<ChoiceItem> Fonts { get; }
 
-    public IReadOnlyList<FontScaleOption> Scales => AppearanceOptions.Scales;
+    /// <summary>The font chips followed by the "+N" chip.</summary>
+    public IReadOnlyList<ChoiceItem> FontChips { get; }
 
-    // Radio button values arrive as object, so the selections are object-typed.
-    [ObservableProperty]
-    public partial object? SelectedThemeId { get; set; }
+    public IReadOnlyList<ChoiceItem> Scales { get; }
 
-    [ObservableProperty]
-    public partial object? SelectedPaletteId { get; set; }
+    public IReadOnlyList<ChoiceItem> Languages { get; }
 
-    [ObservableProperty]
-    public partial object? SelectedFont { get; set; }
+    private bool _allFontsShown;
 
-    [ObservableProperty]
-    public partial object? SelectedScale { get; set; }
+    /// <summary>The name of the selected text size, shown under the size control.</summary>
+    public string SelectedScaleName => Scales.FirstOrDefault(s => s.IsSelected)?.Name ?? string.Empty;
 
-    partial void OnSelectedThemeIdChanged(object? value)
+    [RelayCommand]
+    private void SelectTheme(ChoiceItem item) => _appearance.SetTheme(item.Value);
+
+    [RelayCommand]
+    private void SelectPalette(ChoiceItem item) => _appearance.SetPalette(item.Value);
+
+    [RelayCommand]
+    private void SelectFont(ChoiceItem item)
     {
-        if (value is string id && id != _appearance.ThemeId)
+        if (item == _moreFonts)
         {
-            _appearance.SetTheme(id);
+            _allFontsShown = true;
+            UpdateFontVisibility();
+            return;
         }
-    }
 
-    partial void OnSelectedPaletteIdChanged(object? value)
-    {
-        if (value is string id && id != _appearance.PaletteId)
-        {
-            _appearance.SetPalette(id);
-        }
-    }
-
-    partial void OnSelectedFontChanged(object? value)
-    {
-        if (value is string name && name != _appearance.FontFamilyId)
-        {
-            _appearance.SetFontFamily(name);
-        }
-    }
-
-    partial void OnSelectedScaleChanged(object? value)
-    {
-        if (value is double scale && scale != _appearance.FontScale)
-        {
-            _appearance.SetFontScale(scale);
-        }
+        _appearance.SetFontFamily(item.Value);
     }
 
     [RelayCommand]
-    private void ResetToDefaults()
+    private void SelectScale(ChoiceItem item) =>
+        _appearance.SetFontScale(double.Parse(item.Value, System.Globalization.CultureInfo.InvariantCulture));
+
+    [RelayCommand]
+    private void SelectLanguage(ChoiceItem item) => _appearance.SetLanguage(item.Value);
+
+    [RelayCommand]
+    private void ResetToDefaults() => _appearance.ResetToDefaults();
+
+    private void OnAppearanceChanged(object? sender, PropertyChangedEventArgs e) => UpdateSelection();
+
+    private void UpdateSelection()
     {
-        _appearance.ResetToDefaults();
+        foreach (var theme in Themes)
+        {
+            theme.IsSelected = theme.Value == _appearance.ThemeId;
+        }
+
+        var current = ThemeCatalog.Find(_appearance.ThemeId) ?? ThemeCatalog.Default;
+        if (Palettes.Count != current.Palettes.Count || Palettes.Select(p => p.Value).Except(current.Palettes.Select(p => p.Id)).Any())
+        {
+            Palettes = current.Palettes.Select(p => new ChoiceItem(p.Id, () => _localizer[$"Palette_{p.Id}"])).ToList();
+            OnPropertyChanged(nameof(ShowPaletteChoice));
+        }
+
+        foreach (var palette in Palettes)
+        {
+            palette.IsSelected = palette.Value == _appearance.PaletteId;
+        }
+
+        foreach (var font in Fonts)
+        {
+            font.IsSelected = font.Value == _appearance.FontFamilyId;
+        }
+
+        foreach (var scale in Scales)
+        {
+            scale.IsSelected = Math.Abs(double.Parse(scale.Value, System.Globalization.CultureInfo.InvariantCulture) - _appearance.FontScale) < 0.001;
+        }
+
+        foreach (var language in Languages)
+        {
+            language.IsSelected = language.Value == _appearance.LanguageCode;
+        }
+
+        UpdateFontVisibility();
+        OnPropertyChanged(nameof(SelectedScaleName));
     }
 
-    private void OnAppearanceChanged(object? sender, PropertyChangedEventArgs e)
+    // The first fonts, the selected one and, after "+N", all of them.
+    private void UpdateFontVisibility()
     {
-        switch (e.PropertyName)
+        for (var i = 0; i < Fonts.Count; i++)
         {
-            case nameof(AppearanceService.ThemeId):
-                SelectedThemeId = _appearance.ThemeId;
-                OnPropertyChanged(nameof(Palettes));
-                OnPropertyChanged(nameof(ShowPaletteChoice));
-                break;
-            case nameof(AppearanceService.PaletteId):
-                SelectedPaletteId = _appearance.PaletteId;
-                break;
-            case nameof(AppearanceService.FontFamilyId):
-                SelectedFont = _appearance.FontFamilyId;
-                break;
-            case nameof(AppearanceService.FontScale):
-                SelectedScale = _appearance.FontScale;
-                break;
+            Fonts[i].IsShown = _allFontsShown || i < VisibleFonts || Fonts[i].IsSelected;
         }
+
+        _moreFonts.IsShown = Fonts.Any(f => !f.IsShown);
+    }
+
+    private void RefreshNames()
+    {
+        foreach (var item in Themes.Concat(Palettes).Concat(FontChips).Concat(Scales).Concat(Languages))
+        {
+            item.RefreshName();
+        }
+
+        OnPropertyChanged(nameof(SelectedScaleName));
+    }
+
+    // A theme card shows its own colours, not the current palette's: read them from the theme's first palette.
+    private static IReadOnlyList<Color> ReadSwatches(ThemePalette palette)
+    {
+        var dictionary = (ResourceDictionary)Activator.CreateInstance(palette.ResourceDictionaryType)!;
+        return SwatchKeys
+            .Select(key => dictionary.TryGetValue(key, out var value) && value is Color color ? color : Colors.Transparent)
+            .ToList();
     }
 }

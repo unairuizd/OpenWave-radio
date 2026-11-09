@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using Microsoft.Maui.Controls.Shapes;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Views.Controls;
 
@@ -23,10 +24,10 @@ public class ClickWheel : ContentView
     public static readonly BindableProperty PlayPauseCommandProperty = BindableProperty.Create(nameof(PlayPauseCommand), typeof(ICommand), typeof(ClickWheel));
     public static readonly BindableProperty IsScrollEnabledProperty = BindableProperty.Create(nameof(IsScrollEnabled), typeof(bool), typeof(ClickWheel), true, propertyChanged: (b, _, _) => ((ClickWheel)b).UpdateRing());
 
-    public static readonly BindableProperty PreviousDescriptionProperty = BindableProperty.Create(nameof(PreviousDescription), typeof(string), typeof(ClickWheel), "Anterior", propertyChanged: (b, _, n) => SemanticProperties.SetDescription(((ClickWheel)b)._previous, (string?)n));
-    public static readonly BindableProperty NextDescriptionProperty = BindableProperty.Create(nameof(NextDescription), typeof(string), typeof(ClickWheel), "Siguiente", propertyChanged: (b, _, n) => SemanticProperties.SetDescription(((ClickWheel)b)._next, (string?)n));
-    public static readonly BindableProperty PlayPauseDescriptionProperty = BindableProperty.Create(nameof(PlayPauseDescription), typeof(string), typeof(ClickWheel), "Reproducir o pausar", propertyChanged: (b, _, n) => SemanticProperties.SetDescription(((ClickWheel)b)._playPause, (string?)n));
-    public static readonly BindableProperty CenterDescriptionProperty = BindableProperty.Create(nameof(CenterDescription), typeof(string), typeof(ClickWheel), "Seleccionar", propertyChanged: (b, _, n) => SemanticProperties.SetDescription(((ClickWheel)b)._center, (string?)n));
+    public static readonly BindableProperty PreviousDescriptionProperty = BindableProperty.Create(nameof(PreviousDescription), typeof(string), typeof(ClickWheel), null, propertyChanged: (b, _, _) => ((ClickWheel)b).UpdateDescriptions());
+    public static readonly BindableProperty NextDescriptionProperty = BindableProperty.Create(nameof(NextDescription), typeof(string), typeof(ClickWheel), null, propertyChanged: (b, _, _) => ((ClickWheel)b).UpdateDescriptions());
+    public static readonly BindableProperty PlayPauseDescriptionProperty = BindableProperty.Create(nameof(PlayPauseDescription), typeof(string), typeof(ClickWheel), null, propertyChanged: (b, _, _) => ((ClickWheel)b).UpdateDescriptions());
+    public static readonly BindableProperty CenterDescriptionProperty = BindableProperty.Create(nameof(CenterDescription), typeof(string), typeof(ClickWheel), null, propertyChanged: (b, _, _) => ((ClickWheel)b).UpdateDescriptions());
     public static readonly BindableProperty CenterIconProperty = BindableProperty.Create(nameof(CenterIcon), typeof(ImageSource), typeof(ClickWheel), null, propertyChanged: (b, _, n) => ((ClickWheel)b)._center.Source = (ImageSource?)n);
 
     private const double DegreesPerStep = 24;
@@ -44,26 +45,25 @@ public class ClickWheel : ContentView
 
     public ClickWheel()
     {
+        // The descriptions follow the app language.
+        Loaded += (_, _) => Localizer.Instance.LanguageChanged += OnLanguageChanged;
+        Unloaded += (_, _) => Localizer.Instance.LanguageChanged -= OnLanguageChanged;
+
         var face = new Ellipse { StrokeThickness = 2 };
         face.SetDynamicResource(Shape.FillProperty, "InputBackgroundColor");
         face.SetDynamicResource(Shape.StrokeProperty, "DividerColor");
         _ring.Children.Add(face);
 
-        _menu = CreateEdgeButton("MENÚ", LayoutOptions.Center, LayoutOptions.Start, () => Run(MenuCommand, MenuCommandParameter));
-        SemanticProperties.SetDescription(_menu, "Menú");
+        _menu = CreateEdgeButton(Localizer.Instance["Wheel_MenuLabel"], LayoutOptions.Center, LayoutOptions.Start, () => Run(MenuCommand, MenuCommandParameter));
         _previous = CreateEdgeButton("◀◀", LayoutOptions.Start, LayoutOptions.Center, () => Run(PreviousCommand, -1));
         _next = CreateEdgeButton("▶▶", LayoutOptions.End, LayoutOptions.Center, () => Run(NextCommand, 1));
         _playPause = CreateEdgeButton("▶❙❙", LayoutOptions.Center, LayoutOptions.End, () => Run(PlayPauseCommand, null));
-        SemanticProperties.SetDescription(_previous, PreviousDescription);
-        SemanticProperties.SetDescription(_next, NextDescription);
-        SemanticProperties.SetDescription(_playPause, PlayPauseDescription);
 
         _center.SetDynamicResource(BackgroundColorProperty, "SurfaceColor");
         _center.BorderWidth = 2;
         _center.SetDynamicResource(ImageButton.BorderColorProperty, "DividerColor");
         _center.SetDynamicResource(OpenWave.App.Behaviors.IconTint.ColorProperty, "FavoriteIconColor");
         _center.HorizontalOptions = _center.VerticalOptions = LayoutOptions.Center;
-        SemanticProperties.SetDescription(_center, CenterDescription);
         _center.Clicked += (_, _) => Press(_center, () => Run(CenterCommand, null));
 
         _ring.Children.Add(_menu);
@@ -76,7 +76,7 @@ public class ClickWheel : ContentView
         HandlerChanged += (_, _) => AttachPageKeys();
         Content = _ring;
         HorizontalOptions = LayoutOptions.Center;
-        UpdateRing();
+        UpdateDescriptions();
     }
 
     public ICommand? ScrollStepCommand { get => (ICommand?)GetValue(ScrollStepCommandProperty); set => SetValue(ScrollStepCommandProperty, value); }
@@ -109,13 +109,13 @@ public class ClickWheel : ContentView
     /// </summary>
     public bool IsScrollEnabled { get => (bool)GetValue(IsScrollEnabledProperty); set => SetValue(IsScrollEnabledProperty, value); }
 
-    public string PreviousDescription { get => (string)GetValue(PreviousDescriptionProperty); set => SetValue(PreviousDescriptionProperty, value); }
+    public string? PreviousDescription { get => (string?)GetValue(PreviousDescriptionProperty); set => SetValue(PreviousDescriptionProperty, value); }
 
-    public string NextDescription { get => (string)GetValue(NextDescriptionProperty); set => SetValue(NextDescriptionProperty, value); }
+    public string? NextDescription { get => (string?)GetValue(NextDescriptionProperty); set => SetValue(NextDescriptionProperty, value); }
 
-    public string PlayPauseDescription { get => (string)GetValue(PlayPauseDescriptionProperty); set => SetValue(PlayPauseDescriptionProperty, value); }
+    public string? PlayPauseDescription { get => (string?)GetValue(PlayPauseDescriptionProperty); set => SetValue(PlayPauseDescriptionProperty, value); }
 
-    public string CenterDescription { get => (string)GetValue(CenterDescriptionProperty); set => SetValue(CenterDescriptionProperty, value); }
+    public string? CenterDescription { get => (string?)GetValue(CenterDescriptionProperty); set => SetValue(CenterDescriptionProperty, value); }
 
     /// <summary>
     /// The centre button's icon (the heart in Reproductor); blank when not set.
@@ -163,9 +163,22 @@ public class ClickWheel : ContentView
         }
     }
 
+    // A description not set by the layout uses the default text, in the app language.
+    private void UpdateDescriptions()
+    {
+        var localizer = Localizer.Instance;
+        _menu.Text = localizer["Wheel_MenuLabel"];
+        SemanticProperties.SetDescription(_menu, localizer["Wheel_Menu"]);
+        SemanticProperties.SetDescription(_previous, PreviousDescription ?? localizer["Wheel_Previous"]);
+        SemanticProperties.SetDescription(_next, NextDescription ?? localizer["Wheel_Next"]);
+        SemanticProperties.SetDescription(_playPause, PlayPauseDescription ?? localizer["Wheel_PlayPause"]);
+        SemanticProperties.SetDescription(_center, CenterDescription ?? localizer["Wheel_Select"]);
+        UpdateRing();
+    }
+
     private void UpdateRing()
     {
-        SemanticProperties.SetDescription(_ring, IsScrollEnabled ? "Rueda: desliza en círculo para moverte por la lista" : null);
+        SemanticProperties.SetDescription(_ring, IsScrollEnabled ? Localizer.Instance["Wheel_Ring"] : null);
         AutomationProperties.SetIsInAccessibleTree(_ring, IsScrollEnabled);
     }
 
@@ -314,4 +327,6 @@ public class ClickWheel : ContentView
         }
 #endif
     }
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => UpdateDescriptions();
 }

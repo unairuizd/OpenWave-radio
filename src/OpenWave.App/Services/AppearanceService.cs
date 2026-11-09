@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using OpenWave.App.Resources.Themes;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Services;
 
 /// <summary>
-/// Applies and remembers the theme, its palette (variant), the font family and the text size. Styles and
+/// Applies and remembers the theme, its palette (variant), the font family, the text size and the app language. Styles and
 /// layouts read the colour, font and size resources with DynamicResource, so every change here updates the
 /// whole app at once.
 /// </summary>
@@ -14,6 +15,7 @@ public partial class AppearanceService : ObservableObject
     private const string PaletteKey = "appearance_theme_variant";
     private const string FontKey = "appearance_font";
     private const string ScaleKey = "appearance_font_scale";
+    private const string LanguageKey = "appearance_language";
     private const double ScaleTolerance = 0.001;
 
     // The same values as MinTouchTarget and the IconButton padding in Styles.xaml.
@@ -45,12 +47,17 @@ public partial class AppearanceService : ObservableObject
     [ObservableProperty]
     public partial double FontScale { get; private set; } = AppearanceOptions.DefaultScale;
 
+    [ObservableProperty]
+    public partial string LanguageCode { get; private set; } = LanguageCatalog.DefaultCode;
+
     /// <summary>
     /// Applies the stored choices. Call once at startup, before the first page is created.
     /// Missing, unknown or corrupt values fall back to the defaults.
     /// </summary>
     public void Initialize()
     {
+        // The language first, so the first page is built with its texts.
+        ApplyLanguage(LanguageCatalog.Find(ReadString(LanguageKey)) ?? LanguageCatalog.Default);
         var (theme, palette) = ReadStoredTheme();
         ApplyTheme(theme, palette);
         ApplyFont(FindFont(ReadString(FontKey)) ?? AppearanceOptions.DefaultFont);
@@ -115,6 +122,21 @@ public partial class AppearanceService : ObservableObject
         Preferences.Default.Set(ScaleKey, preset.Value);
     }
 
+    /// <summary>
+    /// Switches the whole app to a registered language at once and remembers it on the device.
+    /// </summary>
+    public void SetLanguage(string code)
+    {
+        var language = LanguageCatalog.Find(code);
+        if (language is null)
+        {
+            return;
+        }
+
+        ApplyLanguage(language);
+        Preferences.Default.Set(LanguageKey, language.Code);
+    }
+
     public void ResetToDefaults()
     {
         var theme = ThemeCatalog.Default;
@@ -123,6 +145,7 @@ public partial class AppearanceService : ObservableObject
         StoreTheme(theme, palette);
         SetFontFamily(AppearanceOptions.DefaultFont);
         SetFontScale(AppearanceOptions.DefaultScale);
+        SetLanguage(LanguageCatalog.DefaultCode);
     }
 
     /// <summary>
@@ -203,6 +226,12 @@ public partial class AppearanceService : ObservableObject
         {
             _applying = false;
         }
+    }
+
+    private void ApplyLanguage(AppLanguage language)
+    {
+        Localizer.Instance.SetLanguage(language.Code);
+        LanguageCode = language.Code;
     }
 
     private void ApplyFont(string name)

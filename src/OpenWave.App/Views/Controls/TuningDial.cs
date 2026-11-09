@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Input;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Views.Controls;
 
@@ -84,6 +85,10 @@ public class TuningDial : ContentView
 
     public TuningDial()
     {
+        // The descriptions follow the app language.
+        Loaded += (_, _) => Localizer.Instance.LanguageChanged += OnLanguageChanged;
+        Unloaded += (_, _) => Localizer.Instance.LanguageChanged -= OnLanguageChanged;
+
         _knob.WidthRequest = _knob.HeightRequest = KnobSize;
         _knob.Stepped += (_, step) => Move(step);
         _knob.Activated += (_, _) => Activate();
@@ -309,7 +314,7 @@ public class TuningDial : ContentView
         SetValue(FocusedItemPropertyKey, focused);
         SetValue(FocusedIndexPropertyKey, _focusedIndex);
         SetValue(HasFocusedItemPropertyKey, focused is not null);
-        SetValue(PositionTextPropertyKey, focused is null ? string.Empty : $"emisora {_focusedIndex + 1} de {count}");
+        SetValue(PositionTextPropertyKey, focused is null ? string.Empty : Localizer.Instance.Format("Fmt_StationPosition", _focusedIndex + 1, count));
 
         for (var i = 0; i < SlotCount; i++)
         {
@@ -322,8 +327,8 @@ public class TuningDial : ContentView
 
         var name = ItemBinding.Read(focused, ItemDisplayPath) as string ?? string.Empty;
         SemanticProperties.SetDescription(_knob.Button, focused is null
-            ? "Sintonizar"
-            : $"Sintonizar, emisora {_focusedIndex + 1} de {count}: {name}");
+            ? Localizer.Instance["Dial_Tune"]
+            : Localizer.Instance.Format("Fmt_Tune", _focusedIndex + 1, count, name));
         _knob.IsEnabled = count > 0;
     }
 
@@ -378,4 +383,6 @@ public class TuningDial : ContentView
         };
 #endif
     }
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => Refresh();
 }

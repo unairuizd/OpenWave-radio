@@ -80,6 +80,9 @@ windows the device is centred with a maximum width so it keeps its proportions; 
 rest.
 
 ### Header and bottom bar
+
+> **Phase 8:** the bottom bar is now the same icon bar in every theme (`Views/BottomBar.cs`: house, radio and star in the palette's `TabBar*` colours). Only where the theme shows it still comes from this brief; the bar look described here is no longer drawn.
+
 - Header: the screen's title bar: the menu title centred (`Emisoras`, `Favoritas`, `Reproduciendo`, `Ajustes`), a
   play-state glyph on the left and the gear on the right.
 - Bottom bar: **replaced by the wheel.** `MENÚ` on the wheel goes back up one level (Reproductor → Inicio,
@@ -109,8 +112,8 @@ background.
   wheel does nothing here (volume is out of scope); it is not focusable on this page.
 
 ### Ajustes and settings pages
-- Ajustes: a menu with `Preferencias` and `Personalización`.
-- Settings pages: their content on the screen area, scrolling, with `MENÚ` going back.
+
+> **Phase 8:** superseded. `Ajustes`, `Personalización`, `Preferencias` and the filter pages are shared by every theme and only take the palette colours (see the README, "Ajustes and Personalización"). The settings look this section described is no longer drawn.
 
 ## 5. Function map
 

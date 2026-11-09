@@ -1,6 +1,7 @@
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OpenWave.Contracts;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.ViewModels;
 
@@ -12,7 +13,7 @@ namespace OpenWave.App.ViewModels;
 public partial class StationListItem(StationDto station) : ObservableObject
 {
     private const int MaxTags = 3;
-    private const string Unknown = "Desconocido";
+    private static string Unknown => Localizer.Instance["Station_Unknown"];
 
     public StationDto Station { get; } = station;
 
@@ -26,7 +27,7 @@ public partial class StationListItem(StationDto station) : ObservableObject
     /// <summary>
     /// Accessible name of the card's play button.
     /// </summary>
-    public string PlayDescription => $"Reproducir {Station.Name}";
+    public string PlayDescription => Localizer.Instance.Format("Fmt_Play", Station.Name);
 
     /// <summary>
     /// Selects and plays the station (the card and its play button).

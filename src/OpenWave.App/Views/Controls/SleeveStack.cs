@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Input;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Views.Controls;
 
@@ -62,6 +63,10 @@ public class SleeveStack : ContentView
 
     public SleeveStack()
     {
+        // The descriptions follow the app language.
+        Loaded += (_, _) => Localizer.Instance.LanguageChanged += OnLanguageChanged;
+        Unloaded += (_, _) => Localizer.Instance.LanguageChanged -= OnLanguageChanged;
+
         Content = _root;
         _root.SizeChanged += (_, _) => Arrange();
 
@@ -247,8 +252,8 @@ public class SleeveStack : ContentView
 
             var name = ItemBinding.Read(item, ItemDisplayPath) as string ?? string.Empty;
             SemanticProperties.SetDescription(_buttons[slot], slot == 0
-                ? $"{name}, emisora {index + 1} de {count}. Pulsa para reproducir"
-                : $"Mostrar {name}");
+                ? Localizer.Instance.Format("Fmt_SleeveFront", name, index + 1, count)
+                : Localizer.Instance.Format("Fmt_Show", name));
         }
     }
 
@@ -310,4 +315,6 @@ public class SleeveStack : ContentView
         }), true);
 #endif
     }
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => Refresh();
 }

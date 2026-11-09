@@ -46,6 +46,9 @@ TabSelected/TabBar 10.62, TabUnselected/TabBar 6.66.
 ## 4. Pages
 
 ### Header and bottom bar
+
+> **Phase 8:** the bottom bar is now the same icon bar in every theme (`Views/BottomBar.cs`: house, radio and star in the palette's `TabBar*` colours). Only where the theme shows it still comes from this brief; the bar look described here is no longer drawn.
+
 - Header: a thin top strip like a DJ program's title bar: title left, gear right, a small `LIVE` tag that lights
   (`AccentColor`) while a station plays.
 - Bottom bar: three flat pads with a cyan underline for the marked section.
@@ -76,8 +79,8 @@ Rows: header (house + gear) / deck / pads.
   `1/2` with more than 8. Logged out: pads dark and a cover button opens login. No bottom bar.
 
 ### Ajustes and settings pages
-- Ajustes: two large pads with labels.
-- Settings pages: a screen-like panel (`SurfaceColor`) with thin `DividerColor` grid lines.
+
+> **Phase 8:** superseded. `Ajustes`, `Personalización`, `Preferencias` and the filter pages are shared by every theme and only take the palette colours (see the README, "Ajustes and Personalización"). The settings look this section described is no longer drawn.
 
 ## 5. Function map
 

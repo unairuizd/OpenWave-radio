@@ -45,6 +45,9 @@ TabSelected/TabBar 11.66, TabUnselected/TabBar 11.91.
 ## 4. Pages
 
 ### Header and bottom bar
+
+> **Phase 8:** the bottom bar is now the same icon bar in every theme (`Views/BottomBar.cs`: house, radio and star in the palette's `TabBar*` colours). Only where the theme shows it still comes from this brief; the bar look described here is no longer drawn.
+
 - Header: the carrying handle as a chrome bar across the top, with the title and the gear; the antenna is a thin
   decorative line rising from the right.
 - Bottom bar: the chassis edge with three square rubber buttons; the marked one has a cyan LED above it.
@@ -77,8 +80,8 @@ Rows: header (house + gear) / boombox / presets.
   under each; arrows when there are more than 6. Logged out: one cover button opens login. No bottom bar.
 
 ### Ajustes and settings pages
-- Ajustes: two wide rubber buttons on gunmetal.
-- Settings pages: a gunmetal panel with chrome border.
+
+> **Phase 8:** superseded. `Ajustes`, `Personalización`, `Preferencias` and the filter pages are shared by every theme and only take the palette colours (see the README, "Ajustes and Personalización"). The settings look this section described is no longer drawn.
 
 ## 5. Function map
 

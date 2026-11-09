@@ -4,10 +4,11 @@
     x:Class="OpenWave.App.Views.InicioPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:services="clr-namespace:OpenWave.App.Services"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:InicioViewModel"
-    Title="Inicio"
+    Title="{loc:Translate Page_Inicio}"
     services:AppNavigation.Section="Inicio"
     ControlTemplate="{DynamicResource InicioTemplate}"
     Shell.NavBarIsVisible="False" />

@@ -13,7 +13,8 @@ public sealed class StationService(IRadioBrowserClient radioBrowserClient, ICata
     // Radio Browser's tagList matches substrings, so many results are dropped by the exact-tag filter.
     private const int CombinedTagsFetchLimit = 300;
 
-    private const string InvalidContentTypeMessage = "Tipo de contenido no válido.";
+    // A key of Resources/Messages.resx: the controller answers with the text in the request language.
+    private const string InvalidContentTypeMessage = "InvalidContentType";
 
     public async Task<ServiceResult<IReadOnlyList<StationDto>>> GetStationsAsync(
         StationQuery query,

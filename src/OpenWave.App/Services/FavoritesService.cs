@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using OpenWave.Contracts;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Services;
 
@@ -8,7 +9,7 @@ namespace OpenWave.App.Services;
 /// </summary>
 public sealed class FavoritesService
 {
-    public const string SaveFailedMessage = "No se pudo actualizar tus favoritas.";
+    public static string SaveFailedMessage => Localizer.Instance["Favoritos_SaveFailed"];
 
     private readonly FavoritesApiClient _api;
     private readonly SessionService _session;
@@ -89,7 +90,7 @@ public sealed class FavoritesService
 
         if (!await ToggleAsync(station))
         {
-            await Shell.Current.DisplayAlertAsync("Favoritas", SaveFailedMessage, "Aceptar");
+            await Shell.Current.DisplayAlertAsync(Localizer.Instance["Favoritos_AlertTitle"], SaveFailedMessage, Localizer.Instance["Action_Accept"]);
         }
     }
 
@@ -192,7 +193,7 @@ public sealed class FavoritesService
 
         if (pending is not null && !await AddAsync(pending))
         {
-            await Shell.Current.DisplayAlertAsync("Favoritas", SaveFailedMessage, "Aceptar");
+            await Shell.Current.DisplayAlertAsync(Localizer.Instance["Favoritos_AlertTitle"], SaveFailedMessage, Localizer.Instance["Action_Accept"]);
         }
     }
 

@@ -46,6 +46,18 @@ public static class AppNavigation
     /// </summary>
     public static ICommand GoToSectionCommand { get; } = new AsyncRelayCommand<string>(GoToSectionAsync, Options);
 
+    /// <summary>
+    /// The back arrow of the settings pages: returns to the page below on the stack. Ajustes is pushed on the
+    /// section it was opened from, so from Ajustes this is that section's page.
+    /// </summary>
+    public static ICommand GoBackCommand { get; } = new AsyncRelayCommand(GoBackAsync, Options);
+
+    private static Task GoBackAsync()
+    {
+        var shell = Shell.Current;
+        return shell.Navigation.NavigationStack.Count > 1 ? shell.GoToAsync("..") : Task.CompletedTask;
+    }
+
     private static Task OpenAjustesAsync()
     {
         var shell = Shell.Current;

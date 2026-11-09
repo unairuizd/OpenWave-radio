@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Services;
 
@@ -22,8 +23,8 @@ public partial class PlaybackIndicator : ObservableObject
     public partial bool IsActive { get; internal set; }
 
     /// <summary>
-    /// The same text as <see cref="PlaybackService.StatusText"/> ("Reproduciendo", "Detenido"…).
+    /// The same text as <see cref="PlaybackService.StatusText"/> ("Reproduciendo", "Detenido"… in the app language).
     /// </summary>
     [ObservableProperty]
-    public partial string StatusText { get; internal set; } = "Detenido";
+    public partial string StatusText { get; internal set; } = Localizer.Instance["Playback_Stopped"];
 }

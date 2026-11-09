@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenWave.App.Services;
+using OpenWave.App.Services.Localization;
 using OpenWave.App.ViewModels;
 using OpenWave.App.Views;
 
@@ -31,27 +32,29 @@ public static class MauiProgram
             });
 
         var apiSettings = new ApiSettings();
+        // Every request states the app language, so the API answers its own texts in it.
+        builder.Services.AddTransient<AcceptLanguageHandler>();
         builder.Services.AddSingleton(apiSettings);
         builder.Services.AddHttpClient<IStationService, StationService>(client =>
         {
             client.BaseAddress = new Uri(apiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(10);
-        });
+        }).AddHttpMessageHandler<AcceptLanguageHandler>();
         builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
         {
             client.BaseAddress = new Uri(apiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(10);
-        });
+        }).AddHttpMessageHandler<AcceptLanguageHandler>();
         builder.Services.AddHttpClient<FavoritesApiClient>(client =>
         {
             client.BaseAddress = new Uri(apiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(10);
-        });
+        }).AddHttpMessageHandler<AcceptLanguageHandler>();
         builder.Services.AddHttpClient<CatalogApiClient>(client =>
         {
             client.BaseAddress = new Uri(apiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(10);
-        });
+        }).AddHttpMessageHandler<AcceptLanguageHandler>();
         builder.Services.AddSingleton<AppearanceService>();
         builder.Services.AddSingleton<PreferencesService>();
         builder.Services.AddSingleton<SessionService>();
@@ -77,6 +80,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<PersonalizacionPage>();
         builder.Services.AddTransient<PreferenciasViewModel>();
         builder.Services.AddTransient<PreferenciasPage>();
+        builder.Services.AddTransient<FiltroViewModel>();
+        builder.Services.AddTransient<FiltroPage>();
 
         // A fresh login or registration form each time the flow opens.
         builder.Services.AddTransient<LoginViewModel>();

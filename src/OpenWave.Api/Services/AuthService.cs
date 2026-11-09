@@ -19,10 +19,11 @@ public sealed class AuthService(
     private const int MinPasswordLength = 8;
     private const int DuplicateKeyErrorNumber = 1062;
 
-    private const string InvalidEmailMessage = "El correo no es válido.";
-    private const string ShortPasswordMessage = "La contraseña debe tener al menos 8 caracteres.";
-    private const string EmailTakenMessage = "El correo ya está registrado.";
-    private const string WrongCredentialsMessage = "Correo o contraseña incorrectos.";
+    // Keys of Resources/Messages.resx: the controller answers with the text in the request language.
+    private const string InvalidEmailMessage = "InvalidEmail";
+    private const string ShortPasswordMessage = "ShortPassword";
+    private const string EmailTakenMessage = "EmailTaken";
+    private const string WrongCredentialsMessage = "WrongCredentials";
 
     public async Task<ServiceResult<UserDto>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
     {

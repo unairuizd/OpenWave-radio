@@ -59,15 +59,16 @@ These come from the code as it is today (`ThemeCatalog.cs`, `ModernoLayout.xaml`
   formula; the numbers are in each brief and must be re-measured on the real templates.
 - Adding a colour key is a breaking change to the contract (every palette must define it). Briefs avoid it.
 
-### Layout: the 8 keys, defined by the theme itself
+### Layout: the 5 keys, defined by the theme itself
 
-`HeaderTemplate`, `BottomBarTemplate`, `StationCardTemplate`, `InicioTemplate`, `FavoritosTemplate`,
-`ReproductorTemplate`, `AjustesTemplate`, `SettingsPageTemplate`, plus any theme-only keys (for example
-Tocadiscos' `ReproductorHeaderTemplate`). A layout never merges or references another layout.
+`HeaderTemplate`, `StationCardTemplate`, `InicioTemplate`, `FavoritosTemplate`, `ReproductorTemplate`, plus any
+theme-only keys (for example Tocadiscos' `ReproductorHeaderTemplate`). A layout never merges or references another
+layout. Since phase 8 the bottom bar (`views:BottomBar`) and the settings pages are shared by every theme: a layout
+only places the bar where the theme shows it.
 
 ### Same functions in every theme
 
-Every theme must offer, with Spanish accessible names:
+Every theme must offer, with accessible names in the app language (`{loc:Translate Key}`):
 
 - search with `Buscar` and `Limpiar búsqueda`, and the preference filters;
 - choose a station and play it (by opening Reproductor, or in place as Tocadiscos does);
@@ -75,7 +76,7 @@ Every theme must offer, with Spanish accessible names:
 - the heart (add/remove, opens login when logged out);
 - Favoritos with the account row (email + `Cerrar sesión`), the logged-out text and `Iniciar sesión`;
 - reach the user's favourites from Reproductor (previous/next favourite, or a crate/bank like Tocadiscos);
-- Ajustes, Personalización and Preferencias;
+- the gear to the shared Ajustes pages;
 - the loading, error, empty and "no results with your preferences" states.
 
 ### Rules carried over from Phase 6

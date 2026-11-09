@@ -3,21 +3,22 @@
     x:Class="OpenWave.App.Views.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:LoginViewModel"
-    Title="Iniciar sesión">
+    Title="{loc:Translate Page_Login}">
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Style="{StaticResource PageTitleLabel}" Text="Iniciar sesión" />
+            <Label Style="{StaticResource PageTitleLabel}" Text="{loc:Translate Page_Login}" />
 
             <Entry
                 Keyboard="Email"
-                Placeholder="Correo electrónico"
+                Placeholder="{loc:Translate Login_Email}"
                 Text="{Binding Email}" />
             <Entry
                 IsPassword="True"
-                Placeholder="Contraseña"
+                Placeholder="{loc:Translate Login_Password}"
                 ReturnCommand="{Binding LoginCommand}"
                 Text="{Binding Password}" />
 
@@ -26,14 +27,14 @@
                 Style="{StaticResource ErrorLabel}"
                 Text="{Binding ErrorMessage}" />
 
-            <Button Command="{Binding LoginCommand}" Text="Iniciar sesión" />
+            <Button Command="{Binding LoginCommand}" Text="{loc:Translate Page_Login}" />
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
             <Label
                 Margin="0,12,0,0"
                 Style="{StaticResource SecondaryLabel}"
-                Text="¿No tienes cuenta?" />
-            <Button Command="{Binding GoToRegisterCommand}" Text="Crear cuenta" />
+                Text="{loc:Translate Login_NoAccount}" />
+            <Button Command="{Binding GoToRegisterCommand}" Text="{loc:Translate Page_Register}" />
         </VerticalStackLayout>
     </ScrollView>
 

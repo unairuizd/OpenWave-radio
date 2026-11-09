@@ -1,4 +1,4 @@
-using OpenWave.Contracts;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Services;
 
@@ -16,9 +16,13 @@ public static class PreferenceLabels
 
     public static string Genre(string value) => Capitalise(value);
 
-    public static string ContentType(string value) =>
-        ContentTypes.All.FirstOrDefault(c => string.Equals(c.Value, value, StringComparison.OrdinalIgnoreCase))?.Label
-        ?? Capitalise(value);
+    // The fixed content types have a name in every app language; any other value is shown capitalised.
+    public static string ContentType(string value)
+    {
+        var key = $"ContentType_{value.ToLowerInvariant()}";
+        var label = Localizer.Instance[key];
+        return label == key ? Capitalise(value) : label;
+    }
 
     /// <summary>
     /// For example "Spain · Spanish · Jazz · Música"; only the values that are set.

@@ -42,14 +42,16 @@ context: |
 
   ## Conventions
   - Language: code identifiers, comments and docs in ENGLISH.
-    Every string shown to the user (labels, buttons, messages, errors) in SPANISH (Spain, es-ES).
+    Every string shown to the user (labels, buttons, messages, errors) in the app language: SPANISH (Spain, es-ES)
+    by default, from the resource files (app: Resources/Strings/AppResources*.resx through {loc:Translate}/Localizer;
+    API: Resources/Messages*.resx through IStringLocalizer). Never hard-code a user-visible string.
   - App uses MVVM with CommunityToolkit.Mvvm ([ObservableProperty], [RelayCommand]).
     Views contain no logic beyond UI; ViewModels never reference Views; Services wrap HttpClient and playback.
     Register everything in MauiProgram.cs with dependency injection. Navigation with Shell routes.
   - API layering: Controllers (HTTP only) -> Services (business logic) -> Repositories (EF Core access).
     Use DTOs from Contracts at the HTTP boundary; never expose EF entities. Async everywhere,
     pass CancellationToken, never use .Result or .Wait(). Return ProblemDetails for errors with
-    Spanish `detail` messages.
+    `detail` messages in the request language (Accept-Language; Spanish by default).
   - The app reads the API base URL from a single configurable place (`ApiSettings`): default per
     platform (Android emulator `http://10.0.2.2:5080`, Windows `http://localhost:5080`), overridable
     through MAUI `Preferences` key `api_base_url`. Cleartext HTTP is allowed in development

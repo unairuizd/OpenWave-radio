@@ -37,7 +37,7 @@ The settings pages use one shared header view (back arrow, title as written, gea
 
 ### Bottom bar drawn by the control
 
-`BottomBar` builds its three buttons in code or in one shared XAML view: house, radio and star glyphs drawn as `Path` data (no new icon font, no new package), coloured with the existing palette keys `TabBarBackgroundColor`, `TabBarSelectedColor` (marked) and `TabBarUnselectedColor`, so no palette changes. Accessible names and Windows tooltips come from the localizer. Each page keeps deciding whether it shows the bar, so the presence rules do not change. `BottomBarTemplate` is removed from the layouts.
+`BottomBar` builds its three buttons in code or in one shared XAML view: the existing house, radio and star icons (`ic_home`, `ic_player`, `ic_favorites`, tinted with `IconTint`; no new icon font, no new package), coloured with the existing palette keys `TabBarBackgroundColor`, `TabBarSelectedColor` (marked) and `TabBarUnselectedColor`, so no palette changes. Accessible names and Windows tooltips come from the localizer. Each page keeps deciding whether it shows the bar, so the presence rules do not change. `BottomBarTemplate` is removed from the layouts.
 *Alternative:* an icon font such as Material Symbols. That adds a font file and licence notes for three icons, so `Path` geometry is simpler.
 
 ### App localization: resx + one localizer
@@ -57,7 +57,7 @@ A `DelegatingHandler` (`AcceptLanguageHandler`) adds `Accept-Language: <current 
 ### API localization
 
 - `builder.Services.AddLocalization()` and `app.UseRequestLocalization(...)` with supported cultures `es` and `en`, default `es`, using only the `Accept-Language` provider.
-- `Resources/Messages.resx` (Spanish, neutral) and `Messages.en.resx` hold every `detail` text and the content type labels. Services get `IStringLocalizer<Messages>` and use it where they currently write literals. Status codes and the content type values (`music`, `news`, `talk`, `sports`) do not change.
+- `Resources/Messages.resx` (Spanish, neutral) and `Messages.en.resx` hold every `detail` text and the content type labels. Services return a message key instead of a literal; the place that builds the ProblemDetails (`ServiceResultExtensions`, the exception filter, the catalogue errors, the invalid-body factory) translates it with `IStringLocalizer<Messages>`. Status codes and the content type values (`music`, `news`, `talk`, `sports`) do not change.
 - The catalogue cache keeps per-language content type lists (they are a static list, so they are built on each call from the localizer). Country, language and genre lists stay cached once, since they are not translated.
 - Adding a language to the API means one `Messages.<code>.resx` and one entry in the supported cultures list.
 
@@ -65,8 +65,8 @@ A `DelegatingHandler` (`AcceptLanguageHandler`) adds `Accept-Language: <current 
 
 - `PreferenciasViewModel` keeps a saved snapshot and pending values. The `Cambios sin guardar` bar is visible while pending differs from saved. `Descartar` copies saved to pending; `Guardar` saves pending and shows `Preferencias guardadas.`.
 - The `País`, `Idioma` and `Género` rows push a new route `filtro` (`FiltroPage` + `FiltroViewModel`) with the filter kind as a query parameter. The page reads the already loaded lists from `CatalogApiClient`, so no new API call is needed.
-- `PreferenciasViewModel` passes the filter kind, the current pending value and a callback (`Action<string>`) in the Shell navigation parameters; `FiltroViewModel` calls the callback with the chosen value and navigates with `GoToAsync("..")`. Pending values survive because `PreferenciasPage` and its view model are still on the stack.
-- Searching compares strings after removing diacritics (`string.Normalize(FormD)` and dropping non-spacing marks) and lowering with the invariant culture, so `belgica` finds `Bélgica`.
+- `PreferenciasViewModel` passes a `FilterRequest` (the filter kind, its options, the pending value and a callback) in the Shell navigation parameters; `FiltroViewModel` calls the callback with the chosen value and navigates with `GoToAsync("..")`. Pending values survive because `PreferenciasPage` and its view model are still on the stack.
+- Searching compares strings after removing diacritics (`string.Normalize(FormD)` and dropping non-spacing marks) and lowering with the invariant culture, so `ÁUS` finds `Austria` and `reunion` would find `Réunion`.
 - Recent values: on `Guardar`, each saved filter value that is not `Todos` is put first in a per-filter list stored in `Preferences` as a joined string, without duplicates, limited to 5.
 - The summary (`Inicio mostrará` + `Emisoras de <country> en <language> · <genre>` or `Todas las emisoras`) is a computed property built from the pending values and resource format strings, so each language can order the words its own way.
 

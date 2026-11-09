@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Page_Inicio" xml:space="preserve"><value>Home</value></data>
+  <data name="Page_Reproductor" xml:space="preserve"><value>Player</value></data>
+  <data name="Page_Favoritos" xml:space="preserve"><value>Favourites</value></data>
+  <data name="Page_Ajustes" xml:space="preserve"><value>Settings</value></data>
+  <data name="Page_Personalizacion" xml:space="preserve"><value>Personalization</value></data>
+  <data name="Page_Preferencias" xml:space="preserve"><value>Preferences</value></data>
+  <data name="Page_Login" xml:space="preserve"><value>Log in</value></data>
+  <data name="Page_Register" xml:space="preserve"><value>Create account</value></data>
+  <data name="Nav_Inicio" xml:space="preserve"><value>Home</value></data>
+  <data name="Nav_Reproductor" xml:space="preserve"><value>Player</value></data>
+  <data name="Nav_Favoritos" xml:space="preserve"><value>Favourites</value></data>
+  <data name="Nav_Selected" xml:space="preserve"><value>{0}, selected</value></data>
+  <data name="Nav_Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Nav_Ajustes" xml:space="preserve"><value>Settings</value></data>
+  <data name="Ajustes_PersonalizacionDescription" xml:space="preserve"><value>Change the app's style, the language, the font and its size.</value></data>
+  <data name="Ajustes_PreferenciasDescription" xml:space="preserve"><value>Set default search filters: country, station language, genre and type.</value></data>
+  <data name="Personalizacion_Preview" xml:space="preserve"><value>Preview (stays while you change things)</value></data>
+  <data name="Personalizacion_SampleName" xml:space="preserve"><value>Radio Armisa</value></data>
+  <data name="Personalizacion_SampleDetails" xml:space="preserve"><value>Italy · Italian · pop</value></data>
+  <data name="Personalizacion_Theme" xml:space="preserve"><value>Theme</value></data>
+  <data name="Personalizacion_Font" xml:space="preserve"><value>Font</value></data>
+  <data name="Personalizacion_Size" xml:space="preserve"><value>Text size</value></data>
+  <data name="Personalizacion_Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Personalizacion_Reset" xml:space="preserve"><value>Restore defaults</value></data>
+  <data name="Personalizacion_MoreFonts" xml:space="preserve"><value>{0} more fonts</value></data>
+  <data name="Action_Play" xml:space="preserve"><value>Play</value></data>
+  <data name="Action_AddFavorite" xml:space="preserve"><value>Add to favourites</value></data>
+  <data name="Theme_moderno" xml:space="preserve"><value>Modern</value></data>
+  <data name="Theme_tocadiscos" xml:space="preserve"><value>Turntable</value></data>
+  <data name="Theme_valvulas" xml:space="preserve"><value>Valve radio</value></data>
+  <data name="Theme_casete" xml:space="preserve"><value>Portable cassette</value></data>
+  <data name="Theme_boombox" xml:space="preserve"><value>Boombox</value></data>
+  <data name="Theme_mesadj" xml:space="preserve"><value>DJ desk</value></data>
+  <data name="Theme_mp3" xml:space="preserve"><value>MP3</value></data>
+  <data name="Theme_rueda" xml:space="preserve"><value>Click-wheel classic</value></data>
+  <data name="Palette_light" xml:space="preserve"><value>Light</value></data>
+  <data name="Palette_dark" xml:space="preserve"><value>Dark</value></data>
+  <data name="Palette_standard" xml:space="preserve"><value>Standard</value></data>
+  <data name="Palette_baquelita" xml:space="preserve"><value>Bakelite</value></data>
+  <data name="Palette_nogal" xml:space="preserve"><value>Walnut</value></data>
+  <data name="Palette_metal" xml:space="preserve"><value>Blue metal</value></data>
+  <data name="Palette_cromado" xml:space="preserve"><value>Chrome</value></data>
+  <data name="Palette_club" xml:space="preserve"><value>Club</value></data>
+  <data name="Palette_azul" xml:space="preserve"><value>Blue</value></data>
+  <data name="Palette_blanco" xml:space="preserve"><value>White</value></data>
+  <data name="Palette_negro" xml:space="preserve"><value>Black</value></data>
+  <data name="Scale_0" xml:space="preserve"><value>Small</value></data>
+  <data name="Scale_1" xml:space="preserve"><value>Normal</value></data>
+  <data name="Scale_2" xml:space="preserve"><value>Large</value></data>
+  <data name="Scale_3" xml:space="preserve"><value>Very large</value></data>
+  <data name="Scale_4" xml:space="preserve"><value>Huge</value></data>
+  <data name="Summary_Title" xml:space="preserve"><value>Home will show</value></data>
+  <data name="Summary_All" xml:space="preserve"><value>All stations</value></data>
+  <data name="Summary_Stations" xml:space="preserve"><value>Stations</value></data>
+  <data name="Summary_From" xml:space="preserve"><value>from {0}</value></data>
+  <data name="Summary_In" xml:space="preserve"><value>in {0}</value></data>
+  <data name="Preferencias_GroupWhere" xml:space="preserve"><value>Where and in which language</value></data>
+  <data name="Preferencias_GroupWhat" xml:space="preserve"><value>What you want to hear</value></data>
+  <data name="Preferencias_Unsaved" xml:space="preserve"><value>Unsaved changes</value></data>
+  <data name="Preferencias_Saved" xml:space="preserve"><value>Preferences saved.</value></data>
+  <data name="Filter_All" xml:space="preserve"><value>All</value></data>
+  <data name="Filter_NoFilter" xml:space="preserve"><value>no filter</value></data>
+  <data name="Filter_Recent" xml:space="preserve"><value>Recent</value></data>
+  <data name="Filter_NoResults" xml:space="preserve"><value>No results</value></data>
+  <data name="Filter_Country" xml:space="preserve"><value>Country</value></data>
+  <data name="Filter_Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Filter_Genre" xml:space="preserve"><value>Genre</value></data>
+  <data name="Filter_ContentType" xml:space="preserve"><value>Content type</value></data>
+  <data name="Filter_SearchCountry" xml:space="preserve"><value>Search country</value></data>
+  <data name="Filter_SearchLanguage" xml:space="preserve"><value>Search language</value></data>
+  <data name="Filter_SearchGenre" xml:space="preserve"><value>Search genre</value></data>
+  <data name="Filter_AllOfCountry" xml:space="preserve"><value>All countries</value></data>
+  <data name="Filter_AllOfLanguage" xml:space="preserve"><value>All languages</value></data>
+  <data name="Filter_AllOfGenre" xml:space="preserve"><value>All genres</value></data>
+  <data name="Action_Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="Action_Reset" xml:space="preserve"><value>Reset</value></data>
+  <data name="Action_Discard" xml:space="preserve"><value>Discard</value></data>
+  <data name="Action_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Error_Unreachable" xml:space="preserve"><value>Cannot connect to the server.</value></data>
+  <data name="Error_CatalogueUnavailable" xml:space="preserve"><value>The station catalogue could not be loaded.</value></data>
+  <data name="Action_RemoveFavorite" xml:space="preserve"><value>Remove from favourites</value></data>
+  <data name="Action_Stop" xml:space="preserve"><value>Stop</value></data>
+  <data name="Search_StationPlaceholder" xml:space="preserve"><value>Search station...</value></data>
+  <data name="Search_Station" xml:space="preserve"><value>Search station</value></data>
+  <data name="Action_Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Search_Clear" xml:space="preserve"><value>Clear search</value></data>
+  <data name="Inicio_FiltersOn" xml:space="preserve"><value>Filters on</value></data>
+  <data name="Inicio_FiltersOff" xml:space="preserve"><value>Preferences off</value></data>
+  <data name="Action_Disable" xml:space="preserve"><value>Turn off</value></data>
+  <data name="Action_Enable" xml:space="preserve"><value>Turn on</value></data>
+  <data name="Inicio_Loading" xml:space="preserve"><value>Loading stations...</value></data>
+  <data name="Inicio_NoStations" xml:space="preserve"><value>No stations found.</value></data>
+  <data name="Inicio_NoStationsFiltered" xml:space="preserve"><value>No stations match your preferences.</value></data>
+  <data name="Session_LogOut" xml:space="preserve"><value>Log out</value></data>
+  <data name="Favoritos_LogInHintSentence" xml:space="preserve"><value>Log in to see your favourites.</value></data>
+  <data name="Favoritos_MineUpper" xml:space="preserve"><value>MY FAVOURITES</value></data>
+  <data name="Favoritos_Loading" xml:space="preserve"><value>Loading favourites...</value></data>
+  <data name="Favoritos_Empty" xml:space="preserve"><value>You have no favourite stations yet.</value></data>
+  <data name="Reproductor_Choose" xml:space="preserve"><value>Choose a station in Home or in your favourites</value></data>
+  <data name="Favoritos_Previous" xml:space="preserve"><value>Previous favourite</value></data>
+  <data name="Favoritos_Next" xml:space="preserve"><value>Next favourite</value></data>
+  <data name="Presets_Previous" xml:space="preserve"><value>Previous presets</value></data>
+  <data name="Favoritos_LogInHint" xml:space="preserve"><value>Log in to see your favourites</value></data>
+  <data name="Presets_Next" xml:space="preserve"><value>Next presets</value></data>
+  <data name="Favoritos_Mine" xml:space="preserve"><value>My favourites</value></data>
+  <data name="Casete_SideA" xml:space="preserve"><value>SIDE A</value></data>
+  <data name="Casete_SideB" xml:space="preserve"><value>SIDE B</value></data>
+  <data name="Casete_FlipTape" xml:space="preserve"><value>Flip the tape</value></data>
+  <data name="Casete_Flip" xml:space="preserve"><value>Flip</value></data>
+  <data name="Live" xml:space="preserve"><value>Live</value></data>
+  <data name="Dj_Live" xml:space="preserve"><value>LIVE</value></data>
+  <data name="Dj_Name" xml:space="preserve"><value>NAME</value></data>
+  <data name="Dj_Country" xml:space="preserve"><value>COUNTRY</value></data>
+  <data name="Dj_Format" xml:space="preserve"><value>FORMAT</value></data>
+  <data name="Dj_Load" xml:space="preserve"><value>LOAD</value></data>
+  <data name="Dj_Back" xml:space="preserve"><value>BACK</value></data>
+  <data name="Dj_Next" xml:space="preserve"><value>NEXT</value></data>
+  <data name="Dj_PreviousPads" xml:space="preserve"><value>Previous pads</value></data>
+  <data name="Dj_NextPads" xml:space="preserve"><value>Next pads</value></data>
+  <data name="Reproductor_ChooseShort" xml:space="preserve"><value>Choose a station in Home</value></data>
+  <data name="Favoritos_PreviousStation" xml:space="preserve"><value>Previous favourite station</value></data>
+  <data name="Favoritos_NextStation" xml:space="preserve"><value>Next favourite station</value></data>
+  <data name="Action_Up" xml:space="preserve"><value>Up</value></data>
+  <data name="Action_Down" xml:space="preserve"><value>Down</value></data>
+  <data name="Mp3_StationsPath" xml:space="preserve"><value>/STATIONS/</value></data>
+  <data name="Mp3_FavoritesPath" xml:space="preserve"><value>/FAVOURITES/</value></data>
+  <data name="Action_SwitchOff" xml:space="preserve"><value>Switch off</value></data>
+  <data name="Action_Listen" xml:space="preserve"><value>Listen</value></data>
+  <data name="Action_SwitchOnOff" xml:space="preserve"><value>Switch on or off</value></data>
+  <data name="Presets_PreviousPage" xml:space="preserve"><value>Previous page of presets</value></data>
+  <data name="Presets_NextPage" xml:space="preserve"><value>Next page of presets</value></data>
+  <data name="Login_Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Login_Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Login_NoAccount" xml:space="preserve"><value>Don't have an account?</value></data>
+  <data name="Register_Password" xml:space="preserve"><value>Password (at least 8 characters)</value></data>
+  <data name="Register_RepeatPassword" xml:space="preserve"><value>Repeat the password</value></data>
+  <data name="Boombox_Tuning" xml:space="preserve"><value>TUNING · {0} stations</value></data>
+  <data name="Fmt_RemoveFavorite" xml:space="preserve"><value>Remove {0} from favourites</value></data>
+  <data name="Fmt_LoadAndPlay" xml:space="preserve"><value>Load and play {0}</value></data>
+  <data name="Fmt_FavoritesCount" xml:space="preserve"><value>Favourites ({0})</value></data>
+  <data name="Fmt_AcceptPlay" xml:space="preserve"><value>OK: play {0}</value></data>
+  <data name="Fmt_Preset" xml:space="preserve"><value>Preset {1}: {0}</value></data>
+  <data name="Fmt_Memory" xml:space="preserve"><value>Memory {5}: {0}</value></data>
+  <data name="Fmt_SideTrack" xml:space="preserve"><value>Side {4}, track {3}: {0}</value></data>
+  <data name="Fmt_SideATrack" xml:space="preserve"><value>Side A, track {3}: {0}</value></data>
+  <data name="Error_DatabaseUnavailable" xml:space="preserve"><value>The database could not be reached.</value></data>
+  <data name="Error_Unexpected" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="Account_InvalidEmail" xml:space="preserve"><value>The email address is not valid.</value></data>
+  <data name="Account_EmptyPassword" xml:space="preserve"><value>Enter the password.</value></data>
+  <data name="Account_ShortPassword" xml:space="preserve"><value>The password must be at least 8 characters long.</value></data>
+  <data name="Account_PasswordMismatch" xml:space="preserve"><value>The passwords do not match.</value></data>
+  <data name="Favoritos_SaveFailed" xml:space="preserve"><value>Your favourites could not be updated.</value></data>
+  <data name="Favoritos_AlertTitle" xml:space="preserve"><value>Favourites</value></data>
+  <data name="Favoritos_PreviousPage" xml:space="preserve"><value>Previous favourites</value></data>
+  <data name="Favoritos_NextPage" xml:space="preserve"><value>Next favourites</value></data>
+  <data name="Action_Accept" xml:space="preserve"><value>OK</value></data>
+  <data name="Station_Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="Fmt_Play" xml:space="preserve"><value>Play {0}</value></data>
+  <data name="Fmt_PlayFavorite" xml:space="preserve"><value>Play {0}, favourite {1} of {2}</value></data>
+  <data name="Fmt_SleeveFront" xml:space="preserve"><value>{0}, station {1} of {2}. Press to play</value></data>
+  <data name="Fmt_Show" xml:space="preserve"><value>Show {0}</value></data>
+  <data name="Fmt_StationPosition" xml:space="preserve"><value>station {0} of {1}</value></data>
+  <data name="Fmt_Tune" xml:space="preserve"><value>Tune, station {0} of {1}: {2}</value></data>
+  <data name="Dial_Tune" xml:space="preserve"><value>Tune</value></data>
+  <data name="Playback_Error" xml:space="preserve"><value>This station could not be played.</value></data>
+  <data name="Playback_Buffering" xml:space="preserve"><value>Loading…</value></data>
+  <data name="Playback_Playing" xml:space="preserve"><value>Playing</value></data>
+  <data name="Playback_Failed" xml:space="preserve"><value>Error</value></data>
+  <data name="Playback_Stopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Wheel_MenuLabel" xml:space="preserve"><value>MENU</value></data>
+  <data name="Wheel_Menu" xml:space="preserve"><value>Menu</value></data>
+  <data name="Wheel_Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="Wheel_Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Wheel_PlayPause" xml:space="preserve"><value>Play or pause</value></data>
+  <data name="Wheel_Select" xml:space="preserve"><value>Select</value></data>
+  <data name="Wheel_Ring" xml:space="preserve"><value>Wheel: slide in a circle to move through the list</value></data>
+  <data name="Tonearm_Stop" xml:space="preserve"><value>Turntable needle. Stop</value></data>
+  <data name="Tonearm_Play" xml:space="preserve"><value>Turntable needle. Play</value></data>
+  <data name="ContentType_music" xml:space="preserve"><value>Music</value></data>
+  <data name="ContentType_news" xml:space="preserve"><value>News</value></data>
+  <data name="ContentType_talk" xml:space="preserve"><value>Talk</value></data>
+  <data name="ContentType_sports" xml:space="preserve"><value>Sports</value></data>
+</root>

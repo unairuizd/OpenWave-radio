@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    The selection page of País, Idioma or Género, opened from Preferencias: a search box, Todos (sin filtro), the
+    recent values and the full list with station counts. The same in every theme: only the palette colours change.
+-->
+<ContentPage
+    x:Class="OpenWave.App.Views.FiltroPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
+    xmlns:views="clr-namespace:OpenWave.App.Views"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
+    x:DataType="vm:FiltroViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{DynamicResource PageBackgroundColor}"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <views:SettingsHeader Grid.Row="0" />
+
+        <Border
+            Grid.Row="1"
+            Margin="16,12,16,4"
+            Padding="12,0"
+            Style="{StaticResource SettingsRow}">
+            <Entry
+                ClearButtonVisibility="WhileEditing"
+                Placeholder="{Binding SearchPlaceholder}"
+                SemanticProperties.Description="{Binding SearchPlaceholder}"
+                Text="{Binding Query}" />
+        </Border>
+
+        <CollectionView
+            Grid.Row="2"
+            Margin="16,4,16,0"
+            ItemsSource="{Binding Rows}"
+            SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label
+                    Margin="0,24"
+                    HorizontalTextAlignment="Center"
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="{loc:Translate Filter_NoResults}" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:FilterRow">
+                    <Grid>
+                        <!--  Section title  -->
+                        <Label
+                            Margin="4,16,0,6"
+                            IsVisible="{Binding IsHeader}"
+                            SemanticProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SettingsGroupLabel}"
+                            Text="{Binding Text}" />
+
+                        <!--  Option: label, detail, count and the tick of the pending value  -->
+                        <Grid Padding="0,2" IsVisible="{Binding IsOption}">
+                            <Border Style="{StaticResource SettingsRow}">
+                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout
+                                        Grid.Column="0"
+                                        AutomationProperties.IsInAccessibleTree="False"
+                                        Spacing="2"
+                                        VerticalOptions="Center">
+                                        <Label Style="{StaticResource SettingsRowTitle}" Text="{Binding Text}" />
+                                        <Label
+                                            IsVisible="{Binding HasDetail}"
+                                            Style="{StaticResource SettingsRowDescription}"
+                                            Text="{Binding Detail}" />
+                                    </VerticalStackLayout>
+                                    <Label
+                                        Grid.Column="1"
+                                        AutomationProperties.IsInAccessibleTree="False"
+                                        Style="{StaticResource SettingsRowValue}"
+                                        Text="{Binding Count}"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Column="2"
+                                        AutomationProperties.IsInAccessibleTree="False"
+                                        IsVisible="{Binding IsSelected}"
+                                        Style="{StaticResource SettingsChevron}"
+                                        Text="✓"
+                                        TextColor="{DynamicResource AccentColor}" />
+                                </Grid>
+                            </Border>
+                            <Button
+                                Command="{Binding ChooseCommand, Source={RelativeSource AncestorType={x:Type vm:FiltroViewModel}}, x:DataType=vm:FiltroViewModel}"
+                                CommandParameter="{Binding .}"
+                                SemanticProperties.Description="{Binding AccessibleName}"
+                                Style="{StaticResource RowButton}" />
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <views:BottomBar Grid.Row="3" />
+    </Grid>
+</ContentPage>

@@ -253,10 +253,12 @@ Each station card and the station in `Reproductor` show a heart: filled (`Quitar
 
 ## Navigation and layout
 
-Every page except `Iniciar sesión` and `Crear cuenta` has the same frame, drawn by the active theme:
+Every page except `Iniciar sesión` and `Crear cuenta` has the same frame:
 
-- **Header:** the page title in upper case, centred, and a gear (`Ajustes`) on the right. The gear opens `Ajustes`; from `Personalización` or `Preferencias` it returns to `Ajustes` (never opening a second one); on `Ajustes` it does nothing.
-- **Bottom bar:** `Inicio`, `Reproductor` and `Favoritos`, each an icon with a label. The current section is marked (screen readers announce, for example, "Inicio, seleccionado"); on `Ajustes`, `Personalización` and `Preferencias` nothing is marked. A button leaves any page, settings included; pressing the current section's button does nothing. The app opens on `Inicio`.
+- **Header of Inicio, Reproductor and Favoritos** (drawn by the active theme): the page title in upper case, centred, and a gear (`Ajustes`) on the right.
+- **Header of the settings pages** (`Ajustes`, `Personalización`, `Preferencias` and the filter pages `País`, `Idioma`, `Género`; the same in every theme, `Views/SettingsHeader.cs`): a back arrow (`Atrás`) on the left, the title as written, centred, and the gear on the right. The arrow of `Ajustes` returns to the page it was opened from (Inicio, Reproductor or Favoritos): `Ajustes` is pushed on that section's navigation stack, so going back pops it. The arrow of `Personalización` and `Preferencias` returns to `Ajustes`, and that of a filter page to `Preferencias` with its unsaved choices kept. The Android back button does the same.
+- **The gear** opens `Ajustes`; from any settings page it returns to `Ajustes` (never opening a second one); on `Ajustes` it does nothing.
+- **Bottom bar** (the same in every theme, `Views/BottomBar.cs`): three icons, a house for `Inicio`, a radio for `Reproductor` and a star for `Favoritos`, in the palette's `TabBar*` colours. The current section is marked with the selected colour and a short line under its icon; screen readers announce, for example, "Inicio, seleccionado", and on Windows each icon has a tooltip. On the settings pages nothing is marked. A button leaves any page, settings included; pressing the current section's button does nothing. The app opens on `Inicio`.
 - Only the content between the header and the bar scrolls.
 
 `Iniciar sesión` and `Crear cuenta` keep the platform header with its back button. The platform's own tab bar is never shown. On Windows, pushed pages (Ajustes and its sub-pages, the login pages) also get the window's back arrow.
@@ -271,24 +273,38 @@ Every page except `Iniciar sesión` and `Crear cuenta` has the same frame, drawn
 
 ## Ajustes and Personalización
 
-`Ajustes` opens from the gear. It shows two full-width cards, `PERSONALIZACIÓN` and `PREFERENCIAS`; each opens its page, and the back button (or the gear) returns to `Ajustes`.
+`Ajustes`, `Personalización`, `Preferencias` and the filter pages look the same in every theme: they use no theme template, only the palette colours and the shared styles in `Resources/Styles/Styles.xaml` (`SettingsRow`, `Chip`, `AccentButton`...), so changing theme only recolours them.
 
-`Personalización` works without an account; logging in or out does not change it.
+`Ajustes` opens from the gear. It lists `Personalización` first and `Preferencias` second, each a full-width row (`Views/SettingsRow.cs`) with an icon, its title, a description and `›`:
 
-- **Selectors:** `Tema` (every registered theme: `Moderno` and `Tocadiscos`), `Variante` (`Claro`, `Oscuro`; shown only for a theme with more than one), `Tipo de letra` (each font name is written in its own font) and `Tamaño del texto` (`Pequeño`, `Normal`, `Grande`, `Muy grande`, `Enorme`). The current choices are selected when the page opens.
-- **No save button:** as the page says ("Los cambios se aplican y se guardan al momento."), every change applies at once to every page, the header and the bottom bar, and is stored on the device.
-- **`Vista previa`:** a card with a sample title, body text, secondary text and button in the current theme, font and size.
-- **`Restablecer valores por defecto`:** returns to `Moderno` `Claro`, `Ubuntu` and `Normal`.
+- `Personalización`: «Cambia el estilo de la app, el idioma, el tipo de letra y su tamaño.»
+- `Preferencias`: «Establece filtros de búsqueda predeterminados: país, idioma de las emisoras, género y tipo.»
+
+`Personalización` works without an account; logging in or out does not change it. From top to bottom:
+
+- **Preview (fixed):** `Vista previa (fija mientras cambias)` and a sample station card (`Radio Armisa`, `Reproducir`, a heart) in the current palette, font, size and language. It stays at the top while the options scroll; its buttons do nothing.
+- **`Tema`:** a grid of cards, one per theme, each with four colours of its own palette and its name; the selected one has an accent outline.
+- **Variant:** a segmented control under the cards, only for a theme with more than one palette (`Claro`/`Oscuro`, `Baquelita`/`Nogal`, `Blanco`/`Negro`).
+- **`Tipo de letra`:** chips written in their own font: the first three and `+3`, which shows the rest. The selected font is always shown, even when it is behind `+3`.
+- **`Tamaño del texto`:** five segments with an `A` of growing size, and the selected size's name under them (`Pequeño`, `Normal`, `Grande`, `Muy grande`, `Enorme`).
+- **`Idioma`:** `Español` and `English` (see "Languages").
+- **`Restablecer valores por defecto`:** returns to `Moderno` `Claro`, `Ubuntu`, `Normal` and `Español`.
+
+There is no save button: every change applies at once to every page and is stored on the device.
 
 ## Preferencias
 
-`Preferencias` stores default station filters on the device ("Se aplican como filtros en Inicio. «Todos» significa sin filtro."). It works without an account; logging in or out does not change it, and nothing is stored in the database.
+`Preferencias` stores default station filters on the device. It works without an account; logging in or out does not change it, and nothing is stored in the database.
 
-- **Pickers:** `País`, `Idioma`, `Género` and `Tipo de contenido`. Each starts with `Todos` (no filter), followed by the options from the API (`/api/catalog/...`). The saved values are selected when the page opens. If a saved value is no longer in the list, it is still shown as selected and kept.
-- **`Guardar`:** stores the four choices and shows `Preferencias guardadas.` It is available only once the lists have loaded.
-- **`Restablecer`:** sets all four to `Todos` and stores that immediately. It works even when the lists cannot be loaded.
-- **While loading:** `Cargando opciones...`
-- **If the lists cannot be loaded:** `No hay conexión con el servidor.` (API not reachable) or `No se pudo obtener el catálogo de emisoras.` (Radio Browser unavailable), with `Reintentar`. The saved preferences are never changed by a failed load.
+- **Summary:** `Inicio mostrará` and the pending filters in words, for example `Emisoras de Spain en Spanish · Jazz`, or `Todas las emisoras`. It shows no station count.
+- **`Dónde y en qué idioma`:** the rows `País` and `Idioma`; **`Qué quieres escuchar`:** the row `Género` and the `Tipo de contenido` chips (`Todos`, `Música`, `Noticias`, `Charlas`, `Deportes`). Each row shows its value (`Todos` with no filter) and opens its filter page.
+- **Pending choices:** a choice changes only the page. While it differs from what is saved, a bar shows `Cambios sin guardar` with `Descartar` (brings back the saved values) and `Guardar` (stores the four and shows `Preferencias guardadas.`). Leaving without saving keeps the saved values.
+- **`Restablecer`:** sets all four to `Todos` and stores that immediately, even when the lists cannot be loaded.
+- **If the lists cannot be loaded:** `No hay conexión con el servidor.` or `No se pudo obtener el catálogo de emisoras.`, with `Reintentar`. The saved preferences are never changed by a failed load. A saved value that is no longer in the list is still shown, offered and kept.
+
+**Filter pages** (`País`, `Idioma`, `Género`; route `filtro`, `FiltroPage`): a search box (`Buscar país`...), `Todos` (`sin filtro`), `Recientes` and the full list (`Todos los países`...) with each option's number of stations in the app's number format (`1.204` in Spanish, `1,204` in English). The pending value has a tick. Choosing an option returns to `Preferencias` with it pending. The search ignores case and accents (`ÁUS` finds `Australia` and `Austria`) and hides `Recientes`; with no match it shows `Sin resultados`. Country, language and genre names are shown as Radio Browser gives them (English names such as `Spain`), in every app language.
+
+**Recent values:** each filter remembers the last five values saved, newest first, without `Todos` and without repeats, on the device only.
 
 | Preference key | Value |
 |---|---|
@@ -297,7 +313,11 @@ Every page except `Iniciar sesión` and `Crear cuenta` has the same frame, drawn
 | `pref_genre` | Genre tag, for example `jazz` |
 | `pref_content_type` | `music`, `news`, `talk` or `sports` |
 
-A key is removed when its picker is `Todos`.
+A key is removed when its filter is `Todos`.
+
+| Recent values key | Value |
+|---|---|
+| `recent_country`, `recent_language`, `recent_genre` | Up to five values, newest first, one per line |
 
 ## Themes and fonts
 
@@ -309,20 +329,19 @@ The app's look (theme, variant, font and text size) is set by `AppearanceService
 | `appearance_theme_variant` | `light` | the palette id: `light` (Claro), `dark` (Oscuro), `baquelita`, `nogal`, `blanco`, `negro`. Kept while a one-palette theme (Tocadiscos, Casete portátil, Boombox, Mesa de DJ, MP3) is selected. A theme without the stored palette uses its palette of the same light or dark kind, so Moderno `Oscuro` → Radio de válvulas gives `Nogal`, and back gives `Oscuro` |
 | `appearance_font` | `Ubuntu` | `Ubuntu`, `Dosis`, `Caladea`, `Cormorant Garamond`, `Recursive`, `Pixelify Sans` |
 | `appearance_font_scale` | `1.0` | `0.85` Pequeño, `1.0` Normal, `1.2` Grande, `1.4` Muy grande, `1.6` Enorme |
+| `appearance_language` | `es` | `es` (Español), `en` (English) |
 
-The previous version stored `white` (Blanco) or `black` (Negro) in `appearance_theme`. On the first start they become `moderno` with `light` or `dark`, and the new values are written back. Any other missing, unknown or corrupt value falls back to its default (`Moderno` `Claro`, `Ubuntu`, `Normal`). The app does not follow the operating system's light or dark setting.
+The previous version stored `white` (Blanco) or `black` (Negro) in `appearance_theme`. On the first start they become `moderno` with `light` or `dark`, and the new values are written back. Any other missing, unknown or corrupt value falls back to its default (`Moderno` `Claro`, `Ubuntu`, `Normal`, `Español`). The app does not follow the operating system's light or dark setting.
 
 ### Themes
 
 A theme is three things in `Resources/Themes/`:
 
 - **Palettes** (one per variant): the colours. Every palette defines the same 14 keys: `PageBackgroundColor`, `SurfaceColor`, `InputBackgroundColor`, `DividerColor`, `SelectedItemBackgroundColor`, `PrimaryTextColor`, `SecondaryTextColor`, `ErrorTextColor`, `AccentColor`, `AccentTextColor`, `FavoriteIconColor`, `TabBarBackgroundColor`, `TabBarSelectedColor`, `TabBarUnselectedColor`.
-- **A layout:** the page templates and the shared pieces: `HeaderTemplate`, `BottomBarTemplate`, `StationCardTemplate`, `InicioTemplate`, `ReproductorTemplate`, `FavoritosTemplate`, `AjustesTemplate` and `SettingsPageTemplate`. Pages pick their template with `DynamicResource`, so switching theme swaps the layout.
-- **An entry in `ThemeCatalog`.**
+- **A layout:** the templates of the themed pages: `HeaderTemplate`, `StationCardTemplate`, `InicioTemplate`, `ReproductorTemplate` and `FavoritosTemplate`. Inicio, Reproductor and Favoritos pick their template with `DynamicResource`, so switching theme swaps the layout. The bottom bar and the settings pages are shared by every theme and only take the palette colours.
+- **An entry in `ThemeCatalog`**, and its names in the app's translation files (`Theme_<id>`, `Palette_<id>`).
 
 Pages, layouts and styles never contain literal colours, fonts or sizes: colours come only from the palettes, and the font family and sizes only from `Resources/Styles/Styles.xaml` (replaced at runtime by the appearance settings). Themes never set font families or text sizes. The single audio player (`MediaElement`) is created once with the window by `MediaElementAudioPlayer` (on Windows its 1×1 view sits in the window, outside every page; `Platforms/Windows/AudioHost.Windows.cs`), so no page or layout owns it and a theme change can never stop, duplicate or restart it.
-
-`Personalización` does not use `SettingsPageTemplate`: the theme is chosen on that page, and moving its radio buttons into a new frame while it is shown makes them re-select the previous theme. It takes only `HeaderTemplate`, `BottomBarTemplate` and the layout's optional `SettingsPanelStyle`, so it still changes at once.
 
 **Moderno** (`ModernoLayout.xaml`) has two variants:
 
@@ -335,52 +354,45 @@ Each palette also sets the light or dark mode of the native controls (text input
 
 - **Inicio and Favoritos:** a stack of record sleeves on the left (the focused station big, the next two smaller and dimmed) and an information panel on the right (name, details, heart, and the play state when it is the current station). Swipe, the mouse wheel or the Up/Down keys move one station at a time; pressing a smaller sleeve brings it to the front. Pressing the big sleeve plays the station without leaving the page (pressing it again stops it). The current station's sleeve has a brass outline and its record peeks out.
 - **Reproductor:** a house button (Inicio) and the gear in the header; a turntable whose record label is the station logo and whose tonearm is the play/stop control; the information panel with the status line and `Reintentar`; and a record crate with your favourites (two compartments of three, six per page, arrows and swipe when there are more). There is no bottom bar and no previous/next buttons: the crate replaces them.
-- **Ajustes:** the two cards drawn as cream sleeves with a peeking vinyl; Personalización and Preferencias sit on a framed wood panel.
 
 The custom controls are UI only and live in `Views/Controls/`: `VinylDisc`, `Tonearm`, `SleeveStack`, `RecordCrate` (plus `PageAwareView` and `MotionSettings`). They get everything through bindable properties and never call a service. **Animations only observe `PlaybackService.State`** (through the view models): the tonearm lands in about 600 ms with a short settle and lifts in about 500 ms, and the record speeds up over 1.2 s and slows down over 1.8 s from its current angle. They stop while the page is hidden, and with reduced motion (Windows animations off, Android animator duration scale 0) the tonearm moves at once and the record stays still. All the Tocadiscos art is original and drawn with shapes in XAML (`Resources/Images/Tocadiscos/LICENSE.txt`, also shipped as `Licences/Tocadiscos-LICENSE.txt`).
 
-**Radio de válvulas** (`ValvulasLayout.xaml`) is a 1940s–50s valve table radio, with two variants: **Baquelita** (`ValvulasBaquelitaPalette.xaml`, light: cream bakelite, dark brown text, bottle green) and **Nogal** (`ValvulasNogalPalette.xaml`, dark: walnut, ivory text, glowing green). The header and the bottom bar are a wooden strip; the bar has three round ivory buttons.
+**Radio de válvulas** (`ValvulasLayout.xaml`) is a 1940s–50s valve table radio, with two variants: **Baquelita** (`ValvulasBaquelitaPalette.xaml`, light: cream bakelite, dark brown text, bottle green) and **Nogal** (`ValvulasNogalPalette.xaml`, dark: walnut, ivory text, glowing green). The header is a wooden strip.
 
 - **Inicio:** the stations sit along a glass tuning dial with a printed scale; the focused one is under the red needle in the lit window, with two neighbours on each side, and `emisora {n} de {total}` below. A swipe on the dial, the tuning knob (a press steps to the next station; on Windows Left/Right step and Enter or Space plays), the mouse wheel on Windows and pressing a neighbour move one station at a time. Below, on the speaker grille, the information panel shows the name, details, heart, the play state and `Escuchar`, which plays without leaving the page (`Apagar` while it plays). Pressing the focused station on the dial does the same. The current station is marked with the lit fill (Baquelita) or an outline (Nogal).
 - **Favoritos:** the account row, then the radio log: one dial label per favourite (logo, name, details, play state, `Escuchar` and the heart that removes it). Pressing a label plays it in place.
 - **Reproductor:** the house and the gear in the header; the dial with only the current station, the magic eye and the power knob (`Reproducir` / `Detener`); the panel with the logo, details, heart, status line and `Reintentar`; and five ivory preset keys with your favourites (`Presintonía {n}: {nombre}`), the current one pressed down, with arrow keys and `1/2` when there are more. No bottom bar. When the radio is turned on, the dial window glows in over 1.5 s and the magic eye closes over 0.8 s; on stop both return in 0.6 s. With reduced motion, or a page shown while playing, the final state appears at once.
-- **Ajustes:** the two entries as wide ivory keys; Personalización and Preferencias sit on a rounded cloth panel.
 
-**Casete portátil** (`CaseteLayout.xaml`, one palette `CaseteMetalPalette.xaml` "Metal azul", dark) is a 1980s portable cassette player: blue metal, a dark cassette window, brushed silver keys and paper, and orange foam. The bottom bar is three silver keys `INICIO`, `REPRODUCTOR` and `FAVORITAS`; the current one is pushed in.
+**Casete portátil** (`CaseteLayout.xaml`, one palette `CaseteMetalPalette.xaml` "Metal azul", dark) is a 1980s portable cassette player: blue metal, a dark cassette window, brushed silver keys and paper, and orange foam.
 
 - **Inicio:** the stations are cassette spines in a shoebox (logo, name on the label band, heart). Pressing a spine pulls it out with an insert below it (details, play state and `Reproducir`, which plays without leaving the page and reads `Detener` while it plays); pressing the pulled-out spine again does the same. Only one spine is out at a time, and a new search goes back to the first. On Windows, Up/Down move between spines and Enter plays. The current station's spine has the orange outline.
 - **Favoritos:** the account row, then the silver J-card `Mis favoritas` with `CARA A` and `CARA B`, five numbered favourites each (`Cara A, pista {n}: {nombre}`). Pressing a line plays it in place, its button removes it, and `Dar la vuelta` shows the next ten (`1/2`); on Windows Left/Right change the side. The current line is an orange band.
 - **Reproductor:** the keys `REW` (`Favorita anterior`), `PLAY` (`Reproducir`, stays pushed in while playing), `STOP` (`Detener`, only while playing) and `FF` (`Favorita siguiente`); the cassette window with the station logo and name on its label and two reels that turn while playing (half a turn per second, speeding up over 0.8 s and slowing down over 1 s); the panel with details, heart, status line and `Reintentar`; and side A of the J-card with five favourites. No bottom bar.
-- **Ajustes:** two big silver keys; Personalización and Preferencias sit on a brushed panel.
 
-**Boombox** (`BoomboxLayout.xaml`, one palette `BoomboxCromadoPalette.xaml` "Cromado", dark) is a 1980s street boombox: black plastic, gunmetal, chrome trim, hot pink keys, cyan display digits and yellow hearts. The header has a chrome trim line; the bottom bar has three rubber buttons, the current one with a lit cyan LED.
+**Boombox** (`BoomboxLayout.xaml`, one palette `BoomboxCromadoPalette.xaml` "Cromado", dark) is a 1980s street boombox: black plastic, gunmetal, chrome trim, hot pink keys, cyan display digits and yellow hearts. The header has a chrome trim line.
 
 - **Inicio:** the stations are rows on a dark tuner display (`TUNING · {n} emisoras`) between two speakers: beside it on windows at least 720 wide, as short strips above and below it on narrower ones (a phone in portrait). Pressing a row plays it without leaving the page; pressing the current row again stops it. The current row has the pink outline and a pink `▶`. On Windows, Up/Down move between rows and Enter plays.
 - **Favoritos:** the account row, a closed cassette door labelled `MIS FAVORITAS` and the same display with only the favourites; the heart removes one.
 - **Reproductor:** the carrying handle and antenna above the header (house and gear); two speakers that pulse while playing, framing a cyan level meter with a pink peak; the display with the logo, the name in large digits, details, status line and `Reintentar`; the keys `◀◀` (`Favorita anterior`), `▶ PLAY` / `■ STOP` and `▶▶` (`Favorita siguiente`) and the heart; and the memories `M1`–`M6` (`Memoria {n}: {nombre}`), the current one lit cyan, with arrows and `1/2` when there are more (Left/Right move between them on Windows). No bottom bar.
-- **Ajustes:** two wide rubber buttons on a gunmetal panel; Personalización and Preferencias sit inside a chrome border.
 
-**Mesa de DJ** (`MesaDjLayout.xaml`, one palette `MesaDjClubPalette.xaml` "Club", dark) is a club DJ booth with a single deck: a near-black body, dark screens, a cyan accent and orange hearts. Every visible label is Spanish (`CARGAR`, `ATRÁS`, `SIGUIENTE`, `EN DIRECTO`); the `FORMATO` column shows the station's first tag as the API gives it. The header has an `EN DIRECTO` tag under the title that lights while a station is buffering or playing, on every page: it reads `PlaybackIndicator`, which `PlaybackService` keeps up to date for page chrome whose view model does not know the play state. The bottom bar is three flat buttons with a cyan underline under the current section.
+**Mesa de DJ** (`MesaDjLayout.xaml`, one palette `MesaDjClubPalette.xaml` "Club", dark) is a club DJ booth with a single deck: a near-black body, dark screens, a cyan accent and orange hearts. Every visible label is in the app language (`CARGAR`, `ATRÁS`, `SIGUIENTE`, `EN DIRECTO` in Spanish; `LOAD`, `BACK`, `NEXT`, `LIVE` in English); the `FORMATO` column shows the station's first tag as the API gives it. The header of Inicio, Reproductor and Favoritos has an `EN DIRECTO` tag under the title that lights while a station is buffering or playing: it reads `PlaybackIndicator`, which `PlaybackService` keeps up to date for page chrome whose view model does not know the play state. The shared settings pages do not show it.
 
 - **Inicio:** a track browser with the headings `NOMBRE`, `PAÍS` and `FORMATO`; each row has the logo, name, country and format (one secondary line on windows narrower than 720, such as a phone), the heart and `CARGAR`. Pressing a row or `CARGAR` plays it without leaving the page; on the current station it stops it. The current row has the teal background and a cyan bar on its left. Rows are at least 48 units tall. On Windows, Up/Down move between rows and Enter loads.
 - **Favoritos:** the account row, a tab `Favoritas ({n})` and the same browser with only the favourites; the heart removes one.
 - **Reproductor:** the house and the gear; the jog wheel with the logo in its centre (it turns like the Tocadiscos record), a vertical level meter, the station, details, heart, status line and `Reintentar`; `ATRÁS` (`Favorita anterior`), the round play/stop button (`Reproducir` / `Detener`) and `SIGUIENTE` (`Favorita siguiente`); and eight pads in a 4×2 grid (`Pad {n}: {nombre}`), the current one orange and glowing slowly while playing, with arrows and `1/2` when there are more (the arrow keys move between pads on Windows). No bottom bar.
-- **Ajustes:** two large pads; Personalización and Preferencias sit on a screen panel.
 
-**MP3** (`Mp3Layout.xaml`, one palette `Mp3AzulPalette.xaml` "Azul", dark) is a mid-2000s MP3 stick with a blue back-lit LCD. The header is the LCD's status line with a decorative battery; the bottom bar is three rubber buttons `INICIO`, `REPRODUCTOR` and `FAVORITAS`, the current one light blue. On the inverted cursor row only the body text colour is readable, so every text on an LCD line uses it.
+**MP3** (`Mp3Layout.xaml`, one palette `Mp3AzulPalette.xaml` "Azul", dark) is a mid-2000s MP3 stick with a blue back-lit LCD. The header is the LCD's status line with a decorative battery. On the inverted cursor row only the body text colour is readable, so every text on an LCD line uses it.
 
 - **Inicio:** the stations are lines on the LCD under `/EMISORAS/`, with the counter `{n}/{total}`. The cursor line is inverted, shows `▶` and the characteristics; the current station's line shows `♪` and its play state (from `PlaybackIndicator`, because the line is shared with Favoritos). `▲` (`Subir`), `▼` (`Bajar`) and `OK` (`Aceptar: reproducir {nombre}`) move the cursor and play in place; touching a line moves the cursor there and touching it again plays it; `OK` on the current station stops it. A new search puts the cursor on the first line. On Windows, Up/Down move and Enter plays.
 - **Favoritos:** the email and `Cerrar sesión` on the LCD, then `/FAVORITAS/` with the same cursor and buttons; the heart removes the line and the cursor moves to the next (or the previous after the last).
 - **Reproductor:** the house, battery and gear; the LCD now-playing screen with the logo in a framed square, the name (it scrolls sideways at 40 units/s with 1 s pauses when it does not fit; with reduced motion it wraps to two lines), the characteristics, an 8-bar equaliser and the status line with `Reintentar`; and the pad `◀◀` (`Favorita anterior`), `▶❙❙` (`Reproducir` / `Detener`), `▶▶` (`Favorita siguiente`) and the heart. No bottom bar and no other favourites control.
-- **Ajustes:** an LCD menu with the lines `Preferencias` and `Personalización`; the settings pages sit inside an LCD bezel.
 
-**Clásico de rueda** (`RuedaLayout.xaml`) is a mid-2000s pocket player with a screen of menus and a round click wheel, with two variants: **Blanco** (`RuedaBlancoPalette.xaml`, light: white body, grey-blue screen, blue highlighted row) and **Negro** (`RuedaNegroPalette.xaml`, dark: black body, dark screen, dark blue highlighted row). The highlighted row's text is `AccentTextColor` (white) in both; for that, Negro's accent is a deep blue with white text instead of the brief's light blue. Inicio, Reproductor and Favoritos are a device centred with a maximum width: the screen on top with its title bar (a play-state glyph, the title and the gear), the wheel under it (its size never depends on the text size), and a slim bottom bar under the wheel on every page.
+**Clásico de rueda** (`RuedaLayout.xaml`) is a mid-2000s pocket player with a screen of menus and a round click wheel, with two variants: **Blanco** (`RuedaBlancoPalette.xaml`, light: white body, grey-blue screen, blue highlighted row) and **Negro** (`RuedaNegroPalette.xaml`, dark: black body, dark screen, dark blue highlighted row). The highlighted row's text is `AccentTextColor` (white) in both; for that, Negro's accent is a deep blue with white text instead of the brief's light blue. Inicio, Reproductor and Favoritos are a device centred with a maximum width: the screen on top with its title bar (a play-state glyph, the title and the gear), the wheel under it (its size never depends on the text size), and the bottom bar under the wheel on every page, Reproductor included.
 
 - **Wheel:** `MENÚ` (`Menú`) at the top, `◀◀` on the left, `▶▶` on the right, play/pause at the bottom and the centre button, all real buttons; sliding a finger around the ring (`Rueda: desliza en círculo para moverte por la lista`) moves the cursor one row about every 24°. The buttons give an 80 ms press feedback. On Windows, Up/Down, the mouse wheel and Enter work on the menu, Space is play/pause, Left/Right are `◀◀`/`▶▶` and Escape is `MENÚ` (except while typing in the search box).
 - **Inicio:** the search row and the filters bar, then the Emisoras menu (name, heart, `›`). The centre (`Seleccionar`) plays the cursor's station in place (or stops the current one), play/pause (`Reproducir o pausar`) toggles the current station, `◀◀`/`▶▶` (`Anterior`/`Siguiente`) move one screen of rows, and touching a row moves the cursor (touching it again plays it). The current station's row shows ▶ or ❙❙. `MENÚ` is disabled here.
 - **Favoritos:** the account row first, then the Favoritas menu with the same wheel; the heart removes a row. Logged out: `Inicia sesión para ver tus favoritas.` and an `Iniciar sesión` row. `MENÚ` opens Inicio.
 - **Reproductor:** the Reproduciendo screen (the logo large and square, name, details, a full bar labelled `En directo`, status line and `Reintentar`). On the wheel, play/pause is `Reproducir` / `Detener`, `◀◀`/`▶▶` are `Favorita anterior` / `Favorita siguiente`, the centre is the heart, the ring does nothing and is not read, and `MENÚ` opens Inicio.
-- **Ajustes:** a screen menu with `Preferencias ›` and `Personalización ›`; the settings pages keep the title bar and the slim bar.
 
 Shared controls added for the retro themes, also UI only and in `Views/Controls/`: `SpinDriver` (the record's speed-up and slow-down, now used by `VinylDisc`), `PagedSlots` (a paged grid of favourites with its own `PagedSlot` numbers), `CursorList` (a list with a cursor), `LevelMeter` (a decorative level meter) and `ButtonSwipe` (reads swipes that start on a button on Android). Radio de válvulas adds `TuningDial` (with `DialSlot` and `TuningKnob`), `MagicEye` and `WarmUpGlow`; Casete portátil adds `CassetteReels` (on `SpinDriver`); Boombox adds `SpeakerCone` (a 450 ms pulse while playing, still with reduced motion) and uses `LevelMeter`; Mesa de DJ adds `JogWheel` (on `SpinDriver`) and `GlowPulse` (the current pad's 1 s glow); MP3 adds `MarqueeLabel` (screen readers read its full text once); Clásico de rueda adds `ClickWheel` (the ring reads the finger's angle from the touch or pointer position on each platform). The art of the retro themes is original and drawn with shapes (`Resources/Images/Themes/LICENSE.txt`, also shipped as `Licences/Themes-LICENSE.txt`).
 
@@ -539,26 +551,42 @@ The text size scales four base sizes: caption 12, body 16, subtitle 18 and title
 ### How to add a theme
 
 1. **Palettes:** copy `Resources/Themes/ModernoLightPalette.xaml` and its `.xaml.cs` for each variant (for example `RetroPalette.xaml`), rename the class and change the colours. Keep all 14 keys.
-2. **Layout:** copy `ModernoLayout.xaml` (or `TocadiscosLayout.xaml`) and its `.xaml.cs` (for example `RetroLayout.xaml`), rename the class, and change the templates as you like. Keep every template key and the bindings and commands they use (the page view models, `AppNavigation` for the gear and the bar, the `ContentPresenter` in `SettingsPageTemplate`); `SettingsPanelStyle` is optional. Use only palette keys for colours and the named styles for text: never set a font family or a font size. The controls in `Views/Controls/` can be reused.
+2. **Layout:** copy `ModernoLayout.xaml` (or `TocadiscosLayout.xaml`) and its `.xaml.cs` (for example `RetroLayout.xaml`), rename the class, and change the templates as you like. Keep the five template keys (`HeaderTemplate`, `StationCardTemplate`, `InicioTemplate`, `ReproductorTemplate`, `FavoritosTemplate`) and the bindings and commands they use (the page view models, `AppNavigation` for the gear). Place `<views:BottomBar />` where the theme shows the bar; the bar and the settings pages draw themselves. Write every visible text as `{loc:Translate Key}`. Use only palette keys for colours and the named styles for text: never set a font family or a font size. The controls in `Views/Controls/` can be reused.
 3. **Registry:** add one entry to `ThemeCatalog.All` in `ThemeCatalog.cs`:
 
    ```csharp
-   new("retro", "Retro", typeof(RetroLayout),
+   new("retro", typeof(RetroLayout),
    [
-       new("dark", "Oscuro", typeof(RetroPalette), AppTheme.Dark),
+       new("dark", typeof(RetroPalette), AppTheme.Dark),
    ]),
    ```
 
-   The last value of each palette tells native controls whether to use their light or dark look. With a single palette, `Personalización` hides the `Variante` choice.
+   The last value of each palette tells native controls whether to use their light or dark look. With a single palette, `Personalización` hides the variant choice.
+4. **Names:** add `Theme_retro` (and `Palette_<id>` for a new palette id) to `Resources/Strings/AppResources.resx` and to every `AppResources.<code>.resx`.
 
 No page, view model, service or style needs to change; the theme appears in `Personalización` at once.
+
+## Languages
+
+The app is shown in `Español` (the default) or `English`, chosen in `Personalización` → `Idioma`. The choice applies at once to every text, title, accessible name and tooltip of every page and theme, without restarting and without stopping playback, and it is stored on the device (`appearance_language`). Numbers the app formats follow the language (`1.204` / `1,204`). Station data (names, countries, languages, tags) is shown as Radio Browser gives it.
+
+- **App:** every text is in `src/OpenWave.App/Resources/Strings/AppResources.resx` (Spanish, the neutral resource) and `AppResources.en.resx`. XAML reads them with `{loc:Translate Key}` and C# with `Localizer.Instance["Key"]` or `Localizer.Instance.Format(...)`; a text missing from a language falls back to Spanish. `LanguageCatalog` lists the languages.
+- **API:** the app sends its language in `Accept-Language` with every request. The API answers its ProblemDetails `detail` messages and the content type labels in that language (`src/OpenWave.Api/Resources/Messages.resx` and `Messages.en.resx`), and in Spanish when the header is missing or not supported. Status codes never change.
+
+### How to add a language
+
+1. **App:** copy `AppResources.en.resx` to `AppResources.<code>.resx` (for example `AppResources.fr.resx`) and translate every value; keep the keys and the `{0}` placeholders.
+2. **API:** copy `Messages.en.resx` to `Messages.<code>.resx` and translate it.
+3. **Registry:** add `new("<code>", "<name in that language>")` to `LanguageCatalog.All` (app) and the code to `supportedLanguages` in the API's `Program.cs`.
+
+Nothing else changes: the language appears in `Idioma` at once.
 
 ## Manual check list
 
 1. Start the API and open `http://localhost:5080/api/health`: `status` is `ok` and `timeUtc` is an ISO 8601 UTC timestamp.
 2. Run the app on Windows or the Android emulator. Inicio lists up to 50 real stations.
 3. Search `jazz`: every listed name contains "jazz". Press `Limpiar`: the box is empty and the top stations return. Search a nonsense name: `No se encontraron emisoras.`
-4. Use the bottom bar to switch between Inicio, Reproductor and Favoritos: the current one is marked. Press the current section's button: nothing changes. Press the gear: `AJUSTES` opens with no bar button marked; press the gear again: nothing changes.
+4. Use the bottom bar to switch between Inicio, Reproductor and Favoritos: the current one is marked. Press the current section's button: nothing changes. Press the gear: `Ajustes` opens with no bar button marked; press the gear again: nothing changes.
 5. Inicio shows portrait cards: logo, name, details, play button and heart; cards in a row have the same height. Widen the Windows window: more columns appear; narrow it: never fewer than two. Tap a card (or its play button): Reproductor opens with its large logo (or the placeholder), name and details, the status goes `Cargando…` → `Reproduciendo`, and you hear audio. Back in Inicio, that card is highlighted; selecting another one moves the highlight.
 6. In Reproductor, press the stop icon (`Detener`): audio stops, the status shows `Detenido` and the centre shows the play icon. Press it (`Reproducir`): it plays again. Restart the app and open Reproductor first: `Selecciona una emisora en Inicio` and the play/stop control is disabled.
 7. Switch to Favoritos while audio plays: the audio keeps playing. Return to Reproductor: the same station shows `Reproduciendo`. Minimise the app: the audio stops. Select another station in Inicio: the new station starts and the old one does not keep playing.
@@ -579,14 +607,14 @@ No page, view model, service or style needs to change; the theme appears in `Per
 14. Log out and press a heart in Inicio: `Iniciar sesión` opens. Go back: nothing is added. Press it again and log in: you return to Inicio with that heart filled.
 15. Stop the API and press a heart while logged in: `No se pudo actualizar tus favoritas.` and the heart goes back. Start the API with an unreachable database (see item 10, using `$env:ConnectionStrings__Default = "Server=<HOST>;Database=2DAM_alumno19;User ID=<USER>;Password=<PASSWORD>;SslMode=Preferred;Connect Timeout=5;"`; keep `Connect Timeout=5` so the API answers before the app's 10-second timeout) and open Favoritos: `No se pudo acceder a la base de datos.` and `Reintentar`. Start the API normally and press `Reintentar`: the list loads.
 16. Press `Cerrar sesión`: every heart in Inicio and Reproductor is an outline.
-17. Open `Ajustes` with the gear: it shows the cards `PERSONALIZACIÓN` and `PREFERENCIAS`. Open each one: its header reads `PERSONALIZACIÓN` / `PREFERENCIAS` and no bar button is marked. Go back (Android back button, the window's back arrow on Windows, or the gear): you return to `Ajustes`, and going back once more leaves `Ajustes` (there is never a second one). From `Personalización` press `Favoritos` in the bar: Favoritos opens and is marked.
-18. In `Personalización` select `Oscuro`, then `Pixelify Sans`, then `Enorme`: the page, the header, the bar and the icons change at once, and so do Inicio, Reproductor, Favoritos, `Iniciar sesión` and `Crear cuenta`. The text inputs turn dark. Your session, favourites, selected station and preferences are unchanged, and a station still plays normally (one stream only). With `Enorme` on a phone, no header title or text is cut and Reproductor's controls are reached by scrolling while the header and bar stay fixed.
+17. Open `Ajustes` with the gear from Reproductor: it lists `Personalización` then `Preferencias`, each with its description, and no bar button is marked. Open each one: its header reads `Personalización` / `Preferencias`. Go back (the header's arrow, the Android back button or the gear): you return to `Ajustes`; its arrow then returns to Reproductor (from Inicio or Favoritos it returns there). From `Personalización` press `Favoritos` in the bar: Favoritos opens and is marked. In every theme `Ajustes`, `Personalización` and `Preferencias` look the same and only their colours change, and every theme shows the same icon bar.
+18. In `Personalización` select `Oscuro`, then `Pixelify Sans` (behind `+3`), then `Enorme`: the preview stays at the top while you scroll, and the page, the header, the bar and the icons change at once, and so do Inicio, Reproductor, Favoritos, `Iniciar sesión` and `Crear cuenta`. The text inputs turn dark. Your session, favourites, selected station and preferences are unchanged, and a station still plays normally (one stream only). With `Enorme` on a phone, no header title or text is cut and Reproductor's controls are reached by scrolling while the header and bar stay fixed.
 19. Close and reopen the app: it starts with the same theme, font and size, and `Personalización` shows them selected. Log in and out: nothing changes.
-20. Press `Restablecer valores por defecto`: the app returns to `Moderno` `Claro`, `Ubuntu` and `Normal`.
-21. With every preference at `Todos`, Inicio shows no filter bar. In `Ajustes` → `Preferencias` choose `Spain` as `País` and press `Guardar`: `Preferencias guardadas.` Open Inicio: the list reloads with Spanish stations only, under `Filtros activos` / `Spain`. Search `radio`: every result contains "radio" and is from Spain.
+20. Press `Restablecer valores por defecto`: the app returns to `Moderno` `Claro`, `Ubuntu`, `Normal` and `Español`.
+21. With every preference at `Todos`, Inicio shows no filter bar. In `Ajustes` → `Preferencias` open `País`, type `spa` and choose `Spain`: you are back in `Preferencias` with `Spain`, the summary `Emisoras de Spain` and the bar `Cambios sin guardar`. Press `Guardar`: `Preferencias guardadas.` and the bar disappears. Open `País` again: `Recientes` lists `Spain` with a tick. Open Inicio: the list reloads with Spanish stations only, under `Filtros activos` / `Spain`. Search `radio`: every result contains "radio" and is from Spain.
 22. Press `Desactivar`: the list is unfiltered and the bar reads `Preferencias desactivadas` with `Activar`; `Preferencias` still shows `Spain`. Close and reopen the app: the filter is active again. Press `Activar` after another `Desactivar`: the list is filtered again.
 23. Choose `Andorra` and `Deportes` and save: Inicio shows `No se encontraron emisoras con tus preferencias.` with `Desactivar`. Favoritos still lists every favourite, and they still play in Reproductor.
-24. Stop the API and open `Preferencias`: `No hay conexión con el servidor.` and `Reintentar`, and the saved values are not lost. Start the API and press `Reintentar`: the pickers show the saved values. Press `Restablecer`: all four go back to `Todos`.
+24. Stop the API and open `Preferencias`: `No hay conexión con el servidor.` and `Reintentar`, and the saved values are not lost. Start the API and press `Reintentar`: the rows show the saved values. Choose `Noticias` and press `Descartar`: the saved type comes back. Press `Restablecer`: all four go back to `Todos`.
 25. Log in with three favourites (A newest, then B, then C) and play B from Favoritos. In Reproductor press next: C plays; next again: A (wrap); previous: C. Play a station that is not a favourite: next plays A, previous plays C. Remove two favourites so only the current one is left: next and previous change nothing. Remove it too: previous shows `Aún no tienes emisoras favoritas.` Log out and press next: `Iniciar sesión` opens; go back: nothing is added.
 26. Migration: close the app, set `appearance_theme` to `black` in the preferences file (Windows: `%LOCALAPPDATA%\User Name\com.openwave.app\Settings\preferences.dat`) and start the app: it opens in `Moderno` `Oscuro` and the file now holds `moderno` and `dark`. With `white` it opens in `Claro`; with an unknown value it opens in `Moderno` `Claro` without crashing.
 27. Keyboard (Windows): with Tab you reach the gear, the search box, `Buscar`, `Limpiar búsqueda`, each card's play button and heart, and the bottom bar; the focused control shows an outline, and Enter or Space activates it. On a card's play button, Enter opens Reproductor and plays the station.
@@ -613,7 +641,7 @@ No page, view model, service or style needs to change; the theme appears in `Per
 48. Boombox Favoritos: the cassette door reads `MIS FAVORITAS`; pressing a row plays it in place and its filled heart removes it at once. Logged out, empty, loading and error replace the display.
 49. Boombox Reproductor: with no station the display reads `Selecciona una emisora en Inicio o en tus favoritas` and the speakers are still. `▶ PLAY` plays (the key reads `■ STOP`), the speakers pulse and the meter moves; stop: the speakers settle and the meter empties. `◀◀`/`▶▶` play the previous/next favourite. With eight favourites the memories show `M1`–`M6` and `1/2`; the current one is lit cyan; logged out, pressing them opens `Iniciar sesión`. With reduced motion the speakers are still and the meter shows a fixed middle level while playing. On the Android emulator the page stays responsive while everything moves. Narrator reads `Memoria {n}: {nombre}` and skips the speakers, handle, grilles and meter.
 50. Boombox keyboard and text size: Tab, arrows and Enter reach and use every control on Windows; at `Pequeño` and `Enorme` every page stays usable.
-51. Mesa de DJ: select it while a station plays: every page changes at once, `Variante` disappears and the audio keeps playing. `EN DIRECTO` is lit on every page (Inicio, Favoritos, Reproductor, Ajustes, Personalización, Preferencias) and dim when stopped, without blinking. No visible label is in English.
+51. Mesa de DJ: select it while a station plays: every page changes at once, `Variante` disappears and the audio keeps playing. `EN DIRECTO` is lit on Inicio, Favoritos and Reproductor and dim when stopped, without blinking; the settings pages do not show it. With `Español` no visible label is in English; with `English` the labels read `LOAD`, `BACK`, `NEXT` and `LIVE`.
 52. Mesa de DJ Inicio: on a wide window `PAÍS` and `FORMATO` have their own columns; on a narrow one (or a phone) each row shows one secondary line and stays at least 48 units tall. `CARGAR` or pressing a row plays it in place (teal row, cyan bar); on the current station it stops. A new search goes back to the first row. On Windows, Down to a row and Enter loads it.
 53. Mesa de DJ Favoritos: the tab reads `Favoritas ({n})`; `CARGAR` plays a favourite in place and its heart removes it. Logged out, empty, loading and error replace the browser.
 54. Mesa de DJ Reproductor: with no station the jog wheel's centre is blank and the page reads `Selecciona una emisora en Inicio o en tus favoritas`. The round button plays (the wheel turns, the meter moves) and stops (the wheel slows down; the button shows the play icon). `ATRÁS`/`SIGUIENTE` play the previous/next favourite. With ten favourites the pads show eight and `1/2`; the current pad is orange and glows; logged out, pressing them opens `Iniciar sesión`. On Windows, arrow keys move between pads and Enter plays. With reduced motion the wheel does not turn and the pad does not glow. Narrator reads `Cargar y reproducir {nombre}` and `Pad {n}: {nombre}` and skips the wheel and meter.
@@ -622,12 +650,13 @@ No page, view model, service or style needs to change; the theme appears in `Per
 57. MP3 Inicio: `▼` moves the cursor one line and the counter changes; `OK` plays the cursor's station in place (`♪ Cargando…`, then `♪ Reproduciendo` on its line); `OK` again stops it. Touching a line moves the cursor; touching it again plays it. A new search puts the cursor on the first line; going to another page and back keeps it. On Windows, Down twice and Enter plays the station two lines below.
 58. MP3 Favoritos: the email and `Cerrar sesión` are on the LCD; removing the cursor's favourite moves the cursor to the next one (the previous one when it was the last). Logged out, empty, loading and error show on the LCD.
 59. MP3 Reproductor: with no station the LCD reads `Selecciona una emisora en Inicio o en tus favoritas`. A long name (for example `Deutschlandfunk | DLF | MP3 128k`) scrolls sideways with pauses at each end; a short one stays still. `▶❙❙` plays (its name becomes `Detener`) and the equaliser moves; stopped, it is empty. `◀◀`/`▶▶` play the previous/next favourite. With reduced motion the name wraps to two lines with `…` and the equaliser shows a fixed level while playing. Narrator reads the full name once and skips the battery and equaliser.
-60. MP3 Ajustes and text size: the LCD menu opens `Preferencias` and `Personalización`; at `Pequeño` and `Enorme` every page stays usable.
+60. MP3 text size: at `Pequeño` and `Enorme` every page stays usable.
 61. Clásico de rueda: in `Personalización` it offers `Blanco` and `Negro`. Moderno `Oscuro` → Radio de válvulas gives `Nogal` → Clásico de rueda gives `Negro` → Moderno gives `Oscuro`; Clásico de rueda `Blanco` → Boombox → Moderno gives `Claro`. Switching while a station plays keeps the audio.
 62. Clásico de rueda wheel: a quarter turn of a finger around the ring in Inicio moves the cursor about four rows (three or four). The four edge buttons and the centre are real buttons read as `Menú`, `Anterior`, `Siguiente`, `Reproducir o pausar` and `Seleccionar`. On Windows, Up/Down and the mouse wheel move the cursor, Enter plays, Space is play/pause, Left/Right move one screen and Escape is `MENÚ` (not while typing in the search box). Down three times and Enter plays the station three rows below the first.
 63. Clásico de rueda Inicio and Favoritos: `MENÚ` is disabled in Inicio; the centre plays the cursor's station in place and stops the current one; play/pause toggles the current station; touching a row moves the cursor and touching it again plays it; the current station's row shows ▶ or ❙❙ even when the cursor is elsewhere. A search puts the cursor on the first result. In Favoritos the account row comes first, `Cerrar sesión` logs out, the heart removes a row (the cursor moves to the next one, or the previous after the last), and `MENÚ` opens Inicio.
-64. Clásico de rueda Reproductor: the slim bar is shown with `Reproductor` marked; the screen shows the logo, name, details, `En directo` and the status line (or `Selecciona una emisora en Inicio o en tus favoritas`). Play/pause reads `Reproducir`/`Detener`, `◀◀`/`▶▶` play the previous/next favourite, the centre adds or removes the favourite (its heart fills), sliding on the ring does nothing, and `MENÚ` opens Inicio.
-65. Clásico de rueda at `Pequeño` and `Enorme`: menu rows truncate or scroll, the wheel and the slim bar keep their size; Ajustes, Personalización and Preferencias stay usable. With reduced motion the list jumps to the cursor and the wheel buttons have no press animation.
+64. Clásico de rueda Reproductor: the bar is shown under the wheel with `Reproductor` marked; the screen shows the logo, name, details, `En directo` and the status line (or `Selecciona una emisora en Inicio o en tus favoritas`). Play/pause reads `Reproducir`/`Detener`, `◀◀`/`▶▶` play the previous/next favourite, the centre adds or removes the favourite (its heart fills), sliding on the ring does nothing, and `MENÚ` opens Inicio.
+65. Clásico de rueda at `Pequeño` and `Enorme`: menu rows truncate or scroll, the wheel and the bar keep their size; Ajustes, Personalización and Preferencias stay usable. With reduced motion the list jumps to the cursor and the wheel buttons have no press animation.
+66. Language: in `Personalización` choose `English` while a station plays: the page reads `Personalization`, the other pages `HOME`, `PLAYER` and `FAVOURITES`, and the station keeps playing. Restart the app: it opens in English. With the app in English, an invalid email in `Log in` reads `The email address is not valid.`, and `Preferencias` shows the content types `Music`, `News`, `Talk`, `Sports` (from the API). Country names stay as Radio Browser gives them. Choose `Español`: every text is Spanish again.
 
 ## Notes
 

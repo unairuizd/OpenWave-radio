@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Localization;
 using OpenWave.Contracts;
 
 namespace OpenWave.Api.Services;
@@ -7,7 +8,10 @@ namespace OpenWave.Api.Services;
 /// <summary>
 /// Option lists built from Radio Browser and kept in memory for an hour. Failed loads are not cached.
 /// </summary>
-public sealed class CatalogService(IRadioBrowserClient radioBrowserClient, IMemoryCache cache) : ICatalogService
+public sealed class CatalogService(
+    IRadioBrowserClient radioBrowserClient,
+    IMemoryCache cache,
+    IStringLocalizer<Messages> localizer) : ICatalogService
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(60);
 
@@ -46,7 +50,10 @@ public sealed class CatalogService(IRadioBrowserClient radioBrowserClient, IMemo
             cancellationToken);
     }
 
-    public IReadOnlyList<OptionDto> GetContentTypes() => ContentTypes.All;
+    // The labels are in the request language; the values never change. Country, language and genre labels come
+    // from Radio Browser untranslated, so those lists are cached once for every language.
+    public IReadOnlyList<OptionDto> GetContentTypes() =>
+        ContentTypes.All.Select(c => c with { Label = localizer[$"ContentType_{c.Value}"].Value }).ToList();
 
     private async Task<IReadOnlyList<OptionDto>> GetCachedAsync(
         string key,

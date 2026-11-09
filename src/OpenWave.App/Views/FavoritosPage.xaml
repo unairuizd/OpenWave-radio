@@ -4,10 +4,11 @@
     x:Class="OpenWave.App.Views.FavoritosPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:services="clr-namespace:OpenWave.App.Services"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:FavoritosViewModel"
-    Title="Favoritos"
+    Title="{loc:Translate Page_Favoritos}"
     services:AppNavigation.Section="Favoritos"
     ControlTemplate="{DynamicResource FavoritosTemplate}"
     Shell.NavBarIsVisible="False" />

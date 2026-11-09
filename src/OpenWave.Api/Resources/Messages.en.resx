@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="InvalidRequest" xml:space="preserve"><value>The request is not valid.</value></data>
+  <data name="InvalidStation" xml:space="preserve"><value>The station data is not valid.</value></data>
+  <data name="CatalogueUnavailable" xml:space="preserve"><value>The station catalogue could not be loaded.</value></data>
+  <data name="DatabaseUnavailable" xml:space="preserve"><value>The database could not be reached.</value></data>
+  <data name="InvalidEmail" xml:space="preserve"><value>The email address is not valid.</value></data>
+  <data name="ShortPassword" xml:space="preserve"><value>The password must be at least 8 characters long.</value></data>
+  <data name="EmailTaken" xml:space="preserve"><value>This email address is already registered.</value></data>
+  <data name="WrongCredentials" xml:space="preserve"><value>Wrong email or password.</value></data>
+  <data name="UnknownUser" xml:space="preserve"><value>The user does not exist.</value></data>
+  <data name="AlreadyFavorite" xml:space="preserve"><value>The station is already in your favourites.</value></data>
+  <data name="NotFavorite" xml:space="preserve"><value>The station is not in your favourites.</value></data>
+  <data name="InvalidContentType" xml:space="preserve"><value>Invalid content type.</value></data>
+  <data name="ContentType_music" xml:space="preserve"><value>Music</value></data>
+  <data name="ContentType_news" xml:space="preserve"><value>News</value></data>
+  <data name="ContentType_talk" xml:space="preserve"><value>Talk</value></data>
+  <data name="ContentType_sports" xml:space="preserve"><value>Sports</value></data>
+</root>

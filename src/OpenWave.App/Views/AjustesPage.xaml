@@ -1,12 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!--  Opened from the header's gear. The look comes from the active theme layout (AjustesTemplate); it belongs to no
-      bottom bar section.  -->
+<!--  Opened from the header's gear and pushed on the section it was opened from, so the back arrow returns there.
+      The same in every theme: only the palette colours change. It belongs to no bottom bar section.  -->
 <ContentPage
     x:Class="OpenWave.App.Views.AjustesPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
+    xmlns:views="clr-namespace:OpenWave.App.Views"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:AjustesViewModel"
-    Title="Ajustes"
-    ControlTemplate="{DynamicResource AjustesTemplate}"
-    Shell.NavBarIsVisible="False" />
+    Title="{loc:Translate Page_Ajustes}"
+    BackgroundColor="{DynamicResource PageBackgroundColor}"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <views:SettingsHeader Grid.Row="0" />
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <views:SettingsRow
+                    Command="{Binding OpenPersonalizacionCommand}"
+                    Detail="{loc:Translate Ajustes_PersonalizacionDescription}"
+                    Icon="ic_palette.png"
+                    Title="{loc:Translate Page_Personalizacion}" />
+                <views:SettingsRow
+                    Command="{Binding OpenPreferenciasCommand}"
+                    Detail="{loc:Translate Ajustes_PreferenciasDescription}"
+                    Icon="ic_tune.png"
+                    Title="{loc:Translate Page_Preferencias}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <views:BottomBar Grid.Row="2" />
+    </Grid>
+</ContentPage>

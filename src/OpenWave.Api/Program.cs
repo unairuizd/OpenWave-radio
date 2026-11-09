@@ -1,8 +1,11 @@
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
+using OpenWave.Api;
 using OpenWave.Api.Controllers;
 using OpenWave.Api.Data;
 using OpenWave.Api.Data.Entities;
@@ -13,6 +16,11 @@ using OpenWave.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// The API's own texts (ProblemDetails detail, content type labels) follow the request's Accept-Language.
+// Spanish is the default and the fallback. To add a language: Resources/Messages.<code>.resx and its code here.
+string[] supportedLanguages = ["es", "en"];
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 builder.Services
     .AddControllers(options =>
     {
@@ -22,18 +30,20 @@ builder.Services
     })
     .ConfigureApiBehaviorOptions(options =>
     {
-        // Malformed or missing JSON bodies: a Spanish message instead of the default English one.
+        // Malformed or missing JSON bodies: a message in the request language instead of the default English one.
         // StationDto has required members, so a station without them never reaches the service.
         options.InvalidModelStateResponseFactory = context =>
         {
             var isStationBody = context.ActionDescriptor.Parameters.Any(p => p.ParameterType == typeof(StationDto));
-            var problem = context.HttpContext.RequestServices
+            var services = context.HttpContext.RequestServices;
+            var localizer = services.GetRequiredService<IStringLocalizer<Messages>>();
+            var problem = services
                 .GetRequiredService<ProblemDetailsFactory>()
                 .CreateProblemDetails(
                     context.HttpContext,
                     statusCode: StatusCodes.Status400BadRequest,
                     title: "Bad Request",
-                    detail: isStationBody ? "Los datos de la emisora no son válidos." : "La solicitud no es válida.");
+                    detail: localizer[isStationBody ? "InvalidStation" : "InvalidRequest"].Value);
             return new BadRequestObjectResult(problem) { ContentTypes = { "application/problem+json" } };
         };
     });
@@ -72,6 +82,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseRequestLocalization(options =>
+{
+    options.SetDefaultCulture(supportedLanguages[0])
+        .AddSupportedCultures(supportedLanguages)
+        .AddSupportedUICultures(supportedLanguages);
+    options.RequestCultureProviders = [new AcceptLanguageHeaderRequestCultureProvider()];
+});
 
 app.UseAuthorization();
 

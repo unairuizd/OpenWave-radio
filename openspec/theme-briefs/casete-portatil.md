@@ -53,6 +53,9 @@ J-card text is `InputBackgroundColor`-dark text on silver paper: use `AccentText
 ## 4. Pages
 
 ### Header and bottom bar
+
+> **Phase 8:** the bottom bar is now the same icon bar in every theme (`Views/BottomBar.cs`: house, radio and star in the palette's `TabBar*` colours). Only where the theme shows it still comes from this brief; the bar look described here is no longer drawn.
+
 - Header: the top edge of the player with the title stamped in silver and the gear.
 - Bottom bar: three silver mechanical keys; the marked one is pushed in (lower `TranslationY`, orange label).
 
@@ -85,8 +88,8 @@ Rows: header (house + gear) / player body / keys / J-card.
   `Inicia sesión para ver tus favoritas` and opens login. No bottom bar.
 
 ### Ajustes and settings pages
-- Ajustes: two big silver keys with stamped labels.
-- Settings pages: a brushed panel (`SurfaceColor`) with rounded corners.
+
+> **Phase 8:** superseded. `Ajustes`, `Personalización`, `Preferencias` and the filter pages are shared by every theme and only take the palette colours (see the README, "Ajustes and Personalización"). The settings look this section described is no longer drawn.
 
 ## 5. Function map
 

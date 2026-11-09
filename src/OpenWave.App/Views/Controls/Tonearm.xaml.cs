@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.Views.Controls;
 
@@ -22,6 +23,10 @@ public partial class Tonearm : PageAwareView
 
     public Tonearm()
     {
+        // The descriptions follow the app language.
+        Loaded += (_, _) => Localizer.Instance.LanguageChanged += OnLanguageChanged;
+        Unloaded += (_, _) => Localizer.Instance.LanguageChanged -= OnLanguageChanged;
+
         InitializeComponent();
         SizeChanged += (_, _) => UpdateGeometry();
         UpdateDescription();
@@ -88,7 +93,7 @@ public partial class Tonearm : PageAwareView
 
     private void UpdateDescription()
     {
-        SemanticProperties.SetDescription(HitArea, IsLowered ? "Aguja del tocadiscos. Detener" : "Aguja del tocadiscos. Reproducir");
+        SemanticProperties.SetDescription(HitArea, Localizer.Instance[IsLowered ? "Tonearm_Stop" : "Tonearm_Play"]);
     }
 
     // The geometry follows the record drawn in the same cell: a circle as large as the cell allows.
@@ -127,4 +132,6 @@ public partial class Tonearm : PageAwareView
         PivotBase.TranslationX = pivotX - pivot / 2;
         PivotBase.TranslationY = pivotY - pivot / 2;
     }
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => UpdateDescription();
 }

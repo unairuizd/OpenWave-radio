@@ -4,13 +4,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenWave.App.Services;
 using OpenWave.Contracts;
+using OpenWave.App.Services.Localization;
 
 namespace OpenWave.App.ViewModels;
 
 public partial class ReproductorViewModel : ObservableObject
 {
     private const int MaxTags = 3;
-    private const string NoFavoritesMessage = "Aún no tienes emisoras favoritas.";
+    private static string NoFavoritesMessage => Localizer.Instance["Favoritos_Empty"];
 
     private readonly PlaybackService _playback;
     private readonly FavoritesService _favorites;

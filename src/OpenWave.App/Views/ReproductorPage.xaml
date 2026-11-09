@@ -8,10 +8,11 @@
     x:Class="OpenWave.App.Views.ReproductorPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:services="clr-namespace:OpenWave.App.Services"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:ReproductorViewModel"
-    Title="Reproductor"
+    Title="{loc:Translate Page_Reproductor}"
     services:AppNavigation.Section="Reproductor"
     ControlTemplate="{DynamicResource ReproductorTemplate}"
     Shell.NavBarIsVisible="False" />

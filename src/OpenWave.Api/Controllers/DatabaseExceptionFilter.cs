@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Localization;
 using MySql.Data.MySqlClient;
 
 namespace OpenWave.Api.Controllers;
 
 /// <summary>
-/// Turns any MySQL failure that reaches a controller into 503 with a Spanish message.
+/// Turns any MySQL failure that reaches a controller into 503 with a message in the request language.
 /// </summary>
 public sealed class DatabaseExceptionFilter(
     ProblemDetailsFactory problemDetailsFactory,
+    IStringLocalizer<Messages> localizer,
     ILogger<DatabaseExceptionFilter> logger) : IExceptionFilter
 {
-    private const string DatabaseUnavailableDetail = "No se pudo acceder a la base de datos.";
     private const int AccessDeniedErrorNumber = 1045;
 
     public void OnException(ExceptionContext context)
@@ -34,7 +35,7 @@ public sealed class DatabaseExceptionFilter(
             context.HttpContext,
             statusCode: StatusCodes.Status503ServiceUnavailable,
             title: "Service Unavailable",
-            detail: DatabaseUnavailableDetail);
+            detail: localizer["DatabaseUnavailable"].Value);
         context.Result = new ObjectResult(problem) { StatusCode = StatusCodes.Status503ServiceUnavailable };
         context.ExceptionHandled = true;
     }

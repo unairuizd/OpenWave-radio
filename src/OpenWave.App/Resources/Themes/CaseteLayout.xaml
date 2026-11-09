@@ -6,9 +6,8 @@
     DynamicResource or the named styles: this layout never sets a colour, font family or font size itself. It defines
     every key itself and does not use another layout. No brand name or logo appears anywhere.
 
-    Keys every layout defines: HeaderTemplate, BottomBarTemplate, StationCardTemplate, InicioTemplate,
-    ReproductorTemplate, FavoritosTemplate, AjustesTemplate and SettingsPageTemplate. Personalización also reads the
-    optional SettingsPanelStyle. Casete portátil adds ReproductorHeaderTemplate, JCardLineTemplate, JCardTrackTemplate
+    Keys every layout defines: HeaderTemplate, StationCardTemplate, InicioTemplate, ReproductorTemplate and
+    FavoritosTemplate. The bottom bar (views:BottomBar) and the settings pages are shared by every theme. Casete portátil adds ReproductorHeaderTemplate, JCardLineTemplate, JCardTrackTemplate
     and JCardBlankTemplate.
 
     Contrast rules of the palette: text on the silver keys and the J-card is dark (AccentTextColor); orange is never
@@ -19,6 +18,7 @@
     x:Class="OpenWave.App.Resources.Themes.CaseteLayout"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:behaviors="clr-namespace:OpenWave.App.Behaviors"
     xmlns:controls="clr-namespace:OpenWave.App.Views.Controls"
     xmlns:services="clr-namespace:OpenWave.App.Services"
@@ -90,18 +90,6 @@
         <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
     </Style>
 
-    <!--  A big silver key with a stamped label (the Ajustes entries)  -->
-    <Style
-        x:Key="CaseteBigKey"
-        BasedOn="{StaticResource SettingsCardButton}"
-        TargetType="Button">
-        <Setter Property="BackgroundColor" Value="{DynamicResource TabBarUnselectedColor}" />
-        <Setter Property="TextColor" Value="{DynamicResource AccentTextColor}" />
-        <Setter Property="BorderColor" Value="{DynamicResource DividerColor}" />
-        <Setter Property="BorderWidth" Value="3" />
-        <Setter Property="CornerRadius" Value="6" />
-    </Style>
-
     <!--  A lighter brushed panel  -->
     <Style x:Key="CasetePanel" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
@@ -124,22 +112,6 @@
         <Setter Property="StrokeShape">
             <Setter.Value>
                 <RoundRectangle CornerRadius="6" />
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!--
-        The panel that holds Personalización and Preferencias: a rounded brushed frame. It keeps the page colour because
-        the shared radio button style paints each option with it.
-    -->
-    <Style x:Key="SettingsPanelStyle" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}" />
-        <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
-        <Setter Property="StrokeThickness" Value="4" />
-        <Setter Property="Margin" Value="12,10" />
-        <Setter Property="StrokeShape">
-            <Setter.Value>
-                <RoundRectangle CornerRadius="16" />
             </Setter.Value>
         </Setter>
     </Style>
@@ -173,10 +145,10 @@
                 Margin="0,4,4,4"
                 behaviors:IconTint.Color="{DynamicResource TabBarUnselectedColor}"
                 Command="{x:Static services:AppNavigation.OpenAjustesCommand}"
-                SemanticProperties.Description="Ajustes"
+                SemanticProperties.Description="{loc:Translate Nav_Ajustes}"
                 Source="ic_settings.png"
                 Style="{StaticResource IconButton}"
-                ToolTipProperties.Text="Ajustes" />
+                ToolTipProperties.Text="{loc:Translate Nav_Ajustes}" />
             <BoxView
                 Grid.Row="1"
                 Grid.ColumnSpan="3"
@@ -197,10 +169,10 @@
                 behaviors:IconTint.Color="{DynamicResource TabBarUnselectedColor}"
                 Command="{x:Static services:AppNavigation.GoToSectionCommand}"
                 CommandParameter="inicio"
-                SemanticProperties.Description="Inicio"
+                SemanticProperties.Description="{loc:Translate Nav_Inicio}"
                 Source="ic_home.png"
                 Style="{StaticResource IconButton}"
-                ToolTipProperties.Text="Inicio" />
+                ToolTipProperties.Text="{loc:Translate Nav_Inicio}" />
             <Label
                 Grid.Column="1"
                 HorizontalOptions="Fill"
@@ -217,108 +189,15 @@
                 Margin="0,4,4,4"
                 behaviors:IconTint.Color="{DynamicResource TabBarUnselectedColor}"
                 Command="{x:Static services:AppNavigation.OpenAjustesCommand}"
-                SemanticProperties.Description="Ajustes"
+                SemanticProperties.Description="{loc:Translate Nav_Ajustes}"
                 Source="ic_settings.png"
                 Style="{StaticResource IconButton}"
-                ToolTipProperties.Text="Ajustes" />
+                ToolTipProperties.Text="{loc:Translate Nav_Ajustes}" />
             <BoxView
                 Grid.Row="1"
                 Grid.ColumnSpan="3"
                 HeightRequest="2"
                 Color="{DynamicResource DividerColor}" />
-        </Grid>
-    </ControlTemplate>
-
-    <!--
-        Bottom bar (the template of a views:BottomBar): three silver mechanical keys. The marked section's key is
-        pushed in (lower, amber). Both looks are set by triggers, because a value set directly would win.
-    -->
-    <ControlTemplate x:Key="BottomBarTemplate">
-        <Grid
-            Padding="10,8,10,10"
-            BackgroundColor="{DynamicResource TabBarBackgroundColor}"
-            ColumnDefinitions="*,*,*"
-            ColumnSpacing="8">
-            <Button
-                Grid.Column="0"
-                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
-                CommandParameter="inicio"
-                Style="{StaticResource CaseteKey}"
-                Text="INICIO">
-                <Button.Triggers>
-                    <DataTrigger
-                        Binding="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
-                        TargetType="Button"
-                        Value="False">
-                        <Setter Property="SemanticProperties.Description" Value="Inicio" />
-                    </DataTrigger>
-                    <DataTrigger
-                        Binding="{Binding IsInicio, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
-                        TargetType="Button"
-                        Value="True">
-                        <Setter Property="BackgroundColor" Value="{DynamicResource TabBarSelectedColor}" />
-                        <Setter Property="TranslationY" Value="3" />
-                        <Setter Property="SemanticProperties.Description" Value="Inicio, seleccionado" />
-                    </DataTrigger>
-                </Button.Triggers>
-            </Button>
-            <Button
-                Grid.Column="1"
-                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
-                CommandParameter="reproductor"
-                Style="{StaticResource CaseteKey}"
-                Text="REPRODUCTOR">
-                <Button.Triggers>
-                    <DataTrigger
-                        Binding="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
-                        TargetType="Button"
-                        Value="False">
-                        <Setter Property="SemanticProperties.Description" Value="Reproductor" />
-                    </DataTrigger>
-                    <DataTrigger
-                        Binding="{Binding IsReproductor, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
-                        TargetType="Button"
-                        Value="True">
-                        <Setter Property="BackgroundColor" Value="{DynamicResource TabBarSelectedColor}" />
-                        <Setter Property="TranslationY" Value="3" />
-                        <Setter Property="SemanticProperties.Description" Value="Reproductor, seleccionado" />
-                    </DataTrigger>
-                </Button.Triggers>
-            </Button>
-            <Button
-                Grid.Column="2"
-                Command="{x:Static services:AppNavigation.GoToSectionCommand}"
-                CommandParameter="favoritos"
-                Style="{StaticResource CaseteKey}"
-                Text="FAVORITAS">
-                <Button.Triggers>
-                    <DataTrigger
-                        Binding="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
-                        TargetType="Button"
-                        Value="False">
-                        <Setter Property="SemanticProperties.Description" Value="Favoritos" />
-                    </DataTrigger>
-                    <DataTrigger
-                        Binding="{Binding IsFavoritos, Source={RelativeSource TemplatedParent}, x:DataType=views:BottomBar}"
-                        TargetType="Button"
-                        Value="True">
-                        <Setter Property="BackgroundColor" Value="{DynamicResource TabBarSelectedColor}" />
-                        <Setter Property="TranslationY" Value="3" />
-                        <Setter Property="SemanticProperties.Description" Value="Favoritos, seleccionado" />
-                    </DataTrigger>
-                </Button.Triggers>
-            </Button>
-        </Grid>
-    </ControlTemplate>
-
-    <!--  Preferencias (and any page without its own frame): header, the brushed panel, bottom bar  -->
-    <ControlTemplate x:Key="SettingsPageTemplate">
-        <Grid BackgroundColor="{DynamicResource PageBackgroundColor}" RowDefinitions="Auto,*,Auto">
-            <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
-            <Border Grid.Row="1" Style="{StaticResource SettingsPanelStyle}">
-                <ContentPresenter />
-            </Border>
-            <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
         </Grid>
     </ControlTemplate>
 
@@ -412,14 +291,14 @@
                                     TargetType="ImageButton"
                                     Value="False">
                                     <Setter Property="Source" Value="ic_heart_outline.png" />
-                                    <Setter Property="SemanticProperties.Description" Value="Añadir a favoritas" />
+                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
                                 </DataTrigger>
                                 <DataTrigger
                                     Binding="{Binding IsFavorite}"
                                     TargetType="ImageButton"
                                     Value="True">
                                     <Setter Property="Source" Value="ic_heart.png" />
-                                    <Setter Property="SemanticProperties.Description" Value="Quitar de favoritas" />
+                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
                                 </DataTrigger>
                             </ImageButton.Triggers>
                         </ImageButton>
@@ -442,21 +321,21 @@
                             Command="{Binding PlayHereCommand, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
                             CommandParameter="{Binding .}"
                             HorizontalOptions="Start"
-                            Text="Reproducir">
+                            Text="{loc:Translate Action_Play}">
                             <Button.Triggers>
                                 <MultiTrigger TargetType="Button">
                                     <MultiTrigger.Conditions>
                                         <BindingCondition Binding="{Binding IsSelected}" Value="True" />
                                         <BindingCondition Binding="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}" Value="Reproduciendo" />
                                     </MultiTrigger.Conditions>
-                                    <Setter Property="Text" Value="Detener" />
+                                    <Setter Property="Text" Value="{loc:Translate Action_Stop}" />
                                 </MultiTrigger>
                                 <MultiTrigger TargetType="Button">
                                     <MultiTrigger.Conditions>
                                         <BindingCondition Binding="{Binding IsSelected}" Value="True" />
                                         <BindingCondition Binding="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}" Value="Cargando…" />
                                     </MultiTrigger.Conditions>
-                                    <Setter Property="Text" Value="Detener" />
+                                    <Setter Property="Text" Value="{loc:Translate Action_Stop}" />
                                 </MultiTrigger>
                             </Button.Triggers>
                         </Button>
@@ -503,10 +382,16 @@
                         behaviors:IconTint.Color="{DynamicResource AccentTextColor}"
                         Command="{Binding RemoveCommand, Source={RelativeSource AncestorType={x:Type vm:FavoritosViewModel}}, x:DataType=vm:FavoritosViewModel}"
                         CommandParameter="{Binding .}"
-                        SemanticProperties.Description="{Binding Station.Name, StringFormat='Quitar {0} de favoritas'}"
                         Source="ic_clear.png"
                         Style="{StaticResource IconButton}"
-                        VerticalOptions="Center" />
+                        VerticalOptions="Center">
+                        <SemanticProperties.Description>
+                            <MultiBinding Converter="{x:Static loc:FormatConverter.Instance}">
+                                <Binding Path="[Fmt_RemoveFavorite]" Source="{x:Static loc:Localizer.Instance}" x:DataType="loc:Localizer" />
+                                <Binding Path="Station.Name" />
+                            </MultiBinding>
+                        </SemanticProperties.Description>
+                    </ImageButton>
                 </Grid>
             </Border>
             <BoxView
@@ -582,28 +467,28 @@
                 ColumnSpacing="4">
                 <Entry
                     Grid.Column="0"
-                    Placeholder="Buscar emisora..."
+                    Placeholder="{loc:Translate Search_StationPlaceholder}"
                     ReturnCommand="{Binding SearchCommand}"
                     ReturnType="Search"
-                    SemanticProperties.Description="Buscar emisora"
+                    SemanticProperties.Description="{loc:Translate Search_Station}"
                     Text="{Binding SearchText}"
                     VerticalOptions="Center" />
                 <ImageButton
                     Grid.Column="1"
                     behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
                     Command="{Binding SearchCommand}"
-                    SemanticProperties.Description="Buscar"
+                    SemanticProperties.Description="{loc:Translate Action_Search}"
                     Source="ic_search.png"
                     Style="{StaticResource IconButton}"
-                    ToolTipProperties.Text="Buscar" />
+                    ToolTipProperties.Text="{loc:Translate Action_Search}" />
                 <ImageButton
                     Grid.Column="2"
                     behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
                     Command="{Binding ClearSearchCommand}"
-                    SemanticProperties.Description="Limpiar búsqueda"
+                    SemanticProperties.Description="{loc:Translate Search_Clear}"
                     Source="ic_clear.png"
                     Style="{StaticResource IconButton}"
-                    ToolTipProperties.Text="Limpiar búsqueda" />
+                    ToolTipProperties.Text="{loc:Translate Search_Clear}" />
             </Grid>
 
             <!--  Active filters, compact  -->
@@ -618,26 +503,26 @@
                         Grid.Column="0"
                         IsVisible="{Binding FiltersApplied}"
                         VerticalOptions="Center">
-                        <Label Style="{StaticResource StationNameLabel}" Text="Filtros activos" />
+                        <Label Style="{StaticResource StationNameLabel}" Text="{loc:Translate Inicio_FiltersOn}" />
                         <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
                     </VerticalStackLayout>
                     <Label
                         Grid.Column="0"
                         IsVisible="{Binding FiltersNotApplied}"
                         Style="{StaticResource StationNameLabel}"
-                        Text="Preferencias desactivadas"
+                        Text="{loc:Translate Inicio_FiltersOff}"
                         VerticalOptions="Center" />
                     <Button
                         Grid.Column="1"
                         Command="{Binding DeactivateFiltersCommand}"
                         IsVisible="{Binding FiltersApplied}"
-                        Text="Desactivar"
+                        Text="{loc:Translate Action_Disable}"
                         VerticalOptions="Center" />
                     <Button
                         Grid.Column="1"
                         Command="{Binding ActivateFiltersCommand}"
                         IsVisible="{Binding FiltersNotApplied}"
-                        Text="Activar"
+                        Text="{loc:Translate Action_Enable}"
                         VerticalOptions="Center" />
                 </Grid>
             </Border>
@@ -691,7 +576,7 @@
                     Spacing="8"
                     VerticalOptions="Center">
                     <ActivityIndicator IsRunning="{Binding IsLoading}" />
-                    <Label Style="{StaticResource SecondaryLabel}" Text="Cargando emisoras..." />
+                    <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Inicio_Loading}" />
                 </VerticalStackLayout>
 
                 <Label
@@ -699,7 +584,7 @@
                     HorizontalTextAlignment="Center"
                     IsVisible="{Binding IsEmptyPlain}"
                     Style="{StaticResource SecondaryLabel}"
-                    Text="No se encontraron emisoras."
+                    Text="{loc:Translate Inicio_NoStations}"
                     VerticalOptions="Center" />
 
                 <VerticalStackLayout
@@ -710,11 +595,11 @@
                     <Label
                         HorizontalTextAlignment="Center"
                         Style="{StaticResource SecondaryLabel}"
-                        Text="No se encontraron emisoras con tus preferencias." />
+                        Text="{loc:Translate Inicio_NoStationsFiltered}" />
                     <Button
                         Command="{Binding DeactivateFiltersCommand}"
                         HorizontalOptions="Center"
-                        Text="Desactivar" />
+                        Text="{loc:Translate Action_Disable}" />
                 </VerticalStackLayout>
 
                 <VerticalStackLayout
@@ -729,11 +614,11 @@
                     <Button
                         Command="{Binding RetryCommand}"
                         HorizontalOptions="Center"
-                        Text="Reintentar" />
+                        Text="{loc:Translate Action_Retry}" />
                 </VerticalStackLayout>
             </Grid>
 
-            <views:BottomBar Grid.Row="4" ControlTemplate="{StaticResource BottomBarTemplate}" />
+            <views:BottomBar Grid.Row="4" />
         </Grid>
     </ControlTemplate>
 
@@ -763,7 +648,7 @@
                     Grid.Column="1"
                     Padding="12,4"
                     Command="{Binding LogOutCommand}"
-                    Text="Cerrar sesión" />
+                    Text="{loc:Translate Session_LogOut}" />
             </Grid>
 
             <!--  Logged out  -->
@@ -773,11 +658,11 @@
                 IsVisible="{Binding IsLoggedOut}"
                 Spacing="12"
                 VerticalOptions="Center">
-                <Label HorizontalTextAlignment="Center" Text="Inicia sesión para ver tus favoritas." />
+                <Label HorizontalTextAlignment="Center" Text="{loc:Translate Favoritos_LogInHintSentence}" />
                 <Button
                     Command="{Binding LogInCommand}"
                     HorizontalOptions="Center"
-                    Text="Iniciar sesión" />
+                    Text="{loc:Translate Page_Login}" />
             </VerticalStackLayout>
 
             <!--  Logged in: the J-card, and the states in its place  -->
@@ -814,7 +699,7 @@
                             <Label
                                 Grid.Row="0"
                                 Style="{StaticResource CaseteCardTitle}"
-                                Text="Mis favoritas" />
+                                Text="{loc:Translate Favoritos_Mine}" />
                             <Grid
                                 Grid.Row="1"
                                 ColumnDefinitions="*,*"
@@ -824,13 +709,13 @@
                                     FontAttributes="Bold"
                                     FontFamily="{DynamicResource AppFontFamilyBold}"
                                     Style="{StaticResource CaseteCardText}"
-                                    Text="CARA A" />
+                                    Text="{loc:Translate Casete_SideA}" />
                                 <Label
                                     Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontFamily="{DynamicResource AppFontFamilyBold}"
                                     Style="{StaticResource CaseteCardText}"
-                                    Text="CARA B" />
+                                    Text="{loc:Translate Casete_SideB}" />
                             </Grid>
                             <controls:PagedSlots
                                 x:Name="Card"
@@ -840,7 +725,7 @@
                                 EmptySlotTemplate="{StaticResource JCardBlankTemplate}"
                                 HeightRequest="280"
                                 IsLoggedIn="True"
-                                ItemDescriptionFormat="Cara {4}, pista {3}: {0}"
+                                ItemDescriptionFormat="{loc:Translate Fmt_SideTrack}"
                                 ItemDisplayPath="Station.Name"
                                 ItemIsCurrentPath="IsSelected"
                                 ItemTemplate="{StaticResource JCardLineTemplate}"
@@ -857,8 +742,8 @@
                                 <Button
                                     Grid.Column="0"
                                     Command="{Binding TurnPageCommand, Source={x:Reference Card}, x:DataType=controls:PagedSlots}"
-                                    SemanticProperties.Description="Dar la vuelta a la cinta"
-                                    Text="Dar la vuelta" />
+                                    SemanticProperties.Description="{loc:Translate Casete_FlipTape}"
+                                    Text="{loc:Translate Casete_Flip}" />
                                 <Label
                                     Grid.Column="1"
                                     Style="{StaticResource CaseteCardText}"
@@ -874,7 +759,7 @@
                     Spacing="8"
                     VerticalOptions="Center">
                     <ActivityIndicator IsRunning="{Binding IsLoading}" />
-                    <Label Style="{StaticResource SecondaryLabel}" Text="Cargando favoritas..." />
+                    <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Favoritos_Loading}" />
                 </VerticalStackLayout>
 
                 <Label
@@ -882,7 +767,7 @@
                     HorizontalTextAlignment="Center"
                     IsVisible="{Binding IsEmpty}"
                     Style="{StaticResource SecondaryLabel}"
-                    Text="Aún no tienes emisoras favoritas."
+                    Text="{loc:Translate Favoritos_Empty}"
                     VerticalOptions="Center" />
 
                 <VerticalStackLayout
@@ -897,42 +782,11 @@
                     <Button
                         Command="{Binding RetryCommand}"
                         HorizontalOptions="Center"
-                        Text="Reintentar" />
+                        Text="{loc:Translate Action_Retry}" />
                 </VerticalStackLayout>
             </Grid>
 
-            <views:BottomBar Grid.Row="3" ControlTemplate="{StaticResource BottomBarTemplate}" />
-        </Grid>
-    </ControlTemplate>
-
-    <!--  Ajustes: the two entries as big silver keys with stamped labels  -->
-    <ControlTemplate x:Key="AjustesTemplate">
-        <Grid
-            x:DataType="vm:AjustesViewModel"
-            BackgroundColor="{DynamicResource PageBackgroundColor}"
-            BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,*,Auto">
-            <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
-
-            <ScrollView Grid.Row="1">
-                <VerticalStackLayout
-                    Padding="24,24"
-                    MaximumWidthRequest="640"
-                    Spacing="20">
-                    <Button
-                        Command="{Binding OpenPersonalizacionCommand}"
-                        SemanticProperties.Hint="Tema, tipo de letra y tamaño del texto."
-                        Style="{StaticResource CaseteBigKey}"
-                        Text="Personalización" />
-                    <Button
-                        Command="{Binding OpenPreferenciasCommand}"
-                        SemanticProperties.Hint="País, idioma, género y tipo de contenido que se aplican en Inicio."
-                        Style="{StaticResource CaseteBigKey}"
-                        Text="Preferencias" />
-                </VerticalStackLayout>
-            </ScrollView>
-
-            <views:BottomBar Grid.Row="2" ControlTemplate="{StaticResource BottomBarTemplate}" />
+            <views:BottomBar Grid.Row="3" />
         </Grid>
     </ControlTemplate>
 
@@ -959,18 +813,18 @@
                 <Button
                     Grid.Column="0"
                     Command="{Binding PreviousFavoriteCommand}"
-                    SemanticProperties.Description="Favorita anterior"
+                    SemanticProperties.Description="{loc:Translate Favoritos_Previous}"
                     Style="{StaticResource CaseteKey}"
                     Text="REW"
-                    ToolTipProperties.Text="Favorita anterior" />
+                    ToolTipProperties.Text="{loc:Translate Favoritos_Previous}" />
                 <Button
                     Grid.Column="1"
                     Command="{Binding ToggleCommand}"
                     IsEnabled="{Binding HasStation}"
-                    SemanticProperties.Description="Reproducir"
+                    SemanticProperties.Description="{loc:Translate Action_Play}"
                     Style="{StaticResource CasetePlayKey}"
                     Text="PLAY"
-                    ToolTipProperties.Text="Reproducir">
+                    ToolTipProperties.Text="{loc:Translate Action_Play}">
                     <Button.Triggers>
                         <DataTrigger
                             Binding="{Binding IsActive}"
@@ -985,17 +839,17 @@
                     Grid.Column="2"
                     Command="{Binding ToggleCommand}"
                     IsEnabled="{Binding IsActive}"
-                    SemanticProperties.Description="Detener"
+                    SemanticProperties.Description="{loc:Translate Action_Stop}"
                     Style="{StaticResource CaseteKey}"
                     Text="STOP"
-                    ToolTipProperties.Text="Detener" />
+                    ToolTipProperties.Text="{loc:Translate Action_Stop}" />
                 <Button
                     Grid.Column="3"
                     Command="{Binding NextFavoriteCommand}"
-                    SemanticProperties.Description="Favorita siguiente"
+                    SemanticProperties.Description="{loc:Translate Favoritos_Next}"
                     Style="{StaticResource CaseteKey}"
                     Text="FF"
-                    ToolTipProperties.Text="Favorita siguiente" />
+                    ToolTipProperties.Text="{loc:Translate Favoritos_Next}" />
             </Grid>
 
             <!--  The cassette window and the information panel  -->
@@ -1014,7 +868,7 @@
                             <Label
                                 IsVisible="{Binding HasNoStation}"
                                 Style="{StaticResource SecondaryLabel}"
-                                Text="Selecciona una emisora en Inicio o en tus favoritas" />
+                                Text="{loc:Translate Reproductor_Choose}" />
 
                             <Grid
                                 ColumnDefinitions="*,Auto"
@@ -1039,14 +893,14 @@
                                             TargetType="ImageButton"
                                             Value="False">
                                             <Setter Property="Source" Value="ic_heart_outline.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="Añadir a favoritas" />
+                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
                                         </DataTrigger>
                                         <DataTrigger
                                             Binding="{Binding IsFavorite}"
                                             TargetType="ImageButton"
                                             Value="True">
                                             <Setter Property="Source" Value="ic_heart.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="Quitar de favoritas" />
+                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
                                         </DataTrigger>
                                     </ImageButton.Triggers>
                                 </ImageButton>
@@ -1073,7 +927,7 @@
                                 Command="{Binding RetryCommand}"
                                 HorizontalOptions="Start"
                                 IsVisible="{Binding HasError}"
-                                Text="Reintentar" />
+                                Text="{loc:Translate Action_Retry}" />
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>
@@ -1090,22 +944,22 @@
                         FontAttributes="Bold"
                         FontFamily="{DynamicResource AppFontFamilyBold}"
                         Style="{StaticResource CaseteCardText}"
-                        Text="CARA A" />
+                        Text="{loc:Translate Casete_SideA}" />
                     <controls:PagedSlots
                         x:Name="SideA"
                         Grid.Row="1"
                         Columns="1"
                         EmptySlotTemplate="{StaticResource JCardBlankTemplate}"
-                        EmptyText="Aún no tienes emisoras favoritas."
+                        EmptyText="{loc:Translate Favoritos_Empty}"
                         HeightRequest="170"
                         IsLoggedIn="{Binding IsLoggedIn}"
-                        ItemDescriptionFormat="Cara A, pista {3}: {0}"
+                        ItemDescriptionFormat="{loc:Translate Fmt_SideATrack}"
                         ItemDisplayPath="Station.Name"
                         ItemIsCurrentPath="IsSelected"
                         ItemTemplate="{StaticResource JCardTrackTemplate}"
                         ItemsSource="{Binding Favorites}"
                         LogInCommand="{Binding LogInCommand}"
-                        LoggedOutText="Inicia sesión para ver tus favoritas"
+                        LoggedOutText="{loc:Translate Favoritos_LogInHint}"
                         MessageTextColor="{DynamicResource AccentTextColor}"
                         Rows="5"
                         SelectCommand="{Binding SelectFavoriteCommand}"
@@ -1118,8 +972,8 @@
                         <Button
                             Grid.Column="0"
                             Command="{Binding TurnPageCommand, Source={x:Reference SideA}, x:DataType=controls:PagedSlots}"
-                            SemanticProperties.Description="Dar la vuelta a la cinta"
-                            Text="Dar la vuelta" />
+                            SemanticProperties.Description="{loc:Translate Casete_FlipTape}"
+                            Text="{loc:Translate Casete_Flip}" />
                         <Label
                             Grid.Column="1"
                             Style="{StaticResource CaseteCardText}"

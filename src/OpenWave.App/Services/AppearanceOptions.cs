@@ -11,9 +11,9 @@ public sealed record FontOption(string Name, string FileName, string? BoldFileNa
 }
 
 /// <summary>
-/// A text size preset: the factor applied to the base font sizes.
+/// A text size preset: the factor applied to the base font sizes. Its name is the resource Scale_&lt;index&gt;.
 /// </summary>
-public sealed record FontScaleOption(string DisplayName, double Scale);
+public sealed record FontScaleOption(double Scale);
 
 /// <summary>
 /// The fonts and text sizes offered in Personalización.
@@ -41,10 +41,10 @@ public static class AppearanceOptions
 
     public static IReadOnlyList<FontScaleOption> Scales { get; } =
     [
-        new("Pequeño", 0.85),
-        new("Normal", DefaultScale),
-        new("Grande", 1.2),
-        new("Muy grande", 1.4),
-        new("Enorme", 1.6),
+        new(0.85),
+        new(DefaultScale),
+        new(1.2),
+        new(1.4),
+        new(1.6),
     ];
 }

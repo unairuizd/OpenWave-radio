@@ -40,12 +40,11 @@ AccentText/Accent, Favorite/Page, TabSelected/TabBar, TabUnselected/TabBar, and 
 
 ## 4. Pages
 
-### Header and bottom bar (`HeaderTemplate`, `BottomBarTemplate`)
+### Header (`HeaderTemplate`) and where the shared bottom bar is shown
 ### Station item (`StationCardTemplate`)
 ### Inicio (`InicioTemplate`)
 ### Favoritos (`FavoritosTemplate`)
 ### Reproductor (`ReproductorTemplate`)
-### Ajustes and settings pages (`AjustesTemplate`, `SettingsPageTemplate`)
 
 ## 5. Function map
 
@@ -58,7 +57,7 @@ AccentText/Accent, Favorite/Page, TabSelected/TabBar, TabUnselected/TabBar, and 
 | Heart | | |
 | Favourites from Reproductor | | |
 | Account row, log in / out | | |
-| Ajustes | | |
+| Gear to Ajustes | | |
 
 ## 6. Custom controls
 

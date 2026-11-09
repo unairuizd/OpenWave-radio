@@ -3,25 +3,26 @@
     x:Class="OpenWave.App.Views.RegisterPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:RegisterViewModel"
-    Title="Crear cuenta">
+    Title="{loc:Translate Page_Register}">
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Style="{StaticResource PageTitleLabel}" Text="Crear cuenta" />
+            <Label Style="{StaticResource PageTitleLabel}" Text="{loc:Translate Page_Register}" />
 
             <Entry
                 Keyboard="Email"
-                Placeholder="Correo electrónico"
+                Placeholder="{loc:Translate Login_Email}"
                 Text="{Binding Email}" />
             <Entry
                 IsPassword="True"
-                Placeholder="Contraseña (mínimo 8 caracteres)"
+                Placeholder="{loc:Translate Register_Password}"
                 Text="{Binding Password}" />
             <Entry
                 IsPassword="True"
-                Placeholder="Repite la contraseña"
+                Placeholder="{loc:Translate Register_RepeatPassword}"
                 ReturnCommand="{Binding RegisterCommand}"
                 Text="{Binding ConfirmPassword}" />
 
@@ -30,7 +31,7 @@
                 Style="{StaticResource ErrorLabel}"
                 Text="{Binding ErrorMessage}" />
 
-            <Button Command="{Binding RegisterCommand}" Text="Crear cuenta" />
+            <Button Command="{Binding RegisterCommand}" Text="{loc:Translate Page_Register}" />
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
         </VerticalStackLayout>
     </ScrollView>
