@@ -2,7 +2,7 @@
 
 ## Why
 
-When the Windows window is resized, some components take odd shapes: the Casete portátil cassette has a fixed height of 280 but a width capped at 720, so it is squashed on a narrow window and stretched on a wide one, and drawn pieces such as the turntable record, the sleeves, the jog wheel and the speakers simply fill whatever space they get. Other pieces are capped with a different number in each theme (520, 560, 640, 720). The app needs one rule for how far every component may grow or shrink, which still works with the five text sizes.
+When the Windows window is resized, some components take odd shapes: the Casete portátil J-card in Favoritos has a fixed height of 280 but a width capped at 720 (and the Reproductor cassette has a fixed window height), so it is squashed on a narrow window and stretched on a wide one, and drawn pieces such as the turntable record, the sleeves, the jog wheel and the speakers simply fill whatever space they get. Other pieces are capped with a different number in each theme (520, 560, 640, 720). The app needs one rule for how far every component may grow or shrink, which still works with the five text sizes.
 
 ## What Changes
 
@@ -22,6 +22,7 @@ When the Windows window is resized, some components take odd shapes: the Casete 
 
 ### Modified Capabilities
 - `app-appearance`: "Usable at every text size" now holds at every window size down to the minimum window, and states that the text size also scales the size range of text components.
+- `station-browsing`: the Moderno card grid shows as many columns as fit at the card minimum width, so it can show one column in a small window at a large text size (it was "never fewer than two"). Agreed with the user during implementation.
 
 ## Impact
 

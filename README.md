@@ -263,7 +263,7 @@ Every page except `Iniciar sesión` and `Crear cuenta` has the same frame:
 
 `Iniciar sesión` and `Crear cuenta` keep the platform header with its back button. The platform's own tab bar is never shown. On Windows, pushed pages (Ajustes and its sub-pages, the login pages) also get the window's back arrow.
 
-**Station cards** (Inicio and Favoritos) are taller than wide: logo, name (bold, up to two lines), details (country · language, then up to three tags, up to two lines; `Desconocido` for a missing country or language), and a row with the play button on the left and the heart on the right. The grid has one column for about every 170 units of width, and never fewer than two. Tapping the card or its play button plays the station; the heart never selects it.
+**Station cards** (Inicio and Favoritos) are taller than wide: logo, name (bold, up to two lines), details (country · language, then up to three tags, up to two lines; `Desconocido` for a missing country or language), and a row with the play button on the left and the heart on the right. The grid has one column for every `StationCardMinWidth` units of width (150 at `Normal`, more at larger text sizes), and at least one. Tapping the card or its play button plays the station; the heart never selects it.
 
 **App icon:** the OpenWave logo (the play button with a cable and the "W" with radio waves) on white, in `src/OpenWave.App/Resources/AppIcon/appiconfg.png` over the white `appicon.svg`. The `MauiIcon` item scales it to 70% (`ForegroundScale="0.7"`) so Android's round and squircle icon shapes never cut it; Windows uses the same image for the `.exe`, the taskbar and Alt+Tab. After changing it, uninstall the app on Android (launchers cache icons) before deploying again.
 
@@ -548,10 +548,47 @@ The files come from Google's font repository, except the static Cormorant Garamo
 
 The text size scales four base sizes: caption 12, body 16, subtitle 18 and title 24. For example, `Enorme` makes body text 25.6 and titles 38.4. Icons are as large as a title letter (24 at `Normal`), inside buttons of at least 48 units. The header of `Iniciar sesión` and `Crear cuenta` is drawn by the platform, so `ShellChrome` gives it a title styled like the rest of the app. On Android `ShellChrome` (with a small file under `Platforms/Android/`) also recolours the circles of the radio buttons after a theme change, because Android otherwise keeps the colours of the theme the app started with.
 
+### Component sizes
+
+Every component has a minimum and a maximum size; between them it follows the window. The limits are named keys in `Resources/Styles/Styles.xaml`, shared by every theme.
+
+- **Text components** (header and bar height, station cards and rows, player panels, the settings column, forms, keys): their limits are multiplied by the text size (×0.85 `Pequeño` to ×1.6 `Enorme`). `AppearanceService` rewrites them with `Services/ComponentSizes.cs` whenever the text size changes. They are hosted by `Views/Controls/SizeLimit`, which keeps its child between the two keys and centres it. A minimum is never wider than the space the window gives, so nothing scrolls sideways.
+- **Drawn pieces** keep their shape and the same limits at every text size. They are hosted by `Views/Controls/AspectBox` (a ratio, a minimum and a maximum width), and text inside them wraps or is cut with `…`.
+- **Small window or large text:** components stop at their minimum and the content between the header and the bar scrolls vertically. Pieces that sat side by side (a drawn piece and its panel) wrap one under the other. The favourites pieces of Reproductor (the crate, side A, the pads, the memories) are the last part of that scroll.
+- **Large window:** components stop at their maximum and are centred. Card grids add columns: one per `StationCardMinWidth`, at least one (`Behaviors/AdaptiveSpanBehavior`, `Behaviors/AdaptiveColumnsBehavior`).
+- **Windows:** the window cannot be made smaller than 360 × 600.
+
+| Key group | Kind | Min W | Max W | Height / ratio |
+|---|---|---|---|---|
+| `Chrome` (header, bottom bar) | text | window | window | 56 – 80 high |
+| `StationCard` | text | 150 | 220 | content |
+| `StationRow` (rows, browsers, fronts) | text | 280 | 720 | 48 – 96 high |
+| `PlayerPanel` | text | 280 | 560 | content |
+| `SettingsColumn` / `SettingsRow` | text | 300 | 720 | rows 48 – 120 high |
+| `Form` | text | 280 | 480 | content |
+| `Key` | text | 48 | 160 | 48 – 72 high |
+| `ListMaxHeight` | text | – | – | 560 |
+| `Turntable` | drawn | 200 | 420 | 1.15 : 1 |
+| `BigSleeve` (sleeve stack) | drawn | 160 | 300 | 0.69 : 1 |
+| `RecordCrate` | drawn | 300 | 640 | 2.4 : 1 |
+| `Cassette` | drawn | 280 | 560 | 1.6 : 1 |
+| `JCard` | drawn | 300 | 640 | 2 : 1 |
+| `TuningDial` | drawn | 300 | 640 | 3 : 1 |
+| `Knob` (magic eye, knobs) | drawn | 56 | 96 | 1 : 1 |
+| `Speaker` | drawn | 110 | 220 | 1 : 1 |
+| `LevelMeter` (Mesa de DJ) | drawn | 24 | 60 | 1 : 4 |
+| `JogWheel` | drawn | 200 | 360 | 1 : 1 |
+| `PadsGrid` (pads; memories use `MemoryGridRatio` 3) | drawn | 300 | 640 | 2 : 1 |
+| `LcdScreen` (MP3) | drawn | 300 | 640 | 4 : 3 |
+| `DeviceScreen` (Clásico de rueda) | drawn | 300 | 520 | 4 : 3 |
+| `ClickWheel` | drawn | 180 | 260 | 1 : 1 |
+
+Small parts inside a component keep one fixed size (minimum = maximum) and are written in the layouts: logo thumbnails, icons, the player artwork, the Boombox handle, speakers of the Inicio front and level meter, the power knob and the jog play button.
+
 ### How to add a theme
 
 1. **Palettes:** copy `Resources/Themes/ModernoLightPalette.xaml` and its `.xaml.cs` for each variant (for example `RetroPalette.xaml`), rename the class and change the colours. Keep all 14 keys.
-2. **Layout:** copy `ModernoLayout.xaml` (or `TocadiscosLayout.xaml`) and its `.xaml.cs` (for example `RetroLayout.xaml`), rename the class, and change the templates as you like. Keep the five template keys (`HeaderTemplate`, `StationCardTemplate`, `InicioTemplate`, `ReproductorTemplate`, `FavoritosTemplate`) and the bindings and commands they use (the page view models, `AppNavigation` for the gear). Place `<views:BottomBar />` where the theme shows the bar; the bar and the settings pages draw themselves. Write every visible text as `{loc:Translate Key}`. Use only palette keys for colours and the named styles for text: never set a font family or a font size. The controls in `Views/Controls/` can be reused.
+2. **Layout:** copy `ModernoLayout.xaml` (or `TocadiscosLayout.xaml`) and its `.xaml.cs` (for example `RetroLayout.xaml`), rename the class, and change the templates as you like. Keep the five template keys (`HeaderTemplate`, `StationCardTemplate`, `InicioTemplate`, `ReproductorTemplate`, `FavoritosTemplate`) and the bindings and commands they use (the page view models, `AppNavigation` for the gear). Place `<views:BottomBar />` where the theme shows the bar; the bar and the settings pages draw themselves. Write every visible text as `{loc:Translate Key}`. Put drawn pieces in a `controls:AspectBox` and panels in a `controls:SizeLimit` with the size keys above; never write a component size as a number. Use only palette keys for colours and the named styles for text: never set a font family or a font size. The controls in `Views/Controls/` can be reused.
 3. **Registry:** add one entry to `ThemeCatalog.All` in `ThemeCatalog.cs`:
 
    ```csharp
@@ -587,7 +624,7 @@ Nothing else changes: the language appears in `Idioma` at once.
 2. Run the app on Windows or the Android emulator. Inicio lists up to 50 real stations.
 3. Search `jazz`: every listed name contains "jazz". Press `Limpiar`: the box is empty and the top stations return. Search a nonsense name: `No se encontraron emisoras.`
 4. Use the bottom bar to switch between Inicio, Reproductor and Favoritos: the current one is marked. Press the current section's button: nothing changes. Press the gear: `Ajustes` opens with no bar button marked; press the gear again: nothing changes.
-5. Inicio shows portrait cards: logo, name, details, play button and heart; cards in a row have the same height. Widen the Windows window: more columns appear; narrow it: never fewer than two. Tap a card (or its play button): Reproductor opens with its large logo (or the placeholder), name and details, the status goes `Cargando…` → `Reproduciendo`, and you hear audio. Back in Inicio, that card is highlighted; selecting another one moves the highlight.
+5. Inicio shows portrait cards: logo, name, details, play button and heart; cards in a row have the same height. Widen the Windows window: more columns appear; narrow it: the columns get fewer, down to one at a large text size in the smallest window. Tap a card (or its play button): Reproductor opens with its large logo (or the placeholder), name and details, the status goes `Cargando…` → `Reproduciendo`, and you hear audio. Back in Inicio, that card is highlighted; selecting another one moves the highlight.
 6. In Reproductor, press the stop icon (`Detener`): audio stops, the status shows `Detenido` and the centre shows the play icon. Press it (`Reproducir`): it plays again. Restart the app and open Reproductor first: `Selecciona una emisora en Inicio` and the play/stop control is disabled.
 7. Switch to Favoritos while audio plays: the audio keeps playing. Return to Reproductor: the same station shows `Reproduciendo`. Minimise the app: the audio stops. Select another station in Inicio: the new station starts and the old one does not keep playing.
 8. Let Inicio load the list, then turn off the computer's internet connection (on the emulator: turn on airplane mode) and select a station: within 15 seconds the status shows `Error`, `No se pudo reproducir esta emisora.` and `Reintentar`. The app keeps working. Turn the connection back on and press `Reintentar`: the station plays.
@@ -657,6 +694,8 @@ Nothing else changes: the language appears in `Idioma` at once.
 64. Clásico de rueda Reproductor: the bar is shown under the wheel with `Reproductor` marked; the screen shows the logo, name, details, `En directo` and the status line (or `Selecciona una emisora en Inicio o en tus favoritas`). Play/pause reads `Reproducir`/`Detener`, `◀◀`/`▶▶` play the previous/next favourite, the centre adds or removes the favourite (its heart fills), sliding on the ring does nothing, and `MENÚ` opens Inicio.
 65. Clásico de rueda at `Pequeño` and `Enorme`: menu rows truncate or scroll, the wheel and the bar keep their size; Ajustes, Personalización and Preferencias stay usable. With reduced motion the list jumps to the cursor and the wheel buttons have no press animation.
 66. Language: in `Personalización` choose `English` while a station plays: the page reads `Personalization`, the other pages `HOME`, `PLAYER` and `FAVOURITES`, and the station keeps playing. Restart the app: it opens in English. With the app in English, an invalid email in `Log in` reads `The email address is not valid.`, and `Preferencias` shows the content types `Music`, `News`, `Talk`, `Sports` (from the API). Country names stay as Radio Browser gives them. Choose `Español`: every text is Spanish again.
+67. Component sizes: in every theme, drag the Windows window to its smallest size (it stops at about 360 × 600), then maximise it, at `Pequeño`, `Normal` and `Enorme`. Drawn pieces (the turntable, crate, cassette, J-cards, dial, speakers, jog wheel, pads, LCD and click wheel) keep their shape and stop at their limits; panels and rows stop at their maximum width and are centred; nothing overlaps and nothing scrolls sideways; every control can be reached by scrolling between the fixed header and bar. Repeat on the Android phone in portrait at `Enorme`.
+68. Casete portátil Reproductor in the smallest window and maximised: the cassette is always cassette-shaped (1.6 : 1) and side A of the J-card is a 2 : 1 card; neither is stretched.
 
 ## Notes
 

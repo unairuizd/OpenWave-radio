@@ -13,6 +13,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:behaviors="clr-namespace:OpenWave.App.Behaviors"
+    xmlns:controls="clr-namespace:OpenWave.App.Views.Controls"
     xmlns:services="clr-namespace:OpenWave.App.Services"
     xmlns:views="clr-namespace:OpenWave.App.Views"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels">
@@ -24,6 +25,8 @@
     -->
     <ControlTemplate x:Key="HeaderTemplate">
         <Grid
+            MinimumHeightRequest="{DynamicResource ChromeMinHeight}"
+            MaximumHeightRequest="{DynamicResource ChromeMaxHeight}"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             ColumnDefinitions="Auto,*,Auto"
             RowDefinitions="Auto,Auto">
@@ -36,8 +39,8 @@
                 Margin="0"
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="Center"
-                LineBreakMode="WordWrap"
-                MaxLines="2"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
                 SemanticProperties.HeadingLevel="Level1"
                 Style="{StaticResource HeaderTitleLabel}"
                 Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
@@ -68,6 +71,8 @@
     <DataTemplate x:Key="StationCardTemplate" x:DataType="vm:StationListItem">
         <Border
             Padding="10"
+            HorizontalOptions="Center"
+            MaximumWidthRequest="{DynamicResource StationCardMaxWidth}"
             SemanticProperties.Description="{Binding Station.Name}"
             Style="{StaticResource StationCard}">
             <Border.Triggers>
@@ -205,9 +210,9 @@
                     Grid.Row="1"
                     IsVisible="{Binding ShowFilterBar}"
                     Style="{StaticResource StationCard}">
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <FlexLayout AlignItems="Center" JustifyContent="SpaceBetween" Wrap="Wrap">
                         <VerticalStackLayout
-                            Grid.Column="0"
+                            FlexLayout.Grow="1"
                             IsVisible="{Binding FiltersApplied}"
                             Spacing="2"
                             VerticalOptions="Center">
@@ -215,24 +220,22 @@
                             <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
                         </VerticalStackLayout>
                         <Label
-                            Grid.Column="0"
+                            FlexLayout.Grow="1"
                             IsVisible="{Binding FiltersNotApplied}"
                             Style="{StaticResource StationNameLabel}"
                             Text="{loc:Translate Inicio_FiltersOff}"
                             VerticalOptions="Center" />
                         <Button
-                            Grid.Column="1"
                             Command="{Binding DeactivateFiltersCommand}"
                             IsVisible="{Binding FiltersApplied}"
                             Text="{loc:Translate Action_Disable}"
                             VerticalOptions="Center" />
                         <Button
-                            Grid.Column="1"
                             Command="{Binding ActivateFiltersCommand}"
                             IsVisible="{Binding FiltersNotApplied}"
                             Text="{loc:Translate Action_Enable}"
                             VerticalOptions="Center" />
-                    </Grid>
+                    </FlexLayout>
                 </Border>
 
                 <Grid Grid.Row="2">
@@ -429,139 +432,141 @@
                 WidthRequest="1" />
 
             <ScrollView Grid.Row="1">
-                <VerticalStackLayout Padding="16" Spacing="16">
+                <controls:SizeLimit MinWidth="{DynamicResource PlayerPanelMinWidth}" MaxWidth="{DynamicResource PlayerPanelMaxWidth}">
+                    <VerticalStackLayout Padding="16" Spacing="16">
 
-                    <!--  No station yet: the message replaces the logo and the station info  -->
-                    <Label
-                        Margin="0,24"
-                        HorizontalOptions="Center"
-                        HorizontalTextAlignment="Center"
-                        IsVisible="{Binding HasNoStation}"
-                        Style="{StaticResource SecondaryLabel}"
-                        Text="{loc:Translate Reproductor_ChooseShort}" />
-
-                    <Border
-                        HorizontalOptions="Center"
-                        IsVisible="{Binding HasStation}"
-                        Style="{StaticResource PlayerArtwork}">
-                        <Grid>
-                            <Image Aspect="AspectFit" Source="station_placeholder.png" />
-                            <Image Aspect="AspectFit" Source="{Binding LogoUrl}" />
-                        </Grid>
-                    </Border>
-
-                    <Grid
-                        ColumnDefinitions="*,Auto"
-                        ColumnSpacing="8"
-                        IsVisible="{Binding HasStation}">
-                        <VerticalStackLayout
-                            Grid.Column="0"
-                            Spacing="4"
-                            VerticalOptions="Center">
-                            <Label Style="{StaticResource PageTitleLabel}" Text="{Binding StationName}" />
-                            <Label
-                                IsVisible="{Binding HasDetails}"
-                                Style="{StaticResource SecondaryLabel}"
-                                Text="{Binding Details}" />
-                        </VerticalStackLayout>
-                        <ImageButton
-                            Grid.Column="1"
-                            behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
-                            Command="{Binding ToggleFavoriteCommand}"
-                            Style="{StaticResource IconButton}"
-                            VerticalOptions="Center">
-                            <ImageButton.Triggers>
-                                <DataTrigger
-                                    Binding="{Binding IsFavorite}"
-                                    TargetType="ImageButton"
-                                    Value="False">
-                                    <Setter Property="Source" Value="ic_heart_outline.png" />
-                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
-                                </DataTrigger>
-                                <DataTrigger
-                                    Binding="{Binding IsFavorite}"
-                                    TargetType="ImageButton"
-                                    Value="True">
-                                    <Setter Property="Source" Value="ic_heart.png" />
-                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
-                                </DataTrigger>
-                            </ImageButton.Triggers>
-                        </ImageButton>
-                    </Grid>
-
-                    <!--  Previous favourite, play/stop, next favourite  -->
-                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="24">
-                        <ImageButton
-                            behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
-                            Command="{Binding PreviousFavoriteCommand}"
-                            SemanticProperties.Description="{loc:Translate Favoritos_PreviousStation}"
-                            Source="ic_previous.png"
-                            Style="{StaticResource IconButton}"
-                            ToolTipProperties.Text="{loc:Translate Favoritos_Previous}"
-                            VerticalOptions="Center" />
-                        <ImageButton
-                            behaviors:IconTint.Color="{DynamicResource AccentTextColor}"
-                            Command="{Binding ToggleCommand}"
-                            IsEnabled="{Binding HasStation}"
-                            Style="{StaticResource AccentIconButton}"
-                            VerticalOptions="Center">
-                            <ImageButton.Triggers>
-                                <DataTrigger
-                                    Binding="{Binding IsActive}"
-                                    TargetType="ImageButton"
-                                    Value="False">
-                                    <Setter Property="Source" Value="ic_play.png" />
-                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Play}" />
-                                </DataTrigger>
-                                <DataTrigger
-                                    Binding="{Binding IsActive}"
-                                    TargetType="ImageButton"
-                                    Value="True">
-                                    <Setter Property="Source" Value="ic_stop.png" />
-                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Stop}" />
-                                </DataTrigger>
-                                <Trigger
-                                    Property="IsEnabled"
-                                    TargetType="ImageButton"
-                                    Value="False">
-                                    <Setter Property="Opacity" Value="0.4" />
-                                </Trigger>
-                            </ImageButton.Triggers>
-                        </ImageButton>
-                        <ImageButton
-                            behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
-                            Command="{Binding NextFavoriteCommand}"
-                            SemanticProperties.Description="{loc:Translate Favoritos_NextStation}"
-                            Source="ic_next.png"
-                            Style="{StaticResource IconButton}"
-                            ToolTipProperties.Text="{loc:Translate Favoritos_Next}"
-                            VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-
-                    <!--  Status line  -->
-                    <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                        <!--  No station yet: the message replaces the logo and the station info  -->
                         <Label
-                            HorizontalTextAlignment="Center"
-                            IsVisible="{Binding HasStation}"
-                            Style="{StaticResource StationNameLabel}"
-                            Text="{Binding StatusText}" />
-                        <Label
-                            HorizontalTextAlignment="Center"
-                            IsVisible="{Binding HasNotice}"
-                            Style="{StaticResource SecondaryLabel}"
-                            Text="{Binding Notice}" />
-                        <Label
-                            HorizontalTextAlignment="Center"
-                            IsVisible="{Binding HasError}"
-                            Style="{StaticResource ErrorLabel}"
-                            Text="{Binding ErrorMessage}" />
-                        <Button
-                            Command="{Binding RetryCommand}"
+                            Margin="0,24"
                             HorizontalOptions="Center"
-                            IsVisible="{Binding HasError}"
-                            Text="{loc:Translate Action_Retry}" />
+                            HorizontalTextAlignment="Center"
+                            IsVisible="{Binding HasNoStation}"
+                            Style="{StaticResource SecondaryLabel}"
+                            Text="{loc:Translate Reproductor_ChooseShort}" />
+
+                        <Border
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding HasStation}"
+                            Style="{StaticResource PlayerArtwork}">
+                            <Grid>
+                                <Image Aspect="AspectFit" Source="station_placeholder.png" />
+                                <Image Aspect="AspectFit" Source="{Binding LogoUrl}" />
+                            </Grid>
+                        </Border>
+
+                        <Grid
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="8"
+                            IsVisible="{Binding HasStation}">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="4"
+                                VerticalOptions="Center">
+                                <Label Style="{StaticResource PageTitleLabel}" Text="{Binding StationName}" />
+                                <Label
+                                    IsVisible="{Binding HasDetails}"
+                                    Style="{StaticResource SecondaryLabel}"
+                                    Text="{Binding Details}" />
+                            </VerticalStackLayout>
+                            <ImageButton
+                                Grid.Column="1"
+                                behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                Command="{Binding ToggleFavoriteCommand}"
+                                Style="{StaticResource IconButton}"
+                                VerticalOptions="Center">
+                                <ImageButton.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsFavorite}"
+                                        TargetType="ImageButton"
+                                        Value="False">
+                                        <Setter Property="Source" Value="ic_heart_outline.png" />
+                                        <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding IsFavorite}"
+                                        TargetType="ImageButton"
+                                        Value="True">
+                                        <Setter Property="Source" Value="ic_heart.png" />
+                                        <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
+                                    </DataTrigger>
+                                </ImageButton.Triggers>
+                            </ImageButton>
+                        </Grid>
+
+                        <!--  Previous favourite, play/stop, next favourite  -->
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="24">
+                            <ImageButton
+                                behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                                Command="{Binding PreviousFavoriteCommand}"
+                                SemanticProperties.Description="{loc:Translate Favoritos_PreviousStation}"
+                                Source="ic_previous.png"
+                                Style="{StaticResource IconButton}"
+                                ToolTipProperties.Text="{loc:Translate Favoritos_Previous}"
+                                VerticalOptions="Center" />
+                            <ImageButton
+                                behaviors:IconTint.Color="{DynamicResource AccentTextColor}"
+                                Command="{Binding ToggleCommand}"
+                                IsEnabled="{Binding HasStation}"
+                                Style="{StaticResource AccentIconButton}"
+                                VerticalOptions="Center">
+                                <ImageButton.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsActive}"
+                                        TargetType="ImageButton"
+                                        Value="False">
+                                        <Setter Property="Source" Value="ic_play.png" />
+                                        <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Play}" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding IsActive}"
+                                        TargetType="ImageButton"
+                                        Value="True">
+                                        <Setter Property="Source" Value="ic_stop.png" />
+                                        <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Stop}" />
+                                    </DataTrigger>
+                                    <Trigger
+                                        Property="IsEnabled"
+                                        TargetType="ImageButton"
+                                        Value="False">
+                                        <Setter Property="Opacity" Value="0.4" />
+                                    </Trigger>
+                                </ImageButton.Triggers>
+                            </ImageButton>
+                            <ImageButton
+                                behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                                Command="{Binding NextFavoriteCommand}"
+                                SemanticProperties.Description="{loc:Translate Favoritos_NextStation}"
+                                Source="ic_next.png"
+                                Style="{StaticResource IconButton}"
+                                ToolTipProperties.Text="{loc:Translate Favoritos_Next}"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <!--  Status line  -->
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                IsVisible="{Binding HasStation}"
+                                Style="{StaticResource StationNameLabel}"
+                                Text="{Binding StatusText}" />
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                IsVisible="{Binding HasNotice}"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="{Binding Notice}" />
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                IsVisible="{Binding HasError}"
+                                Style="{StaticResource ErrorLabel}"
+                                Text="{Binding ErrorMessage}" />
+                            <Button
+                                Command="{Binding RetryCommand}"
+                                HorizontalOptions="Center"
+                                IsVisible="{Binding HasError}"
+                                Text="{loc:Translate Action_Retry}" />
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
-                </VerticalStackLayout>
+                </controls:SizeLimit>
             </ScrollView>
 
             <views:BottomBar Grid.Row="2" />

@@ -46,6 +46,8 @@
     -->
     <ControlTemplate x:Key="HeaderTemplate">
         <Grid
+            MinimumHeightRequest="{DynamicResource ChromeMinHeight}"
+            MaximumHeightRequest="{DynamicResource ChromeMaxHeight}"
             BackgroundColor="{DynamicResource TabBarBackgroundColor}"
             ColumnDefinitions="Auto,*,Auto"
             RowDefinitions="Auto,Auto">
@@ -57,8 +59,8 @@
                 Grid.Column="1"
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="Center"
-                LineBreakMode="WordWrap"
-                MaxLines="2"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
                 SemanticProperties.HeadingLevel="Level1"
                 Style="{StaticResource TocadiscosTitleLabel}"
                 Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
@@ -84,6 +86,7 @@
     <!--  Reproductor's header: the same, with a house on the left that opens Inicio (this page has no bottom bar)  -->
     <ControlTemplate x:Key="ReproductorHeaderTemplate">
         <Grid
+            MinimumHeightRequest="{DynamicResource ChromeMinHeight}"
             BackgroundColor="{DynamicResource TabBarBackgroundColor}"
             ColumnDefinitions="Auto,*,Auto"
             RowDefinitions="Auto,Auto">
@@ -101,8 +104,8 @@
                 Grid.Column="1"
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="Center"
-                LineBreakMode="WordWrap"
-                MaxLines="2"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
                 SemanticProperties.HeadingLevel="Level1"
                 Style="{StaticResource TocadiscosTitleLabel}"
                 Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
@@ -277,105 +280,111 @@
                 Padding="10,6"
                 IsVisible="{Binding ShowFilterBar}"
                 Style="{StaticResource TocadiscosPanel}">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <FlexLayout AlignItems="Center" JustifyContent="SpaceBetween" Wrap="Wrap">
                     <VerticalStackLayout
-                        Grid.Column="0"
+                        FlexLayout.Grow="1"
                         IsVisible="{Binding FiltersApplied}"
                         VerticalOptions="Center">
                         <Label Style="{StaticResource StationNameLabel}" Text="{loc:Translate Inicio_FiltersOn}" />
                         <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
                     </VerticalStackLayout>
                     <Label
-                        Grid.Column="0"
+                        FlexLayout.Grow="1"
                         IsVisible="{Binding FiltersNotApplied}"
                         Style="{StaticResource StationNameLabel}"
                         Text="{loc:Translate Inicio_FiltersOff}"
                         VerticalOptions="Center" />
                     <Button
-                        Grid.Column="1"
                         Command="{Binding DeactivateFiltersCommand}"
                         IsVisible="{Binding FiltersApplied}"
                         Text="{loc:Translate Action_Disable}"
                         VerticalOptions="Center" />
                     <Button
-                        Grid.Column="1"
                         Command="{Binding ActivateFiltersCommand}"
                         IsVisible="{Binding FiltersNotApplied}"
                         Text="{loc:Translate Action_Enable}"
                         VerticalOptions="Center" />
-                </Grid>
+                </FlexLayout>
             </Border>
 
             <!--  Main area: the sleeve stack and the information panel  -->
             <Grid
-                Grid.Row="3"
-                Padding="16,12"
-                ColumnDefinitions="3*,2*"
-                ColumnSpacing="16">
-                <controls:SleeveStack
-                    x:Name="Stack"
-                    Grid.Column="0"
-                    ActivateCommand="{Binding PlayHereCommand}"
-                    FocusOnReset="First"
-                    ItemDisplayPath="Station.Name"
-                    ItemTemplate="{StaticResource StationCardTemplate}"
-                    ItemsSource="{Binding Stations}" />
-
-                <ScrollView
-                    Grid.Column="1"
-                    x:DataType="vm:StationListItem"
-                    BindingContext="{Binding FocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
-                    IsVisible="{Binding HasFocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
-                    VerticalOptions="Center">
-                    <Border Style="{StaticResource TocadiscosPanel}">
-                        <VerticalStackLayout Spacing="8">
-                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
-                                <Label
-                                    Grid.Column="0"
-                                    LineBreakMode="TailTruncation"
-                                    MaxLines="3"
-                                    Style="{StaticResource StationNameLabel}"
-                                    Text="{Binding Station.Name}"
-                                    VerticalOptions="Center" />
-                                <ImageButton
-                                    Grid.Column="1"
-                                    behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
-                                    Command="{Binding HeartCommand}"
-                                    CommandParameter="{Binding .}"
-                                    Style="{StaticResource IconButton}"
-                                    VerticalOptions="Start">
-                                    <ImageButton.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding IsFavorite}"
-                                            TargetType="ImageButton"
-                                            Value="False">
-                                            <Setter Property="Source" Value="ic_heart_outline.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
-                                        </DataTrigger>
-                                        <DataTrigger
-                                            Binding="{Binding IsFavorite}"
-                                            TargetType="ImageButton"
-                                            Value="True">
-                                            <Setter Property="Source" Value="ic_heart.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
-                                        </DataTrigger>
-                                    </ImageButton.Triggers>
-                                </ImageButton>
-                            </Grid>
-                            <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Details}" />
-                            <Label
-                                IsVisible="{Binding IsSelected}"
-                                FontAttributes="Bold"
-                                FontFamily="{DynamicResource AppFontFamilyBold}"
-                                Text="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
-                                TextColor="{DynamicResource TabBarSelectedColor}" />
-                        </VerticalStackLayout>
-                    </Border>
+                Grid.Row="3">
+                <!--  The stack and the panel side by side when they fit, one under the other when not  -->
+                <ScrollView>
+                    <FlexLayout
+                        Padding="8,4"
+                        AlignContent="Center"
+                        AlignItems="Center"
+                        JustifyContent="Center"
+                        Wrap="Wrap">
+                        <controls:AspectBox Margin="8" MaxWidth="{DynamicResource BigSleeveMaxWidth}" MinWidth="{DynamicResource BigSleeveMinWidth}" Ratio="{DynamicResource BigSleeveRatio}">
+                            <controls:SleeveStack
+                                x:Name="Stack"
+                                ActivateCommand="{Binding PlayHereCommand}"
+                                FocusOnReset="First"
+                                ItemDisplayPath="Station.Name"
+                                ItemTemplate="{StaticResource StationCardTemplate}"
+                                ItemsSource="{Binding Stations}" />
+                        </controls:AspectBox>
+                        <controls:SizeLimit
+                            x:DataType="vm:StationListItem"
+                            BindingContext="{Binding FocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
+                            IsVisible="{Binding HasFocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
+                            Margin="8"
+                            MaxWidth="{DynamicResource PlayerPanelMaxWidth}"
+                            MinWidth="{DynamicResource PlayerPanelMinWidth}">
+                            <Border Style="{StaticResource TocadiscosPanel}">
+                                <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
+                                        <Label
+                                            Grid.Column="0"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="3"
+                                            Style="{StaticResource StationNameLabel}"
+                                            Text="{Binding Station.Name}"
+                                            VerticalOptions="Center" />
+                                        <ImageButton
+                                            Grid.Column="1"
+                                            behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                            Command="{Binding HeartCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource IconButton}"
+                                            VerticalOptions="Start">
+                                            <ImageButton.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsFavorite}"
+                                                    TargetType="ImageButton"
+                                                    Value="False">
+                                                    <Setter Property="Source" Value="ic_heart_outline.png" />
+                                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsFavorite}"
+                                                    TargetType="ImageButton"
+                                                    Value="True">
+                                                    <Setter Property="Source" Value="ic_heart.png" />
+                                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
+                                                </DataTrigger>
+                                            </ImageButton.Triggers>
+                                        </ImageButton>
+                                    </Grid>
+                                    <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Details}" />
+                                    <Label
+                                        IsVisible="{Binding IsSelected}"
+                                        FontAttributes="Bold"
+                                        FontFamily="{DynamicResource AppFontFamilyBold}"
+                                        Text="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
+                                        TextColor="{DynamicResource TabBarSelectedColor}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </controls:SizeLimit>
+                    </FlexLayout>
                 </ScrollView>
+
 
                 <!--  States, in place of the stack  -->
                 <VerticalStackLayout
-                    Grid.ColumnSpan="2"
                     HorizontalOptions="Center"
                     IsVisible="{Binding IsLoading}"
                     Spacing="8"
@@ -385,7 +394,6 @@
                 </VerticalStackLayout>
 
                 <Label
-                    Grid.ColumnSpan="2"
                     HorizontalOptions="Center"
                     HorizontalTextAlignment="Center"
                     IsVisible="{Binding IsEmptyPlain}"
@@ -394,7 +402,6 @@
                     VerticalOptions="Center" />
 
                 <VerticalStackLayout
-                    Grid.ColumnSpan="2"
                     HorizontalOptions="Center"
                     IsVisible="{Binding IsEmptyWithPreferences}"
                     Spacing="12"
@@ -410,7 +417,6 @@
                 </VerticalStackLayout>
 
                 <VerticalStackLayout
-                    Grid.ColumnSpan="2"
                     HorizontalOptions="Center"
                     IsVisible="{Binding HasError}"
                     Spacing="12"
@@ -476,58 +482,66 @@
             <!--  Logged in: the sleeve stack, the information panel and the states  -->
             <Grid
                 Grid.Row="2"
-                Padding="16,12"
-                ColumnDefinitions="3*,2*"
-                ColumnSpacing="16"
                 IsVisible="{Binding IsLoggedIn}">
-                <controls:SleeveStack
-                    x:Name="Stack"
-                    Grid.Column="0"
-                    ActivateCommand="{Binding PlayHereCommand}"
-                    FocusOnReset="KeepPosition"
-                    ItemDisplayPath="Station.Name"
-                    ItemTemplate="{StaticResource StationCardTemplate}"
-                    ItemsSource="{Binding Stations}" />
-
-                <ScrollView
-                    Grid.Column="1"
-                    x:DataType="vm:StationListItem"
-                    BindingContext="{Binding FocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
-                    IsVisible="{Binding HasFocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
-                    VerticalOptions="Center">
-                    <Border Style="{StaticResource TocadiscosPanel}">
-                        <VerticalStackLayout Spacing="8">
-                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
-                                <Label
-                                    Grid.Column="0"
-                                    LineBreakMode="TailTruncation"
-                                    MaxLines="3"
-                                    Style="{StaticResource StationNameLabel}"
-                                    Text="{Binding Station.Name}"
-                                    VerticalOptions="Center" />
-                                <ImageButton
-                                    Grid.Column="1"
-                                    behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
-                                    Command="{Binding HeartCommand}"
-                                    CommandParameter="{Binding .}"
-                                    SemanticProperties.Description="{loc:Translate Action_RemoveFavorite}"
-                                    Source="ic_heart.png"
-                                    Style="{StaticResource IconButton}"
-                                    VerticalOptions="Start" />
-                            </Grid>
-                            <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Details}" />
-                            <Label
-                                IsVisible="{Binding IsSelected}"
-                                FontAttributes="Bold"
-                                FontFamily="{DynamicResource AppFontFamilyBold}"
-                                Text="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:FavoritosViewModel}}, x:DataType=vm:FavoritosViewModel}"
-                                TextColor="{DynamicResource TabBarSelectedColor}" />
-                        </VerticalStackLayout>
-                    </Border>
+                <!--  The stack and the panel side by side when they fit, one under the other when not  -->
+                <ScrollView>
+                    <FlexLayout
+                        Padding="8,4"
+                        AlignContent="Center"
+                        AlignItems="Center"
+                        JustifyContent="Center"
+                        Wrap="Wrap">
+                        <controls:AspectBox Margin="8" MaxWidth="{DynamicResource BigSleeveMaxWidth}" MinWidth="{DynamicResource BigSleeveMinWidth}" Ratio="{DynamicResource BigSleeveRatio}">
+                            <controls:SleeveStack
+                                x:Name="Stack"
+                                ActivateCommand="{Binding PlayHereCommand}"
+                                FocusOnReset="KeepPosition"
+                                ItemDisplayPath="Station.Name"
+                                ItemTemplate="{StaticResource StationCardTemplate}"
+                                ItemsSource="{Binding Stations}" />
+                        </controls:AspectBox>
+                        <controls:SizeLimit
+                            x:DataType="vm:StationListItem"
+                            BindingContext="{Binding FocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
+                            IsVisible="{Binding HasFocusedItem, Source={x:Reference Stack}, x:DataType=controls:SleeveStack}"
+                            Margin="8"
+                            MaxWidth="{DynamicResource PlayerPanelMaxWidth}"
+                            MinWidth="{DynamicResource PlayerPanelMinWidth}">
+                            <Border Style="{StaticResource TocadiscosPanel}">
+                                <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
+                                        <Label
+                                            Grid.Column="0"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="3"
+                                            Style="{StaticResource StationNameLabel}"
+                                            Text="{Binding Station.Name}"
+                                            VerticalOptions="Center" />
+                                        <ImageButton
+                                            Grid.Column="1"
+                                            behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                            Command="{Binding HeartCommand}"
+                                            CommandParameter="{Binding .}"
+                                            SemanticProperties.Description="{loc:Translate Action_RemoveFavorite}"
+                                            Source="ic_heart.png"
+                                            Style="{StaticResource IconButton}"
+                                            VerticalOptions="Start" />
+                                    </Grid>
+                                    <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Details}" />
+                                    <Label
+                                        IsVisible="{Binding IsSelected}"
+                                        FontAttributes="Bold"
+                                        FontFamily="{DynamicResource AppFontFamilyBold}"
+                                        Text="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:FavoritosViewModel}}, x:DataType=vm:FavoritosViewModel}"
+                                        TextColor="{DynamicResource TabBarSelectedColor}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </controls:SizeLimit>
+                    </FlexLayout>
                 </ScrollView>
 
+
                 <VerticalStackLayout
-                    Grid.ColumnSpan="2"
                     HorizontalOptions="Center"
                     IsVisible="{Binding IsLoading}"
                     Spacing="8"
@@ -537,7 +551,6 @@
                 </VerticalStackLayout>
 
                 <Label
-                    Grid.ColumnSpan="2"
                     HorizontalOptions="Center"
                     HorizontalTextAlignment="Center"
                     IsVisible="{Binding IsEmpty}"
@@ -546,7 +559,6 @@
                     VerticalOptions="Center" />
 
                 <VerticalStackLayout
-                    Grid.ColumnSpan="2"
                     HorizontalOptions="Center"
                     IsVisible="{Binding HasError}"
                     Spacing="12"
@@ -576,105 +588,117 @@
             x:DataType="vm:ReproductorViewModel"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,5*,2*">
+            RowDefinitions="Auto,*">
             <ContentView Grid.Row="0" ControlTemplate="{StaticResource ReproductorHeaderTemplate}" />
 
-            <Grid
-                Grid.Row="1"
-                Padding="16,12"
-                ColumnDefinitions="3*,2*"
-                ColumnSpacing="16">
-                <controls:VinylDisc
-                    Grid.Column="0"
-                    IsBlank="{Binding HasNoStation}"
-                    IsSpinning="{Binding IsActive}"
-                    LogoSource="{Binding LogoUrl}" />
-                <controls:Tonearm
-                    Grid.Column="0"
-                    Command="{Binding ToggleCommand}"
-                    IsEnabled="{Binding HasStation}"
-                    IsLowered="{Binding IsActive}" />
-
-                <ScrollView Grid.Column="1" VerticalOptions="Center">
-                    <Border Style="{StaticResource TocadiscosPanel}">
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                IsVisible="{Binding HasNoStation}"
-                                Style="{StaticResource SecondaryLabel}"
-                                Text="{loc:Translate Reproductor_Choose}" />
-
-                            <Grid
-                                ColumnDefinitions="*,Auto"
-                                ColumnSpacing="4"
-                                IsVisible="{Binding HasStation}">
-                                <Label
-                                    Grid.Column="0"
-                                    LineBreakMode="TailTruncation"
-                                    MaxLines="3"
-                                    Style="{StaticResource StationNameLabel}"
-                                    Text="{Binding StationName}"
-                                    VerticalOptions="Center" />
-                                <ImageButton
-                                    Grid.Column="1"
-                                    behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
-                                    Command="{Binding ToggleFavoriteCommand}"
-                                    Style="{StaticResource IconButton}"
-                                    VerticalOptions="Start">
-                                    <ImageButton.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding IsFavorite}"
-                                            TargetType="ImageButton"
-                                            Value="False">
-                                            <Setter Property="Source" Value="ic_heart_outline.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
-                                        </DataTrigger>
-                                        <DataTrigger
-                                            Binding="{Binding IsFavorite}"
-                                            TargetType="ImageButton"
-                                            Value="True">
-                                            <Setter Property="Source" Value="ic_heart.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
-                                        </DataTrigger>
-                                    </ImageButton.Triggers>
-                                </ImageButton>
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="8,4" Spacing="8">
+                    <!--  The turntable and the panel side by side when they fit, one under the other when not  -->
+                    <FlexLayout AlignItems="Center" JustifyContent="Center" Wrap="Wrap">
+                        <controls:AspectBox
+                            Margin="8"
+                            MaxWidth="{DynamicResource TurntableMaxWidth}"
+                            MinWidth="{DynamicResource TurntableMinWidth}"
+                            Ratio="{DynamicResource TurntableRatio}">
+                            <Grid>
+                                <controls:VinylDisc
+                                    IsBlank="{Binding HasNoStation}"
+                                    IsSpinning="{Binding IsActive}"
+                                    LogoSource="{Binding LogoUrl}" />
+                                <controls:Tonearm
+                                    Command="{Binding ToggleCommand}"
+                                    IsEnabled="{Binding HasStation}"
+                                    IsLowered="{Binding IsActive}" />
                             </Grid>
-                            <Label
-                                IsVisible="{Binding HasDetails}"
-                                Style="{StaticResource SecondaryLabel}"
-                                Text="{Binding Details}" />
+                        </controls:AspectBox>
+                        <controls:SizeLimit
+                            Margin="8"
+                            MaxWidth="{DynamicResource PlayerPanelMaxWidth}"
+                            MinWidth="{DynamicResource PlayerPanelMinWidth}">
+                            <Border Style="{StaticResource TocadiscosPanel}">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label
+                                        IsVisible="{Binding HasNoStation}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{loc:Translate Reproductor_Choose}" />
 
-                            <!--  Status line  -->
-                            <Label
-                                IsVisible="{Binding HasStation}"
-                                FontAttributes="Bold"
-                                FontFamily="{DynamicResource AppFontFamilyBold}"
-                                Text="{Binding StatusText}"
-                                TextColor="{DynamicResource TabBarSelectedColor}" />
-                            <Label
-                                IsVisible="{Binding HasError}"
-                                Style="{StaticResource ErrorLabel}"
-                                Text="{Binding ErrorMessage}" />
-                            <Button
-                                Command="{Binding RetryCommand}"
-                                HorizontalOptions="Start"
-                                IsVisible="{Binding HasError}"
-                                Text="{loc:Translate Action_Retry}" />
-                        </VerticalStackLayout>
-                    </Border>
-                </ScrollView>
-            </Grid>
+                                    <Grid
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="4"
+                                        IsVisible="{Binding HasStation}">
+                                        <Label
+                                            Grid.Column="0"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="3"
+                                            Style="{StaticResource StationNameLabel}"
+                                            Text="{Binding StationName}"
+                                            VerticalOptions="Center" />
+                                        <ImageButton
+                                            Grid.Column="1"
+                                            behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                            Command="{Binding ToggleFavoriteCommand}"
+                                            Style="{StaticResource IconButton}"
+                                            VerticalOptions="Start">
+                                            <ImageButton.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsFavorite}"
+                                                    TargetType="ImageButton"
+                                                    Value="False">
+                                                    <Setter Property="Source" Value="ic_heart_outline.png" />
+                                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsFavorite}"
+                                                    TargetType="ImageButton"
+                                                    Value="True">
+                                                    <Setter Property="Source" Value="ic_heart.png" />
+                                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
+                                                </DataTrigger>
+                                            </ImageButton.Triggers>
+                                        </ImageButton>
+                                    </Grid>
+                                    <Label
+                                        IsVisible="{Binding HasDetails}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{Binding Details}" />
 
-            <controls:RecordCrate
-                Grid.Row="2"
-                EmptyText="{loc:Translate Favoritos_Empty}"
-                IsLoggedIn="{Binding IsLoggedIn}"
-                ItemDisplayPath="Station.Name"
-                ItemIsCurrentPath="IsSelected"
-                ItemTemplate="{StaticResource CrateRecordTemplate}"
-                ItemsSource="{Binding Favorites}"
-                LogInCommand="{Binding LogInCommand}"
-                LoggedOutText="{loc:Translate Favoritos_LogInHint}"
-                SelectCommand="{Binding SelectFavoriteCommand}" />
+                                    <!--  Status line  -->
+                                    <Label
+                                        IsVisible="{Binding HasStation}"
+                                        FontAttributes="Bold"
+                                        FontFamily="{DynamicResource AppFontFamilyBold}"
+                                        Text="{Binding StatusText}"
+                                        TextColor="{DynamicResource TabBarSelectedColor}" />
+                                    <Label
+                                        IsVisible="{Binding HasError}"
+                                        Style="{StaticResource ErrorLabel}"
+                                        Text="{Binding ErrorMessage}" />
+                                    <Button
+                                        Command="{Binding RetryCommand}"
+                                        HorizontalOptions="Start"
+                                        IsVisible="{Binding HasError}"
+                                        Text="{loc:Translate Action_Retry}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </controls:SizeLimit>
+                    </FlexLayout>
+                    <controls:AspectBox
+                        MaxWidth="{DynamicResource RecordCrateMaxWidth}"
+                        MinWidth="{DynamicResource RecordCrateMinWidth}"
+                        Ratio="{DynamicResource RecordCrateRatio}">
+                        <controls:RecordCrate
+                            EmptyText="{loc:Translate Favoritos_Empty}"
+                            IsLoggedIn="{Binding IsLoggedIn}"
+                            ItemDisplayPath="Station.Name"
+                            ItemIsCurrentPath="IsSelected"
+                            ItemTemplate="{StaticResource CrateRecordTemplate}"
+                            ItemsSource="{Binding Favorites}"
+                            LogInCommand="{Binding LogInCommand}"
+                            LoggedOutText="{loc:Translate Favoritos_LogInHint}"
+                            SelectCommand="{Binding SelectFavoriteCommand}" />
+                    </controls:AspectBox>
+                </VerticalStackLayout>
+            </ScrollView>
         </Grid>
     </ControlTemplate>
 

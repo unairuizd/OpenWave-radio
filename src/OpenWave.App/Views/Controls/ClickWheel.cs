@@ -31,15 +31,17 @@ public class ClickWheel : ContentView
     public static readonly BindableProperty CenterIconProperty = BindableProperty.Create(nameof(CenterIcon), typeof(ImageSource), typeof(ClickWheel), null, propertyChanged: (b, _, n) => ((ClickWheel)b)._center.Source = (ImageSource?)n);
 
     private const double DegreesPerStep = 24;
-    private const double Size = 220;
-    private const double CenterSize = 84;
+    // Proportions of a 220-unit wheel: the centre button and the edge buttons scale with the ring.
+    private const double CenterRatio = 84.0 / 220;
+    private const double EdgeWidthRatio = 64.0 / 220;
+    private const double EdgeHeightRatio = 52.0 / 220;
 
-    private readonly Grid _ring = new() { WidthRequest = Size, HeightRequest = Size };
+    private readonly Grid _ring = new();
     private readonly Button _menu;
     private readonly Button _previous;
     private readonly Button _next;
     private readonly Button _playPause;
-    private readonly ImageButton _center = new() { WidthRequest = CenterSize, HeightRequest = CenterSize, CornerRadius = (int)(CenterSize / 2), Padding = 24 };
+    private readonly ImageButton _center = new() { Padding = 24 };
     private double? _lastAngle;
     private double _turned;
 
@@ -73,6 +75,7 @@ public class ClickWheel : ContentView
         _ring.Children.Add(_center);
 
         _ring.HandlerChanged += (_, _) => AttachRingInput();
+        _ring.SizeChanged += (_, _) => SizeParts();
         HandlerChanged += (_, _) => AttachPageKeys();
         Content = _ring;
         HorizontalOptions = LayoutOptions.Center;
@@ -130,8 +133,6 @@ public class ClickWheel : ContentView
             BackgroundColor = Colors.Transparent,
             BorderWidth = 0,
             Padding = 0,
-            WidthRequest = 64,
-            HeightRequest = 52,
             HorizontalOptions = horizontal,
             VerticalOptions = vertical,
         };
@@ -182,6 +183,26 @@ public class ClickWheel : ContentView
         AutomationProperties.SetIsInAccessibleTree(_ring, IsScrollEnabled);
     }
 
+    // The wheel fills the square it is given: the centre and the edge buttons keep their proportions.
+    private void SizeParts()
+    {
+        var size = Math.Min(_ring.Width, _ring.Height);
+        if (size <= 0)
+        {
+            return;
+        }
+
+        var centre = Math.Round(size * CenterRatio);
+        _center.WidthRequest = _center.HeightRequest = centre;
+        _center.CornerRadius = (int)(centre / 2);
+        _center.Padding = centre * 24 / 84;
+        foreach (var edge in new[] { _menu, _previous, _next, _playPause })
+        {
+            edge.WidthRequest = Math.Round(size * EdgeWidthRatio);
+            edge.HeightRequest = Math.Round(size * EdgeHeightRatio);
+        }
+    }
+
     // The finger's position on the ring: each angle change around the centre is added up, one step every 24°.
     private void OnRingPointer(double x, double y, bool down, bool up)
     {
@@ -192,7 +213,7 @@ public class ClickWheel : ContentView
             return;
         }
 
-        var angle = Math.Atan2(y - Size / 2, x - Size / 2) * 180 / Math.PI;
+        var angle = Math.Atan2(y - _ring.Height / 2, x - _ring.Width / 2) * 180 / Math.PI;
         if (down || _lastAngle is null)
         {
             _lastAngle = angle;

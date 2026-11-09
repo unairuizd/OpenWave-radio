@@ -31,8 +31,9 @@ public class SettingsHeader : ContentView
         {
             Style = (Style)Application.Current.Resources["HeaderTitleLabel"],
             Margin = new Thickness(4, 0),
-            LineBreakMode = LineBreakMode.WordWrap,
-            MaxLines = 2,
+            // One line, cut with … when it does not fit (a long word must never break in the middle).
+            LineBreakMode = LineBreakMode.TailTruncation,
+            MaxLines = 1,
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalOptions = LayoutOptions.Center,
         };
@@ -61,6 +62,8 @@ public class SettingsHeader : ContentView
                 new RowDefinition(GridLength.Auto)),
         };
         grid.SetDynamicResource(BackgroundColorProperty, "PageBackgroundColor");
+        grid.SetDynamicResource(MinimumHeightRequestProperty, "ChromeMinHeight");
+        grid.SetDynamicResource(MaximumHeightRequestProperty, "ChromeMaxHeight");
         grid.Add(_back, 0, 0);
         grid.Add(_title, 1, 0);
         grid.Add(_gear, 2, 0);

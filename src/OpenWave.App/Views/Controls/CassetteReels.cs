@@ -60,15 +60,21 @@ public class CassetteReels : PageAwareView
         // The tape window between the reels, and the reels.
         _leftReel = CreateReel();
         _rightReel = CreateReel();
-        var tape = new Border { StrokeThickness = 2, HeightRequest = 18, VerticalOptions = LayoutOptions.Center, Margin = new Thickness(30, 0) };
+        var tape = new Border { StrokeThickness = 2, VerticalOptions = LayoutOptions.Center };
         tape.StrokeShape = new RoundRectangle { CornerRadius = 9 };
         tape.SetDynamicResource(BackgroundColorProperty, "PageBackgroundColor");
         tape.SetDynamicResource(Border.StrokeProperty, "DividerColor");
-        var window = new Grid { HeightRequest = 64, Children = { tape, _leftReel, _rightReel } };
+        var window = new Grid { Children = { tape, _leftReel, _rightReel } };
         _leftReel.HorizontalOptions = LayoutOptions.Start;
         _rightReel.HorizontalOptions = LayoutOptions.End;
 
-        shell.Content = new VerticalStackLayout { Spacing = 10, Children = { label, window } };
+        // The cassette fills the box that holds it (it keeps its shape there): the label on top, the tape window
+        // below. The reels and the tape are drawn from the window's size, so the whole cassette scales together.
+        window.SizeChanged += (_, _) => SizeWindow(window, tape);
+        var body = new Grid { RowDefinitions = [new(GridLength.Auto), new(GridLength.Star)], RowSpacing = 10 };
+        body.Add(label, 0, 0);
+        body.Add(window, 0, 1);
+        shell.Content = body;
         Content = shell;
 
         AutomationProperties.SetIsInAccessibleTree(this, false);
@@ -107,17 +113,42 @@ public class CassetteReels : PageAwareView
 
     protected override void OnShownChanged(bool shown) => UpdateMotion(shown);
 
+    // The reels are as large as the window allows (at most 30 % of its width); the tape runs between their centres.
+    private void SizeWindow(Grid window, Border tape)
+    {
+        var reel = Math.Max(0, Math.Min(window.Height, window.Width * 0.3));
+        foreach (var r in new[] { _leftReel, _rightReel })
+        {
+            r.WidthRequest = r.HeightRequest = reel;
+            foreach (var child in r.Children.OfType<View>())
+            {
+                if (child is BoxView tooth)
+                {
+                    tooth.HeightRequest = reel / 2;
+                    tooth.WidthRequest = Math.Max(2, reel / 15);
+                }
+                else if (child is Ellipse { StrokeThickness: 0 } hub)
+                {
+                    hub.Margin = reel * 0.23;
+                }
+            }
+        }
+
+        tape.HeightRequest = reel * 0.3;
+        tape.Margin = new Thickness(reel / 2, 0);
+    }
+
     // A reel: the hub with six teeth, inside a ring of wound tape.
     private static Grid CreateReel()
     {
         var tape = new Ellipse { StrokeThickness = 6 };
         tape.SetDynamicResource(Shape.StrokeProperty, "DividerColor");
-        var hub = new Ellipse { Margin = 14 };
+        var hub = new Ellipse { Margin = 14, StrokeThickness = 0 };
         hub.SetDynamicResource(Shape.FillProperty, "TabBarUnselectedColor");
-        var reel = new Grid { WidthRequest = 60, HeightRequest = 60, Children = { tape, hub } };
+        var reel = new Grid { Children = { tape, hub } };
         for (var i = 0; i < 3; i++)
         {
-            var tooth = new BoxView { WidthRequest = 4, HeightRequest = 30, Rotation = i * 60, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+            var tooth = new BoxView { Rotation = i * 60, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
             tooth.SetDynamicResource(BoxView.ColorProperty, "InputBackgroundColor");
             reel.Children.Add(tooth);
         }

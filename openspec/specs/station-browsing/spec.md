@@ -8,7 +8,7 @@ Lets the user browse, search and select real stations in Inicio and understand w
 
 ### Requirement: Station list in Inicio
 
-When the station list loads successfully, `Inicio` SHALL show every station returned by the API, one entry per station: in `Moderno` as a grid of station cards with at least two columns on a phone and more columns on wider windows, in `Tocadiscos` as the stack of record sleeves, and in every other theme as its theme specification describes. Without an active search, `Inicio` SHALL request and show the top stations from the catalogue.
+When the station list loads successfully, `Inicio` SHALL show every station returned by the API, one entry per station: in `Moderno` as a grid of station cards with as many columns as fit at the card minimum width (two or more on a phone at the `Normal` text size, one when two cards would be narrower than their minimum) and more columns on wider windows, in `Tocadiscos` as the stack of record sleeves, and in every other theme as its theme specification describes. Without an active search, `Inicio` SHALL request and show the top stations from the catalogue.
 
 #### Scenario: API is running
 
@@ -30,12 +30,18 @@ When the station list loads successfully, `Inicio` SHALL show every station retu
 #### Scenario: Wide window
 
 - **WHEN** the Windows window is widened in `Moderno`
-- **THEN** the grid shows more columns, about one for every 170 units of width, and never fewer than two
+- **THEN** the grid shows more columns, one for every card minimum width (150 units at `Normal`), and every card stays within its width limits
 
 #### Scenario: Up to a hundred stations
 
 - **WHEN** the API returns 100 stations and any theme other than `Moderno` is selected
 - **THEN** the user can reach every station and the page stays responsive
+
+#### Scenario: Small window at a large text size
+
+- **WHEN** the Windows window is at its minimum size, `Moderno` is selected and the text size is `Grande` or larger
+- **THEN** the grid shows one column of cards, each at least its minimum width, and nothing scrolls sideways
+
 ### Requirement: Error state with retry
 
 When the station request fails, `Inicio` SHALL show an error message in Spanish and a `Reintentar` button, and the app SHALL remain usable without crashing. If the API cannot be reached, the message SHALL be `No hay conexión con el servidor.` If the API reports that the catalogue is unavailable, the message SHALL be `No se pudo obtener el catálogo de emisoras.` Activating `Reintentar` SHALL repeat the last request, including the current search term when one is active.

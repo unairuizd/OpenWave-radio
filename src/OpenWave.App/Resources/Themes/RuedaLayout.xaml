@@ -74,6 +74,8 @@
     -->
     <ControlTemplate x:Key="HeaderTemplate">
         <Grid
+            MinimumHeightRequest="{DynamicResource ChromeMinHeight}"
+            MaximumHeightRequest="{DynamicResource ChromeMaxHeight}"
             BackgroundColor="{DynamicResource SurfaceColor}"
             ColumnDefinitions="Auto,*,Auto"
             RowDefinitions="Auto,Auto">
@@ -98,8 +100,8 @@
                 Grid.Column="1"
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="Center"
-                LineBreakMode="WordWrap"
-                MaxLines="2"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
                 SemanticProperties.HeadingLevel="Level1"
                 Style="{StaticResource HeaderTitleLabel}"
                 Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
@@ -230,152 +232,159 @@
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}">
             <Grid
                 Padding="12,10,12,0"
-                MaximumWidthRequest="520"
-                RowDefinitions="*,Auto,Auto"
+                RowDefinitions="*,Auto"
                 RowSpacing="8">
 
-                <!--  The screen: title bar, search and filter rows, then the Emisoras menu (the states replace it)  -->
-                <Border Grid.Row="0" Style="{StaticResource RuedaScreen}">
-                    <Grid RowDefinitions="Auto,Auto,Auto,*">
-                        <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
-                        <Grid
-                            Grid.Row="1"
-                            Padding="8,4"
-                            ColumnDefinitions="*,Auto,Auto"
-                            ColumnSpacing="2">
-                            <Entry
-                                Grid.Column="0"
-                                Placeholder="{loc:Translate Search_StationPlaceholder}"
-                                ReturnCommand="{Binding SearchCommand}"
-                                ReturnType="Search"
-                                SemanticProperties.Description="{loc:Translate Search_Station}"
-                                Text="{Binding SearchText}"
-                                VerticalOptions="Center" />
-                            <ImageButton
-                                Grid.Column="1"
-                                behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
-                                Command="{Binding SearchCommand}"
-                                SemanticProperties.Description="{loc:Translate Action_Search}"
-                                Source="ic_search.png"
-                                Style="{StaticResource IconButton}"
-                                ToolTipProperties.Text="{loc:Translate Action_Search}" />
-                            <ImageButton
-                                Grid.Column="2"
-                                behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
-                                Command="{Binding ClearSearchCommand}"
-                                SemanticProperties.Description="{loc:Translate Search_Clear}"
-                                Source="ic_clear.png"
-                                Style="{StaticResource IconButton}"
-                                ToolTipProperties.Text="{loc:Translate Search_Clear}" />
-                        </Grid>
-                        <Grid
-                            Grid.Row="2"
-                            Padding="10,2,10,6"
-                            ColumnDefinitions="*,Auto"
-                            ColumnSpacing="8"
-                            IsVisible="{Binding ShowFilterBar}">
-                            <VerticalStackLayout
-                                Grid.Column="0"
-                                IsVisible="{Binding FiltersApplied}"
-                                VerticalOptions="Center">
-                                <Label Style="{StaticResource StationNameLabel}" Text="{loc:Translate Inicio_FiltersOn}" />
-                                <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
-                            </VerticalStackLayout>
-                            <Label
-                                Grid.Column="0"
-                                IsVisible="{Binding FiltersNotApplied}"
-                                Style="{StaticResource StationNameLabel}"
-                                Text="{loc:Translate Inicio_FiltersOff}"
-                                VerticalOptions="Center" />
-                            <Button
-                                Grid.Column="1"
-                                Command="{Binding DeactivateFiltersCommand}"
-                                IsVisible="{Binding FiltersApplied}"
-                                Text="{loc:Translate Action_Disable}"
-                                VerticalOptions="Center" />
-                            <Button
-                                Grid.Column="1"
-                                Command="{Binding ActivateFiltersCommand}"
-                                IsVisible="{Binding FiltersNotApplied}"
-                                Text="{loc:Translate Action_Enable}"
-                                VerticalOptions="Center" />
-                        </Grid>
+                <!--  The screen keeps its shape and the wheel stays round; both scroll above the bar when they do not fit  -->
+                <ScrollView Grid.Row="0">
+                    <VerticalStackLayout
+                        HorizontalOptions="Center"
+                        MaximumWidthRequest="{DynamicResource DeviceScreenMaxWidth}"
+                        Spacing="8">
+                        <!--  The screen: title bar, search and filter rows, then the Emisoras menu (the states replace it)  -->
+                        <controls:AspectBox MaxWidth="{DynamicResource DeviceScreenMaxWidth}" MinWidth="{DynamicResource DeviceScreenMinWidth}" Ratio="{DynamicResource DeviceScreenRatio}">
+                            <Border Style="{StaticResource RuedaScreen}">
+                                <Grid RowDefinitions="Auto,Auto,Auto,*">
+                                    <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+                                    <Grid
+                                        Grid.Row="1"
+                                        Padding="8,4"
+                                        ColumnDefinitions="*,Auto,Auto"
+                                        ColumnSpacing="2">
+                                        <Entry
+                                            Grid.Column="0"
+                                            Placeholder="{loc:Translate Search_StationPlaceholder}"
+                                            ReturnCommand="{Binding SearchCommand}"
+                                            ReturnType="Search"
+                                            SemanticProperties.Description="{loc:Translate Search_Station}"
+                                            Text="{Binding SearchText}"
+                                            VerticalOptions="Center" />
+                                        <ImageButton
+                                            Grid.Column="1"
+                                            behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                                            Command="{Binding SearchCommand}"
+                                            SemanticProperties.Description="{loc:Translate Action_Search}"
+                                            Source="ic_search.png"
+                                            Style="{StaticResource IconButton}"
+                                            ToolTipProperties.Text="{loc:Translate Action_Search}" />
+                                        <ImageButton
+                                            Grid.Column="2"
+                                            behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                                            Command="{Binding ClearSearchCommand}"
+                                            SemanticProperties.Description="{loc:Translate Search_Clear}"
+                                            Source="ic_clear.png"
+                                            Style="{StaticResource IconButton}"
+                                            ToolTipProperties.Text="{loc:Translate Search_Clear}" />
+                                    </Grid>
+                                    <FlexLayout
+                                        Grid.Row="2"
+                                        Padding="10,2,10,6"
+                                        IsVisible="{Binding ShowFilterBar}" AlignItems="Center" JustifyContent="SpaceBetween" Wrap="Wrap">
+                                        <VerticalStackLayout
+                                            FlexLayout.Grow="1"
+                                            IsVisible="{Binding FiltersApplied}"
+                                            VerticalOptions="Center">
+                                            <Label Style="{StaticResource StationNameLabel}" Text="{loc:Translate Inicio_FiltersOn}" />
+                                            <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
+                                        </VerticalStackLayout>
+                                        <Label
+                                            FlexLayout.Grow="1"
+                                            IsVisible="{Binding FiltersNotApplied}"
+                                            Style="{StaticResource StationNameLabel}"
+                                            Text="{loc:Translate Inicio_FiltersOff}"
+                                            VerticalOptions="Center" />
+                                        <Button
+                                            Command="{Binding DeactivateFiltersCommand}"
+                                            IsVisible="{Binding FiltersApplied}"
+                                            Text="{loc:Translate Action_Disable}"
+                                            VerticalOptions="Center" />
+                                        <Button
+                                            Command="{Binding ActivateFiltersCommand}"
+                                            IsVisible="{Binding FiltersNotApplied}"
+                                            Text="{loc:Translate Action_Enable}"
+                                            VerticalOptions="Center" />
+                                    </FlexLayout>
 
-                        <controls:CursorList
-                            x:Name="Menu"
-                            Grid.Row="3"
-                            ActivateCommand="{Binding PlayHereCommand}"
-                            FocusOnReset="First"
-                            ItemIsCurrentPath="IsSelected"
-                            ItemTemplate="{StaticResource StationCardTemplate}"
-                            ItemsSource="{Binding Stations}" />
+                                    <controls:CursorList
+                                        x:Name="Menu"
+                                        Grid.Row="3"
+                                        ActivateCommand="{Binding PlayHereCommand}"
+                                        FocusOnReset="First"
+                                        ItemIsCurrentPath="IsSelected"
+                                        ItemTemplate="{StaticResource StationCardTemplate}"
+                                        ItemsSource="{Binding Stations}" />
 
-                        <VerticalStackLayout
-                            Grid.Row="3"
-                            HorizontalOptions="Center"
-                            IsVisible="{Binding IsLoading}"
-                            Spacing="8"
-                            VerticalOptions="Center">
-                            <ActivityIndicator IsRunning="{Binding IsLoading}" />
-                            <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Inicio_Loading}" />
-                        </VerticalStackLayout>
+                                    <VerticalStackLayout
+                                        Grid.Row="3"
+                                        HorizontalOptions="Center"
+                                        IsVisible="{Binding IsLoading}"
+                                        Spacing="8"
+                                        VerticalOptions="Center">
+                                        <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                                        <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Inicio_Loading}" />
+                                    </VerticalStackLayout>
 
-                        <Label
-                            Grid.Row="3"
-                            HorizontalOptions="Center"
-                            HorizontalTextAlignment="Center"
-                            IsVisible="{Binding IsEmptyPlain}"
-                            Style="{StaticResource SecondaryLabel}"
-                            Text="{loc:Translate Inicio_NoStations}"
-                            VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Row="3"
+                                        HorizontalOptions="Center"
+                                        HorizontalTextAlignment="Center"
+                                        IsVisible="{Binding IsEmptyPlain}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{loc:Translate Inicio_NoStations}"
+                                        VerticalOptions="Center" />
 
-                        <VerticalStackLayout
-                            Grid.Row="3"
-                            HorizontalOptions="Center"
-                            IsVisible="{Binding IsEmptyWithPreferences}"
-                            Spacing="12"
-                            VerticalOptions="Center">
-                            <Label
-                                HorizontalTextAlignment="Center"
-                                Style="{StaticResource SecondaryLabel}"
-                                Text="{loc:Translate Inicio_NoStationsFiltered}" />
-                            <Button
-                                Command="{Binding DeactivateFiltersCommand}"
-                                HorizontalOptions="Center"
-                                Text="{loc:Translate Action_Disable}" />
-                        </VerticalStackLayout>
+                                    <VerticalStackLayout
+                                        Grid.Row="3"
+                                        HorizontalOptions="Center"
+                                        IsVisible="{Binding IsEmptyWithPreferences}"
+                                        Spacing="12"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            HorizontalTextAlignment="Center"
+                                            Style="{StaticResource SecondaryLabel}"
+                                            Text="{loc:Translate Inicio_NoStationsFiltered}" />
+                                        <Button
+                                            Command="{Binding DeactivateFiltersCommand}"
+                                            HorizontalOptions="Center"
+                                            Text="{loc:Translate Action_Disable}" />
+                                    </VerticalStackLayout>
 
-                        <VerticalStackLayout
-                            Grid.Row="3"
-                            HorizontalOptions="Center"
-                            IsVisible="{Binding HasError}"
-                            Spacing="12"
-                            VerticalOptions="Center">
-                            <Label
-                                HorizontalTextAlignment="Center"
-                                Style="{StaticResource ErrorLabel}"
-                                Text="{Binding ErrorMessage}" />
-                            <Button
-                                Command="{Binding RetryCommand}"
-                                HorizontalOptions="Center"
-                                Text="{loc:Translate Action_Retry}" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
+                                    <VerticalStackLayout
+                                        Grid.Row="3"
+                                        HorizontalOptions="Center"
+                                        IsVisible="{Binding HasError}"
+                                        Spacing="12"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            HorizontalTextAlignment="Center"
+                                            Style="{StaticResource ErrorLabel}"
+                                            Text="{Binding ErrorMessage}" />
+                                        <Button
+                                            Command="{Binding RetryCommand}"
+                                            HorizontalOptions="Center"
+                                            Text="{loc:Translate Action_Retry}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </controls:AspectBox>
+                        <!--  The wheel: it moves the menu cursor; MENÚ is disabled here  -->
+                        <controls:AspectBox MaxWidth="{DynamicResource ClickWheelMaxWidth}" MinWidth="{DynamicResource ClickWheelMinWidth}" Ratio="{DynamicResource ClickWheelRatio}">
+                            <controls:ClickWheel
+                                CenterCommand="{Binding ActivateCursorCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                                IsMenuEnabled="False"
+                                MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
+                                MenuCommandParameter="inicio"
+                                NextCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                                PlayPauseCommand="{Binding ActivateCurrentCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                                PreviousCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                                ScrollStepCommand="{Binding MoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}" />
+                        </controls:AspectBox>
+                    </VerticalStackLayout>
+                </ScrollView>
 
-                <!--  The wheel: it moves the menu cursor; MENÚ is disabled here  -->
-                <controls:ClickWheel
-                    Grid.Row="1"
-                    CenterCommand="{Binding ActivateCursorCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
-                    IsMenuEnabled="False"
-                    MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
-                    MenuCommandParameter="inicio"
-                    NextCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
-                    PlayPauseCommand="{Binding ActivateCurrentCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
-                    PreviousCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
-                    ScrollStepCommand="{Binding MoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}" />
-
-                <views:BottomBar Grid.Row="2" />
+                <controls:SizeLimit Grid.Row="1" MaxWidth="{DynamicResource DeviceScreenMaxWidth}" MinWidth="{DynamicResource DeviceScreenMinWidth}">
+                    <views:BottomBar />
+                </controls:SizeLimit>
             </Grid>
         </Grid>
     </ControlTemplate>
@@ -387,107 +396,118 @@
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}">
             <Grid
                 Padding="12,10,12,0"
-                MaximumWidthRequest="520"
-                RowDefinitions="*,Auto,Auto"
+                RowDefinitions="*,Auto"
                 RowSpacing="8">
 
-                <!--  The screen: title bar, the account row, then the Favoritas menu (the states replace it)  -->
-                <Border Grid.Row="0" Style="{StaticResource RuedaScreen}">
-                    <Grid RowDefinitions="Auto,Auto,*">
-                        <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
-                        <Grid
-                            Grid.Row="1"
-                            Padding="10,6"
-                            ColumnDefinitions="*,Auto"
-                            ColumnSpacing="8"
-                            IsVisible="{Binding IsLoggedIn}">
-                            <Label
-                                Grid.Column="0"
-                                LineBreakMode="TailTruncation"
-                                MaxLines="1"
-                                Style="{StaticResource SecondaryLabel}"
-                                Text="{Binding Email}"
-                                VerticalOptions="Center" />
-                            <Button
-                                Grid.Column="1"
-                                Padding="12,4"
-                                Command="{Binding LogOutCommand}"
-                                Text="{loc:Translate Session_LogOut}" />
-                        </Grid>
+                <!--  The screen keeps its shape and the wheel stays round; both scroll above the bar when they do not fit  -->
+                <ScrollView Grid.Row="0">
+                    <VerticalStackLayout
+                        HorizontalOptions="Center"
+                        MaximumWidthRequest="{DynamicResource DeviceScreenMaxWidth}"
+                        Spacing="8">
+                        <!--  The screen: title bar, the account row, then the Favoritas menu (the states replace it)  -->
+                        <controls:AspectBox MaxWidth="{DynamicResource DeviceScreenMaxWidth}" MinWidth="{DynamicResource DeviceScreenMinWidth}" Ratio="{DynamicResource DeviceScreenRatio}">
+                            <Border Style="{StaticResource RuedaScreen}">
+                                <Grid RowDefinitions="Auto,Auto,*">
+                                    <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
+                                    <Grid
+                                        Grid.Row="1"
+                                        Padding="10,6"
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="8"
+                                        IsVisible="{Binding IsLoggedIn}">
+                                        <Label
+                                            Grid.Column="0"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="1"
+                                            Style="{StaticResource SecondaryLabel}"
+                                            Text="{Binding Email}"
+                                            VerticalOptions="Center" />
+                                        <Button
+                                            Grid.Column="1"
+                                            Padding="12,4"
+                                            Command="{Binding LogOutCommand}"
+                                            Text="{loc:Translate Session_LogOut}" />
+                                    </Grid>
 
-                        <controls:CursorList
-                            x:Name="Menu"
-                            Grid.Row="2"
-                            ActivateCommand="{Binding PlayHereCommand}"
-                            FocusOnReset="KeepPosition"
-                            IsVisible="{Binding IsLoggedIn}"
-                            ItemIsCurrentPath="IsSelected"
-                            ItemTemplate="{StaticResource StationCardTemplate}"
-                            ItemsSource="{Binding Stations}" />
+                                    <controls:CursorList
+                                        x:Name="Menu"
+                                        Grid.Row="2"
+                                        ActivateCommand="{Binding PlayHereCommand}"
+                                        FocusOnReset="KeepPosition"
+                                        IsVisible="{Binding IsLoggedIn}"
+                                        ItemIsCurrentPath="IsSelected"
+                                        ItemTemplate="{StaticResource StationCardTemplate}"
+                                        ItemsSource="{Binding Stations}" />
 
-                        <!--  Logged out: the text and an Iniciar sesión row  -->
-                        <VerticalStackLayout
-                            Grid.Row="2"
-                            Padding="10"
-                            IsVisible="{Binding IsLoggedOut}"
-                            Spacing="12"
-                            VerticalOptions="Center">
-                            <Label HorizontalTextAlignment="Center" Text="{loc:Translate Favoritos_LogInHintSentence}" />
-                            <Button
-                                Command="{Binding LogInCommand}"
-                                Style="{StaticResource RuedaMenuButton}"
-                                Text="{loc:Translate Page_Login}" />
-                        </VerticalStackLayout>
+                                    <!--  Logged out: the text and an Iniciar sesión row  -->
+                                    <VerticalStackLayout
+                                        Grid.Row="2"
+                                        Padding="10"
+                                        IsVisible="{Binding IsLoggedOut}"
+                                        Spacing="12"
+                                        VerticalOptions="Center">
+                                        <Label HorizontalTextAlignment="Center" Text="{loc:Translate Favoritos_LogInHintSentence}" />
+                                        <Button
+                                            Command="{Binding LogInCommand}"
+                                            Style="{StaticResource RuedaMenuButton}"
+                                            Text="{loc:Translate Page_Login}" />
+                                    </VerticalStackLayout>
 
-                        <VerticalStackLayout
-                            Grid.Row="2"
-                            HorizontalOptions="Center"
-                            IsVisible="{Binding IsLoading}"
-                            Spacing="8"
-                            VerticalOptions="Center">
-                            <ActivityIndicator IsRunning="{Binding IsLoading}" />
-                            <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Favoritos_Loading}" />
-                        </VerticalStackLayout>
+                                    <VerticalStackLayout
+                                        Grid.Row="2"
+                                        HorizontalOptions="Center"
+                                        IsVisible="{Binding IsLoading}"
+                                        Spacing="8"
+                                        VerticalOptions="Center">
+                                        <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                                        <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Favoritos_Loading}" />
+                                    </VerticalStackLayout>
 
-                        <Label
-                            Grid.Row="2"
-                            HorizontalOptions="Center"
-                            HorizontalTextAlignment="Center"
-                            IsVisible="{Binding IsEmpty}"
-                            Style="{StaticResource SecondaryLabel}"
-                            Text="{loc:Translate Favoritos_Empty}"
-                            VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Row="2"
+                                        HorizontalOptions="Center"
+                                        HorizontalTextAlignment="Center"
+                                        IsVisible="{Binding IsEmpty}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{loc:Translate Favoritos_Empty}"
+                                        VerticalOptions="Center" />
 
-                        <VerticalStackLayout
-                            Grid.Row="2"
-                            HorizontalOptions="Center"
-                            IsVisible="{Binding HasError}"
-                            Spacing="12"
-                            VerticalOptions="Center">
-                            <Label
-                                HorizontalTextAlignment="Center"
-                                Style="{StaticResource ErrorLabel}"
-                                Text="{Binding ErrorMessage}" />
-                            <Button
-                                Command="{Binding RetryCommand}"
-                                HorizontalOptions="Center"
-                                Text="{loc:Translate Action_Retry}" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
+                                    <VerticalStackLayout
+                                        Grid.Row="2"
+                                        HorizontalOptions="Center"
+                                        IsVisible="{Binding HasError}"
+                                        Spacing="12"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            HorizontalTextAlignment="Center"
+                                            Style="{StaticResource ErrorLabel}"
+                                            Text="{Binding ErrorMessage}" />
+                                        <Button
+                                            Command="{Binding RetryCommand}"
+                                            HorizontalOptions="Center"
+                                            Text="{loc:Translate Action_Retry}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </controls:AspectBox>
+                        <!--  The wheel: it moves the menu cursor; MENÚ opens Inicio  -->
+                        <controls:AspectBox MaxWidth="{DynamicResource ClickWheelMaxWidth}" MinWidth="{DynamicResource ClickWheelMinWidth}" Ratio="{DynamicResource ClickWheelRatio}">
+                            <controls:ClickWheel
+                                CenterCommand="{Binding ActivateCursorCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                                MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
+                                MenuCommandParameter="inicio"
+                                NextCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                                PlayPauseCommand="{Binding ActivateCurrentCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                                PreviousCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
+                                ScrollStepCommand="{Binding MoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}" />
+                        </controls:AspectBox>
+                    </VerticalStackLayout>
+                </ScrollView>
 
-                <!--  The wheel: it moves the menu cursor; MENÚ opens Inicio  -->
-                <controls:ClickWheel
-                    Grid.Row="1"
-                    CenterCommand="{Binding ActivateCursorCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
-                    MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
-                    MenuCommandParameter="inicio"
-                    NextCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
-                    PlayPauseCommand="{Binding ActivateCurrentCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
-                    PreviousCommand="{Binding PageMoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}"
-                    ScrollStepCommand="{Binding MoveCommand, Source={x:Reference Menu}, x:DataType=controls:CursorList}" />
-
-                <views:BottomBar Grid.Row="2" />
+                <controls:SizeLimit Grid.Row="1" MaxWidth="{DynamicResource DeviceScreenMaxWidth}" MinWidth="{DynamicResource DeviceScreenMinWidth}">
+                    <views:BottomBar />
+                </controls:SizeLimit>
             </Grid>
         </Grid>
     </ControlTemplate>
@@ -504,128 +524,139 @@
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}">
             <Grid
                 Padding="12,10,12,0"
-                MaximumWidthRequest="520"
-                RowDefinitions="*,Auto,Auto"
+                RowDefinitions="*,Auto"
                 RowSpacing="8">
 
-                <Border Grid.Row="0" Style="{StaticResource RuedaScreen}">
-                    <Grid RowDefinitions="Auto,*">
-                        <ContentView Grid.Row="0" ControlTemplate="{StaticResource ReproductorHeaderTemplate}" />
-                        <ScrollView Grid.Row="1">
-                            <VerticalStackLayout Padding="14,12" Spacing="8">
-                                <Label
-                                    IsVisible="{Binding HasNoStation}"
-                                    Style="{StaticResource SecondaryLabel}"
-                                    Text="{loc:Translate Reproductor_Choose}" />
+                <!--  The screen keeps its shape and the wheel stays round; both scroll above the bar when they do not fit  -->
+                <ScrollView Grid.Row="0">
+                    <VerticalStackLayout
+                        HorizontalOptions="Center"
+                        MaximumWidthRequest="{DynamicResource DeviceScreenMaxWidth}"
+                        Spacing="8">
+                        <controls:AspectBox MaxWidth="{DynamicResource DeviceScreenMaxWidth}" MinWidth="{DynamicResource DeviceScreenMinWidth}" Ratio="{DynamicResource DeviceScreenRatio}">
+                            <Border Style="{StaticResource RuedaScreen}">
+                                <Grid RowDefinitions="Auto,*">
+                                    <ContentView Grid.Row="0" ControlTemplate="{StaticResource ReproductorHeaderTemplate}" />
+                                    <ScrollView Grid.Row="1">
+                                        <VerticalStackLayout Padding="14,12" Spacing="8">
+                                            <Label
+                                                IsVisible="{Binding HasNoStation}"
+                                                Style="{StaticResource SecondaryLabel}"
+                                                Text="{loc:Translate Reproductor_Choose}" />
 
-                                <Border
-                                    Padding="4"
-                                    BackgroundColor="{DynamicResource InputBackgroundColor}"
-                                    HeightRequest="140"
-                                    HorizontalOptions="Center"
-                                    IsVisible="{Binding HasStation}"
-                                    Stroke="{DynamicResource DividerColor}"
-                                    StrokeThickness="1"
-                                    WidthRequest="140">
-                                    <Grid>
-                                        <Image Aspect="AspectFit" Source="station_placeholder.png" />
-                                        <Image Aspect="AspectFit" Source="{Binding LogoUrl}" />
-                                    </Grid>
-                                </Border>
-                                <Label
-                                    HorizontalTextAlignment="Center"
-                                    IsVisible="{Binding HasStation}"
-                                    LineBreakMode="TailTruncation"
-                                    MaxLines="2"
-                                    Style="{StaticResource StationNameLabel}"
-                                    Text="{Binding StationName}" />
-                                <Label
-                                    HorizontalTextAlignment="Center"
-                                    IsVisible="{Binding HasDetails}"
-                                    Style="{StaticResource SecondaryLabel}"
-                                    Text="{Binding Details}" />
+                                            <Border
+                                                Padding="4"
+                                                BackgroundColor="{DynamicResource InputBackgroundColor}"
+                                                HeightRequest="140"
+                                                HorizontalOptions="Center"
+                                                IsVisible="{Binding HasStation}"
+                                                Stroke="{DynamicResource DividerColor}"
+                                                StrokeThickness="1"
+                                                WidthRequest="140">
+                                                <Grid>
+                                                    <Image Aspect="AspectFit" Source="station_placeholder.png" />
+                                                    <Image Aspect="AspectFit" Source="{Binding LogoUrl}" />
+                                                </Grid>
+                                            </Border>
+                                            <Label
+                                                HorizontalTextAlignment="Center"
+                                                IsVisible="{Binding HasStation}"
+                                                LineBreakMode="TailTruncation"
+                                                MaxLines="2"
+                                                Style="{StaticResource StationNameLabel}"
+                                                Text="{Binding StationName}" />
+                                            <Label
+                                                HorizontalTextAlignment="Center"
+                                                IsVisible="{Binding HasDetails}"
+                                                Style="{StaticResource SecondaryLabel}"
+                                                Text="{Binding Details}" />
 
-                                <!--  A full bar: a live stream has no progress  -->
-                                <VerticalStackLayout IsVisible="{Binding HasStation}" Spacing="2">
-                                    <BoxView
-                                        CornerRadius="3"
-                                        HeightRequest="6"
-                                        Color="{DynamicResource AccentColor}" />
-                                    <Label
-                                        HorizontalTextAlignment="Center"
-                                        Style="{StaticResource SecondaryLabel}"
-                                        Text="{loc:Translate Live}" />
-                                </VerticalStackLayout>
+                                            <!--  A full bar: a live stream has no progress  -->
+                                            <VerticalStackLayout IsVisible="{Binding HasStation}" Spacing="2">
+                                                <BoxView
+                                                    CornerRadius="3"
+                                                    HeightRequest="6"
+                                                    Color="{DynamicResource AccentColor}" />
+                                                <Label
+                                                    HorizontalTextAlignment="Center"
+                                                    Style="{StaticResource SecondaryLabel}"
+                                                    Text="{loc:Translate Live}" />
+                                            </VerticalStackLayout>
 
-                                <!--  Status line  -->
-                                <Label
-                                    HorizontalTextAlignment="Center"
-                                    IsVisible="{Binding HasStation}"
-                                    Style="{StaticResource RuedaStatusLabel}"
-                                    Text="{Binding StatusText}" />
-                                <Label
-                                    HorizontalTextAlignment="Center"
-                                    IsVisible="{Binding HasNotice}"
-                                    Style="{StaticResource SecondaryLabel}"
-                                    Text="{Binding Notice}" />
-                                <Label
-                                    HorizontalTextAlignment="Center"
-                                    IsVisible="{Binding HasError}"
-                                    Style="{StaticResource ErrorLabel}"
-                                    Text="{Binding ErrorMessage}" />
-                                <Button
-                                    Command="{Binding RetryCommand}"
-                                    HorizontalOptions="Center"
-                                    IsVisible="{Binding HasError}"
-                                    Text="{loc:Translate Action_Retry}" />
-                            </VerticalStackLayout>
-                        </ScrollView>
-                    </Grid>
-                </Border>
+                                            <!--  Status line  -->
+                                            <Label
+                                                HorizontalTextAlignment="Center"
+                                                IsVisible="{Binding HasStation}"
+                                                Style="{StaticResource RuedaStatusLabel}"
+                                                Text="{Binding StatusText}" />
+                                            <Label
+                                                HorizontalTextAlignment="Center"
+                                                IsVisible="{Binding HasNotice}"
+                                                Style="{StaticResource SecondaryLabel}"
+                                                Text="{Binding Notice}" />
+                                            <Label
+                                                HorizontalTextAlignment="Center"
+                                                IsVisible="{Binding HasError}"
+                                                Style="{StaticResource ErrorLabel}"
+                                                Text="{Binding ErrorMessage}" />
+                                            <Button
+                                                Command="{Binding RetryCommand}"
+                                                HorizontalOptions="Center"
+                                                IsVisible="{Binding HasError}"
+                                                Text="{loc:Translate Action_Retry}" />
+                                        </VerticalStackLayout>
+                                    </ScrollView>
+                                </Grid>
+                            </Border>
+                        </controls:AspectBox>
+                        <!--  The wheel for this page: the ring does nothing here  -->
+                        <controls:AspectBox MaxWidth="{DynamicResource ClickWheelMaxWidth}" MinWidth="{DynamicResource ClickWheelMinWidth}" Ratio="{DynamicResource ClickWheelRatio}">
+                            <controls:ClickWheel
+                                CenterCommand="{Binding ToggleFavoriteCommand}"
+                                IsScrollEnabled="False"
+                                MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
+                                MenuCommandParameter="inicio"
+                                NextCommand="{Binding NextFavoriteCommand}"
+                                NextDescription="{loc:Translate Favoritos_Next}"
+                                PlayPauseCommand="{Binding ToggleCommand}"
+                                PreviousCommand="{Binding PreviousFavoriteCommand}"
+                                PreviousDescription="{loc:Translate Favoritos_Previous}">
+                                <controls:ClickWheel.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsFavorite}"
+                                        TargetType="controls:ClickWheel"
+                                        Value="False">
+                                        <Setter Property="CenterIcon" Value="ic_heart_outline.png" />
+                                        <Setter Property="CenterDescription" Value="{loc:Translate Action_AddFavorite}" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding IsFavorite}"
+                                        TargetType="controls:ClickWheel"
+                                        Value="True">
+                                        <Setter Property="CenterIcon" Value="ic_heart.png" />
+                                        <Setter Property="CenterDescription" Value="{loc:Translate Action_RemoveFavorite}" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding IsActive}"
+                                        TargetType="controls:ClickWheel"
+                                        Value="False">
+                                        <Setter Property="PlayPauseDescription" Value="{loc:Translate Action_Play}" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding IsActive}"
+                                        TargetType="controls:ClickWheel"
+                                        Value="True">
+                                        <Setter Property="PlayPauseDescription" Value="{loc:Translate Action_Stop}" />
+                                    </DataTrigger>
+                                </controls:ClickWheel.Triggers>
+                            </controls:ClickWheel>
+                        </controls:AspectBox>
+                    </VerticalStackLayout>
+                </ScrollView>
 
-                <!--  The wheel for this page: the ring does nothing here  -->
-                <controls:ClickWheel
-                    Grid.Row="1"
-                    CenterCommand="{Binding ToggleFavoriteCommand}"
-                    IsScrollEnabled="False"
-                    MenuCommand="{x:Static services:AppNavigation.GoToSectionCommand}"
-                    MenuCommandParameter="inicio"
-                    NextCommand="{Binding NextFavoriteCommand}"
-                    NextDescription="{loc:Translate Favoritos_Next}"
-                    PlayPauseCommand="{Binding ToggleCommand}"
-                    PreviousCommand="{Binding PreviousFavoriteCommand}"
-                    PreviousDescription="{loc:Translate Favoritos_Previous}">
-                    <controls:ClickWheel.Triggers>
-                        <DataTrigger
-                            Binding="{Binding IsFavorite}"
-                            TargetType="controls:ClickWheel"
-                            Value="False">
-                            <Setter Property="CenterIcon" Value="ic_heart_outline.png" />
-                            <Setter Property="CenterDescription" Value="{loc:Translate Action_AddFavorite}" />
-                        </DataTrigger>
-                        <DataTrigger
-                            Binding="{Binding IsFavorite}"
-                            TargetType="controls:ClickWheel"
-                            Value="True">
-                            <Setter Property="CenterIcon" Value="ic_heart.png" />
-                            <Setter Property="CenterDescription" Value="{loc:Translate Action_RemoveFavorite}" />
-                        </DataTrigger>
-                        <DataTrigger
-                            Binding="{Binding IsActive}"
-                            TargetType="controls:ClickWheel"
-                            Value="False">
-                            <Setter Property="PlayPauseDescription" Value="{loc:Translate Action_Play}" />
-                        </DataTrigger>
-                        <DataTrigger
-                            Binding="{Binding IsActive}"
-                            TargetType="controls:ClickWheel"
-                            Value="True">
-                            <Setter Property="PlayPauseDescription" Value="{loc:Translate Action_Stop}" />
-                        </DataTrigger>
-                    </controls:ClickWheel.Triggers>
-                </controls:ClickWheel>
-
-                <views:BottomBar Grid.Row="2" />
+                <controls:SizeLimit Grid.Row="1" MaxWidth="{DynamicResource DeviceScreenMaxWidth}" MinWidth="{DynamicResource DeviceScreenMinWidth}">
+                    <views:BottomBar />
+                </controls:SizeLimit>
             </Grid>
         </Grid>
     </ControlTemplate>

@@ -164,6 +164,8 @@
     -->
     <ControlTemplate x:Key="HeaderTemplate">
         <Grid
+            MinimumHeightRequest="{DynamicResource ChromeMinHeight}"
+            MaximumHeightRequest="{DynamicResource ChromeMaxHeight}"
             BackgroundColor="{DynamicResource TabBarBackgroundColor}"
             ColumnDefinitions="Auto,*,Auto"
             RowDefinitions="Auto,Auto">
@@ -175,8 +177,8 @@
                 Grid.Column="1"
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="Center"
-                LineBreakMode="WordWrap"
-                MaxLines="2"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
                 SemanticProperties.HeadingLevel="Level1"
                 Style="{StaticResource ValvulasTitleLabel}"
                 Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
@@ -202,6 +204,7 @@
     <!--  Reproductor's header: the same, with a house on the left that opens Inicio (this page has no bottom bar)  -->
     <ControlTemplate x:Key="ReproductorHeaderTemplate">
         <Grid
+            MinimumHeightRequest="{DynamicResource ChromeMinHeight}"
             BackgroundColor="{DynamicResource TabBarBackgroundColor}"
             ColumnDefinitions="Auto,*,Auto"
             RowDefinitions="Auto,Auto">
@@ -219,8 +222,8 @@
                 Grid.Column="1"
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="Center"
-                LineBreakMode="WordWrap"
-                MaxLines="2"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
                 SemanticProperties.HeadingLevel="Level1"
                 Style="{StaticResource ValvulasTitleLabel}"
                 Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
@@ -505,7 +508,7 @@
             x:DataType="vm:InicioViewModel"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+            RowDefinitions="Auto,Auto,Auto,*,Auto">
             <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
 
             <!--  Search row  -->
@@ -547,184 +550,184 @@
                 Padding="10,6"
                 IsVisible="{Binding ShowFilterBar}"
                 Style="{StaticResource ValvulasPanel}">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <FlexLayout AlignItems="Center" JustifyContent="SpaceBetween" Wrap="Wrap">
                     <VerticalStackLayout
-                        Grid.Column="0"
+                        FlexLayout.Grow="1"
                         IsVisible="{Binding FiltersApplied}"
                         VerticalOptions="Center">
                         <Label Style="{StaticResource StationNameLabel}" Text="{loc:Translate Inicio_FiltersOn}" />
                         <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
                     </VerticalStackLayout>
                     <Label
-                        Grid.Column="0"
+                        FlexLayout.Grow="1"
                         IsVisible="{Binding FiltersNotApplied}"
                         Style="{StaticResource StationNameLabel}"
                         Text="{loc:Translate Inicio_FiltersOff}"
                         VerticalOptions="Center" />
                     <Button
-                        Grid.Column="1"
                         Command="{Binding DeactivateFiltersCommand}"
                         IsVisible="{Binding FiltersApplied}"
                         Text="{loc:Translate Action_Disable}"
                         VerticalOptions="Center" />
                     <Button
-                        Grid.Column="1"
                         Command="{Binding ActivateFiltersCommand}"
                         IsVisible="{Binding FiltersNotApplied}"
                         Text="{loc:Translate Action_Enable}"
                         VerticalOptions="Center" />
-                </Grid>
+                </FlexLayout>
             </Border>
 
-            <!--  The tuning dial: printed scale, the stations under a fixed needle, the knob, and the position caption  -->
-            <VerticalStackLayout
-                Grid.Row="3"
-                Padding="16,12,16,0"
-                IsVisible="{Binding HasFocusedItem, Source={x:Reference Dial}, x:DataType=controls:TuningDial}"
-                Spacing="6">
-                <Border Style="{StaticResource ValvulasDialGlass}">
-                    <Grid RowDefinitions="Auto,Auto">
-                        <Grid
-                            Grid.Row="0"
-                            Margin="0,0,76,0"
-                            AutomationProperties.IsInAccessibleTree="False"
-                            ColumnDefinitions="*,*,*,*,*,*,*">
-                            <Label Grid.Column="0" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="55" />
-                            <Label Grid.Column="1" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="60" />
-                            <Label Grid.Column="2" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="70" />
-                            <Label Grid.Column="3" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="80" />
-                            <Label Grid.Column="4" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="100" />
-                            <Label Grid.Column="5" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="120" />
-                            <Label Grid.Column="6" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="160" />
-                        </Grid>
-                        <controls:TuningDial
-                            x:Name="Dial"
-                            Grid.Row="1"
-                            ActivateCommand="{Binding PlayHereCommand}"
-                            FocusOnReset="First"
-                            HeightRequest="112"
-                            ItemDisplayPath="Station.Name"
-                            ItemTemplate="{StaticResource StationCardTemplate}"
-                            ItemsSource="{Binding Stations}"
-                            KnobSize="64">
-                            <controls:TuningDial.Underlay>
-                                <Grid ColumnDefinitions="2*,*,2*">
-                                    <BoxView
-                                        Grid.ColumnSpan="3"
-                                        HeightRequest="1"
-                                        VerticalOptions="Start"
-                                        Color="{DynamicResource DividerColor}" />
-                                    <Border
-                                        Grid.Column="1"
-                                        BackgroundColor="{DynamicResource SurfaceColor}"
-                                        Stroke="{DynamicResource DividerColor}"
-                                        StrokeThickness="1">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="6" />
-                                        </Border.StrokeShape>
-                                    </Border>
+            <!--  The dial and the panel scroll together as the page; the header, filters and bar stay fixed  -->
+            <ScrollView Grid.Row="3">
+                <VerticalStackLayout>
+                    <!--  The tuning dial: printed scale, the stations under a fixed needle, the knob, and the position caption  -->
+                    <VerticalStackLayout
+                        Padding="16,12,16,0"
+                        IsVisible="{Binding HasFocusedItem, Source={x:Reference Dial}, x:DataType=controls:TuningDial}"
+                        Spacing="6">
+                        <controls:AspectBox MaxWidth="{DynamicResource TuningDialMaxWidth}" MinWidth="{DynamicResource TuningDialMinWidth}" Ratio="{DynamicResource TuningDialRatio}">
+                            <Border Style="{StaticResource ValvulasDialGlass}">
+                                <Grid RowDefinitions="Auto,*">
+                                    <Grid
+                                        Grid.Row="0"
+                                        Margin="0,0,76,0"
+                                        AutomationProperties.IsInAccessibleTree="False"
+                                        ColumnDefinitions="*,*,*,*,*,*,*">
+                                        <Label Grid.Column="0" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="55" />
+                                        <Label Grid.Column="1" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="60" />
+                                        <Label Grid.Column="2" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="70" />
+                                        <Label Grid.Column="3" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="80" />
+                                        <Label Grid.Column="4" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="100" />
+                                        <Label Grid.Column="5" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="120" />
+                                        <Label Grid.Column="6" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="160" />
+                                    </Grid>
+                                    <controls:TuningDial
+                                        x:Name="Dial"
+                                        Grid.Row="1"
+                                        ActivateCommand="{Binding PlayHereCommand}"
+                                        FocusOnReset="First"
+                                        ItemDisplayPath="Station.Name"
+                                        ItemTemplate="{StaticResource StationCardTemplate}"
+                                        ItemsSource="{Binding Stations}"
+                                        KnobSize="64">
+                                        <controls:TuningDial.Underlay>
+                                            <Grid ColumnDefinitions="2*,*,2*">
+                                                <BoxView
+                                                    Grid.ColumnSpan="3"
+                                                    HeightRequest="1"
+                                                    VerticalOptions="Start"
+                                                    Color="{DynamicResource DividerColor}" />
+                                                <Border
+                                                    Grid.Column="1"
+                                                    BackgroundColor="{DynamicResource SurfaceColor}"
+                                                    Stroke="{DynamicResource DividerColor}"
+                                                    StrokeThickness="1">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="6" />
+                                                    </Border.StrokeShape>
+                                                </Border>
+                                            </Grid>
+                                        </controls:TuningDial.Underlay>
+                                        <controls:TuningDial.Overlay>
+                                            <BoxView
+                                                HorizontalOptions="Center"
+                                                Opacity="0.8"
+                                                WidthRequest="3"
+                                                Color="{DynamicResource FavoriteIconColor}" />
+                                        </controls:TuningDial.Overlay>
+                                    </controls:TuningDial>
                                 </Grid>
-                            </controls:TuningDial.Underlay>
-                            <controls:TuningDial.Overlay>
-                                <BoxView
-                                    HorizontalOptions="Center"
-                                    Opacity="0.8"
-                                    WidthRequest="3"
-                                    Color="{DynamicResource FavoriteIconColor}" />
-                            </controls:TuningDial.Overlay>
-                        </controls:TuningDial>
-                    </Grid>
-                </Border>
-                <Label
-                    HorizontalOptions="Center"
-                    Style="{StaticResource SecondaryLabel}"
-                    Text="{Binding PositionText, Source={x:Reference Dial}, x:DataType=controls:TuningDial}" />
-            </VerticalStackLayout>
+                            </Border>
+                        </controls:AspectBox>
+                        <Label
+                            HorizontalOptions="Center"
+                            Style="{StaticResource SecondaryLabel}"
+                            Text="{Binding PositionText, Source={x:Reference Dial}, x:DataType=controls:TuningDial}" />
+                    </VerticalStackLayout>
 
-            <!--  The information panel on the speaker grille  -->
-            <ContentView
-                Grid.Row="4"
-                Margin="16,10,16,12"
-                ControlTemplate="{StaticResource GrilleTemplate}"
-                IsVisible="{Binding HasFocusedItem, Source={x:Reference Dial}, x:DataType=controls:TuningDial}">
-                <ScrollView
-                    x:DataType="vm:StationListItem"
-                    BindingContext="{Binding FocusedItem, Source={x:Reference Dial}, x:DataType=controls:TuningDial}"
-                    VerticalOptions="Center">
-                    <Border
-                        Margin="16"
-                        MaximumWidthRequest="560"
-                        Style="{StaticResource ValvulasPanel}">
-                        <VerticalStackLayout Spacing="8">
-                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
-                                <Label
-                                    Grid.Column="0"
-                                    LineBreakMode="TailTruncation"
-                                    MaxLines="2"
-                                    Style="{StaticResource StationNameLabel}"
-                                    Text="{Binding Station.Name}"
-                                    VerticalOptions="Center" />
-                                <ImageButton
-                                    Grid.Column="1"
-                                    behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
-                                    Command="{Binding HeartCommand}"
-                                    CommandParameter="{Binding .}"
-                                    Style="{StaticResource IconButton}"
-                                    VerticalOptions="Start">
-                                    <ImageButton.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding IsFavorite}"
-                                            TargetType="ImageButton"
-                                            Value="False">
-                                            <Setter Property="Source" Value="ic_heart_outline.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
-                                        </DataTrigger>
-                                        <DataTrigger
-                                            Binding="{Binding IsFavorite}"
-                                            TargetType="ImageButton"
-                                            Value="True">
-                                            <Setter Property="Source" Value="ic_heart.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
-                                        </DataTrigger>
-                                    </ImageButton.Triggers>
-                                </ImageButton>
-                            </Grid>
-                            <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Details}" />
-                            <Label
-                                IsVisible="{Binding IsSelected}"
-                                Style="{StaticResource ValvulasStatusLabel}"
-                                Text="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}" />
-                            <Button
-                                Command="{Binding PlayHereCommand, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
-                                CommandParameter="{Binding .}"
-                                HorizontalOptions="Start"
-                                Text="{loc:Translate Action_Listen}">
-                                <Button.Triggers>
-                                    <MultiTrigger TargetType="Button">
-                                        <MultiTrigger.Conditions>
-                                            <BindingCondition Binding="{Binding IsSelected}" Value="True" />
-                                            <BindingCondition Binding="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}" Value="Reproduciendo" />
-                                        </MultiTrigger.Conditions>
-                                        <Setter Property="Text" Value="{loc:Translate Action_SwitchOff}" />
-                                    </MultiTrigger>
-                                    <MultiTrigger TargetType="Button">
-                                        <MultiTrigger.Conditions>
-                                            <BindingCondition Binding="{Binding IsSelected}" Value="True" />
-                                            <BindingCondition Binding="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}" Value="Cargando…" />
-                                        </MultiTrigger.Conditions>
-                                        <Setter Property="Text" Value="{loc:Translate Action_SwitchOff}" />
-                                    </MultiTrigger>
-                                </Button.Triggers>
-                            </Button>
-                        </VerticalStackLayout>
-                    </Border>
-                </ScrollView>
-            </ContentView>
+                    <!--  The information panel on the speaker grille  -->
+                    <ContentView
+                        Margin="16,10,16,12"
+                        ControlTemplate="{StaticResource GrilleTemplate}"
+                        IsVisible="{Binding HasFocusedItem, Source={x:Reference Dial}, x:DataType=controls:TuningDial}">
+                        <ContentView
+                            x:DataType="vm:StationListItem"
+                            BindingContext="{Binding FocusedItem, Source={x:Reference Dial}, x:DataType=controls:TuningDial}">
+                            <controls:SizeLimit MaxWidth="{DynamicResource PlayerPanelMaxWidth}" MinWidth="{DynamicResource PlayerPanelMinWidth}">
+                                <Border Margin="16" Style="{StaticResource ValvulasPanel}">
+                                    <VerticalStackLayout Spacing="8">
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="4">
+                                            <Label
+                                                Grid.Column="0"
+                                                LineBreakMode="TailTruncation"
+                                                MaxLines="2"
+                                                Style="{StaticResource StationNameLabel}"
+                                                Text="{Binding Station.Name}"
+                                                VerticalOptions="Center" />
+                                            <ImageButton
+                                                Grid.Column="1"
+                                                behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                                Command="{Binding HeartCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{StaticResource IconButton}"
+                                                VerticalOptions="Start">
+                                                <ImageButton.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding IsFavorite}"
+                                                        TargetType="ImageButton"
+                                                        Value="False">
+                                                        <Setter Property="Source" Value="ic_heart_outline.png" />
+                                                        <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger
+                                                        Binding="{Binding IsFavorite}"
+                                                        TargetType="ImageButton"
+                                                        Value="True">
+                                                        <Setter Property="Source" Value="ic_heart.png" />
+                                                        <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
+                                                    </DataTrigger>
+                                                </ImageButton.Triggers>
+                                            </ImageButton>
+                                        </Grid>
+                                        <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Details}" />
+                                        <Label
+                                            IsVisible="{Binding IsSelected}"
+                                            Style="{StaticResource ValvulasStatusLabel}"
+                                            Text="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}" />
+                                        <Button
+                                            Command="{Binding PlayHereCommand, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}"
+                                            CommandParameter="{Binding .}"
+                                            HorizontalOptions="Start"
+                                            Text="{loc:Translate Action_Listen}">
+                                            <Button.Triggers>
+                                                <MultiTrigger TargetType="Button">
+                                                    <MultiTrigger.Conditions>
+                                                        <BindingCondition Binding="{Binding IsSelected}" Value="True" />
+                                                        <BindingCondition Binding="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}" Value="Reproduciendo" />
+                                                    </MultiTrigger.Conditions>
+                                                    <Setter Property="Text" Value="{loc:Translate Action_SwitchOff}" />
+                                                </MultiTrigger>
+                                                <MultiTrigger TargetType="Button">
+                                                    <MultiTrigger.Conditions>
+                                                        <BindingCondition Binding="{Binding IsSelected}" Value="True" />
+                                                        <BindingCondition Binding="{Binding PlaybackStatusText, Source={RelativeSource AncestorType={x:Type vm:InicioViewModel}}, x:DataType=vm:InicioViewModel}" Value="Cargando…" />
+                                                    </MultiTrigger.Conditions>
+                                                    <Setter Property="Text" Value="{loc:Translate Action_SwitchOff}" />
+                                                </MultiTrigger>
+                                            </Button.Triggers>
+                                        </Button>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </controls:SizeLimit>
+                        </ContentView>
+                    </ContentView>
+                </VerticalStackLayout>
+            </ScrollView>
 
             <!--  States, in place of the dial and the panel  -->
             <VerticalStackLayout
                 Grid.Row="3"
-                Grid.RowSpan="2"
+
                 HorizontalOptions="Center"
                 IsVisible="{Binding IsLoading}"
                 Spacing="8"
@@ -735,7 +738,7 @@
 
             <Label
                 Grid.Row="3"
-                Grid.RowSpan="2"
+
                 HorizontalOptions="Center"
                 HorizontalTextAlignment="Center"
                 IsVisible="{Binding IsEmptyPlain}"
@@ -745,7 +748,7 @@
 
             <VerticalStackLayout
                 Grid.Row="3"
-                Grid.RowSpan="2"
+
                 HorizontalOptions="Center"
                 IsVisible="{Binding IsEmptyWithPreferences}"
                 Spacing="12"
@@ -762,7 +765,7 @@
 
             <VerticalStackLayout
                 Grid.Row="3"
-                Grid.RowSpan="2"
+
                 HorizontalOptions="Center"
                 IsVisible="{Binding HasError}"
                 Spacing="12"
@@ -777,7 +780,7 @@
                     Text="{loc:Translate Action_Retry}" />
             </VerticalStackLayout>
 
-            <views:BottomBar Grid.Row="5" />
+            <views:BottomBar Grid.Row="4" />
         </Grid>
     </ControlTemplate>
 
@@ -894,239 +897,240 @@
                 RowSpacing="12">
 
                 <!--  Dial, magic eye and power knob  -->
-                <Grid
+                <FlexLayout
                     Grid.Row="0"
-                    ColumnDefinitions="*,Auto,Auto"
-                    ColumnSpacing="12">
-                    <Border
-                        Grid.Column="0"
-                        HeightRequest="96"
-                        Style="{StaticResource ValvulasDialGlass}">
-                        <Grid RowDefinitions="Auto,*">
-                            <Grid
-                                Grid.Row="0"
-                                AutomationProperties.IsInAccessibleTree="False"
-                                ColumnDefinitions="*,*,*,*,*">
-                                <Label Grid.Column="0" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="55" />
-                                <Label Grid.Column="1" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="70" />
-                                <Label Grid.Column="2" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="100" />
-                                <Label Grid.Column="3" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="130" />
-                                <Label Grid.Column="4" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="160" />
+                    AlignItems="Center"
+                    JustifyContent="Center"
+                    Wrap="Wrap">
+                    <!--  The dial keeps its shape and minimum; the magic eye and the knob go under it when they do not fit  -->
+                    <controls:AspectBox MaxWidth="{DynamicResource TuningDialMaxWidth}" MinWidth="{DynamicResource TuningDialMinWidth}" Ratio="{DynamicResource TuningDialRatio}">
+                        <Border
+                            Style="{StaticResource ValvulasDialGlass}">
+                            <Grid RowDefinitions="Auto,*">
+                                <Grid
+                                    Grid.Row="0"
+                                    AutomationProperties.IsInAccessibleTree="False"
+                                    ColumnDefinitions="*,*,*,*,*">
+                                    <Label Grid.Column="0" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="55" />
+                                    <Label Grid.Column="1" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="70" />
+                                    <Label Grid.Column="2" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="100" />
+                                    <Label Grid.Column="3" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="130" />
+                                    <Label Grid.Column="4" HorizontalTextAlignment="Center" Style="{StaticResource SecondaryLabel}" Text="160" />
+                                </Grid>
+                                <Grid Grid.Row="1" ColumnDefinitions="*,3*,*">
+                                    <BoxView
+                                        Grid.ColumnSpan="3"
+                                        HeightRequest="1"
+                                        VerticalOptions="Start"
+                                        Color="{DynamicResource DividerColor}" />
+                                    <!--  The lit window: it warms up when the radio is turned on  -->
+                                    <controls:WarmUpGlow
+                                        Grid.Column="1"
+                                        Margin="0,4"
+                                        IsActive="{Binding IsActive}"
+                                        IsVisible="{Binding HasStation}">
+                                        <Border
+                                            BackgroundColor="{DynamicResource SurfaceColor}"
+                                            Stroke="{DynamicResource DividerColor}"
+                                            StrokeThickness="1">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="6" />
+                                            </Border.StrokeShape>
+                                        </Border>
+                                    </controls:WarmUpGlow>
+                                    <Label
+                                        Grid.Column="1"
+                                        Margin="6,0"
+                                        IsVisible="{Binding HasStation}"
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="1"
+                                        Style="{StaticResource ValvulasDialLabel}"
+                                        Text="{Binding StationName}"
+                                        VerticalOptions="Center" />
+                                    <BoxView
+                                        Grid.ColumnSpan="3"
+                                        HorizontalOptions="Center"
+                                        InputTransparent="True"
+                                        Opacity="0.8"
+                                        WidthRequest="3"
+                                        Color="{DynamicResource FavoriteIconColor}" />
+                                </Grid>
                             </Grid>
-                            <Grid Grid.Row="1" ColumnDefinitions="*,3*,*">
+                        </Border>
+                    </controls:AspectBox>
+                    <HorizontalStackLayout Margin="12,0,0,0" Spacing="12">
+
+                        <controls:MagicEye
+                            HeightRequest="56"
+                            IsActive="{Binding IsActive}"
+                            VerticalOptions="Center"
+                            WidthRequest="56" />
+
+                        <!--  The power knob: play and stop; its pointer turns to "on" while the radio plays  -->
+                        <Grid
+                            HeightRequest="64"
+                            VerticalOptions="Center"
+                            WidthRequest="64">
+                            <Grid AutomationProperties.IsInAccessibleTree="False" InputTransparent="True">
+                                <Grid.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsActive}"
+                                        TargetType="Grid"
+                                        Value="True">
+                                        <Setter Property="Rotation" Value="90" />
+                                    </DataTrigger>
+                                </Grid.Triggers>
+                                <Ellipse
+                                    Fill="{DynamicResource DividerColor}"
+                                    Stroke="{DynamicResource TabBarBackgroundColor}"
+                                    StrokeThickness="2" />
+                                <Ellipse Margin="5" Fill="{DynamicResource InputBackgroundColor}" />
                                 <BoxView
-                                    Grid.ColumnSpan="3"
-                                    HeightRequest="1"
-                                    VerticalOptions="Start"
-                                    Color="{DynamicResource DividerColor}" />
-                                <!--  The lit window: it warms up when the radio is turned on  -->
-                                <controls:WarmUpGlow
-                                    Grid.Column="1"
-                                    Margin="0,4"
-                                    IsActive="{Binding IsActive}"
-                                    IsVisible="{Binding HasStation}">
-                                    <Border
-                                        BackgroundColor="{DynamicResource SurfaceColor}"
-                                        Stroke="{DynamicResource DividerColor}"
-                                        StrokeThickness="1">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="6" />
-                                        </Border.StrokeShape>
-                                    </Border>
-                                </controls:WarmUpGlow>
-                                <Label
-                                    Grid.Column="1"
-                                    Margin="6,0"
-                                    IsVisible="{Binding HasStation}"
-                                    LineBreakMode="TailTruncation"
-                                    MaxLines="1"
-                                    Style="{StaticResource ValvulasDialLabel}"
-                                    Text="{Binding StationName}"
-                                    VerticalOptions="Center" />
-                                <BoxView
-                                    Grid.ColumnSpan="3"
+                                    Margin="0,8,0,0"
+                                    CornerRadius="2"
+                                    HeightRequest="16"
                                     HorizontalOptions="Center"
-                                    InputTransparent="True"
-                                    Opacity="0.8"
-                                    WidthRequest="3"
-                                    Color="{DynamicResource FavoriteIconColor}" />
+                                    VerticalOptions="Start"
+                                    WidthRequest="4"
+                                    Color="{DynamicResource AccentColor}" />
                             </Grid>
+                            <Button
+                                Padding="0"
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                Command="{Binding ToggleCommand}"
+                                CornerRadius="32"
+                                IsEnabled="{Binding HasStation}"
+                                ToolTipProperties.Text="{loc:Translate Action_SwitchOnOff}">
+                                <Button.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsActive}"
+                                        TargetType="Button"
+                                        Value="False">
+                                        <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Play}" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding IsActive}"
+                                        TargetType="Button"
+                                        Value="True">
+                                        <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Stop}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
                         </Grid>
-                    </Border>
-
-                    <controls:MagicEye
-                        Grid.Column="1"
-                        HeightRequest="56"
-                        IsActive="{Binding IsActive}"
-                        VerticalOptions="Center"
-                        WidthRequest="56" />
-
-                    <!--  The power knob: play and stop; its pointer turns to "on" while the radio plays  -->
-                    <Grid
-                        Grid.Column="2"
-                        HeightRequest="64"
-                        VerticalOptions="Center"
-                        WidthRequest="64">
-                        <Grid AutomationProperties.IsInAccessibleTree="False" InputTransparent="True">
-                            <Grid.Triggers>
-                                <DataTrigger
-                                    Binding="{Binding IsActive}"
-                                    TargetType="Grid"
-                                    Value="True">
-                                    <Setter Property="Rotation" Value="90" />
-                                </DataTrigger>
-                            </Grid.Triggers>
-                            <Ellipse
-                                Fill="{DynamicResource DividerColor}"
-                                Stroke="{DynamicResource TabBarBackgroundColor}"
-                                StrokeThickness="2" />
-                            <Ellipse Margin="5" Fill="{DynamicResource InputBackgroundColor}" />
-                            <BoxView
-                                Margin="0,8,0,0"
-                                CornerRadius="2"
-                                HeightRequest="16"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Start"
-                                WidthRequest="4"
-                                Color="{DynamicResource AccentColor}" />
-                        </Grid>
-                        <Button
-                            Padding="0"
-                            BackgroundColor="Transparent"
-                            BorderWidth="0"
-                            Command="{Binding ToggleCommand}"
-                            CornerRadius="32"
-                            IsEnabled="{Binding HasStation}"
-                            ToolTipProperties.Text="{loc:Translate Action_SwitchOnOff}">
-                            <Button.Triggers>
-                                <DataTrigger
-                                    Binding="{Binding IsActive}"
-                                    TargetType="Button"
-                                    Value="False">
-                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Play}" />
-                                </DataTrigger>
-                                <DataTrigger
-                                    Binding="{Binding IsActive}"
-                                    TargetType="Button"
-                                    Value="True">
-                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Stop}" />
-                                </DataTrigger>
-                            </Button.Triggers>
-                        </Button>
-                    </Grid>
-                </Grid>
+                    </HorizontalStackLayout>
+                </FlexLayout>
 
                 <!--  The information panel on the speaker grille  -->
                 <ContentView Grid.Row="1" ControlTemplate="{StaticResource GrilleTemplate}">
                     <ScrollView VerticalOptions="Center">
-                        <Border
-                            Margin="16"
-                            MaximumWidthRequest="560"
-                            Style="{StaticResource ValvulasPanel}">
-                            <VerticalStackLayout Spacing="8">
-                                <Label
-                                    IsVisible="{Binding HasNoStation}"
-                                    Style="{StaticResource SecondaryLabel}"
-                                    Text="{loc:Translate Reproductor_Choose}" />
+                        <controls:SizeLimit MaxWidth="{DynamicResource PlayerPanelMaxWidth}" MinWidth="{DynamicResource PlayerPanelMinWidth}">
+                            <Border Margin="16" Style="{StaticResource ValvulasPanel}">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label
+                                        IsVisible="{Binding HasNoStation}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{loc:Translate Reproductor_Choose}" />
 
-                                <Grid
-                                    ColumnDefinitions="Auto,*,Auto"
-                                    ColumnSpacing="10"
-                                    IsVisible="{Binding HasStation}">
                                     <Grid
-                                        Grid.Column="0"
-                                        HeightRequest="56"
-                                        VerticalOptions="Center"
-                                        WidthRequest="56">
-                                        <Ellipse
-                                            Fill="{DynamicResource PageBackgroundColor}"
-                                            Stroke="{DynamicResource DividerColor}"
-                                            StrokeThickness="1" />
-                                        <Image
-                                            Aspect="AspectFill"
-                                            HeightRequest="48"
-                                            HorizontalOptions="Center"
-                                            Source="station_placeholder.png"
+                                        ColumnDefinitions="Auto,*,Auto"
+                                        ColumnSpacing="10"
+                                        IsVisible="{Binding HasStation}">
+                                        <Grid
+                                            Grid.Column="0"
+                                            HeightRequest="56"
                                             VerticalOptions="Center"
-                                            WidthRequest="48">
-                                            <Image.Clip>
-                                                <EllipseGeometry
-                                                    Center="24,24"
-                                                    RadiusX="24"
-                                                    RadiusY="24" />
-                                            </Image.Clip>
-                                        </Image>
-                                        <Image
-                                            Aspect="AspectFill"
-                                            HeightRequest="48"
-                                            HorizontalOptions="Center"
-                                            Source="{Binding LogoUrl}"
-                                            VerticalOptions="Center"
-                                            WidthRequest="48">
-                                            <Image.Clip>
-                                                <EllipseGeometry
-                                                    Center="24,24"
-                                                    RadiusX="24"
-                                                    RadiusY="24" />
-                                            </Image.Clip>
-                                        </Image>
+                                            WidthRequest="56">
+                                            <Ellipse
+                                                Fill="{DynamicResource PageBackgroundColor}"
+                                                Stroke="{DynamicResource DividerColor}"
+                                                StrokeThickness="1" />
+                                            <Image
+                                                Aspect="AspectFill"
+                                                HeightRequest="48"
+                                                HorizontalOptions="Center"
+                                                Source="station_placeholder.png"
+                                                VerticalOptions="Center"
+                                                WidthRequest="48">
+                                                <Image.Clip>
+                                                    <EllipseGeometry
+                                                        Center="24,24"
+                                                        RadiusX="24"
+                                                        RadiusY="24" />
+                                                </Image.Clip>
+                                            </Image>
+                                            <Image
+                                                Aspect="AspectFill"
+                                                HeightRequest="48"
+                                                HorizontalOptions="Center"
+                                                Source="{Binding LogoUrl}"
+                                                VerticalOptions="Center"
+                                                WidthRequest="48">
+                                                <Image.Clip>
+                                                    <EllipseGeometry
+                                                        Center="24,24"
+                                                        RadiusX="24"
+                                                        RadiusY="24" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </Grid>
+                                        <Label
+                                            Grid.Column="1"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="2"
+                                            Style="{StaticResource StationNameLabel}"
+                                            Text="{Binding StationName}"
+                                            VerticalOptions="Center" />
+                                        <ImageButton
+                                            Grid.Column="2"
+                                            behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                            Command="{Binding ToggleFavoriteCommand}"
+                                            Style="{StaticResource IconButton}"
+                                            VerticalOptions="Center">
+                                            <ImageButton.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsFavorite}"
+                                                    TargetType="ImageButton"
+                                                    Value="False">
+                                                    <Setter Property="Source" Value="ic_heart_outline.png" />
+                                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsFavorite}"
+                                                    TargetType="ImageButton"
+                                                    Value="True">
+                                                    <Setter Property="Source" Value="ic_heart.png" />
+                                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
+                                                </DataTrigger>
+                                            </ImageButton.Triggers>
+                                        </ImageButton>
                                     </Grid>
                                     <Label
-                                        Grid.Column="1"
-                                        LineBreakMode="TailTruncation"
-                                        MaxLines="2"
-                                        Style="{StaticResource StationNameLabel}"
-                                        Text="{Binding StationName}"
-                                        VerticalOptions="Center" />
-                                    <ImageButton
-                                        Grid.Column="2"
-                                        behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
-                                        Command="{Binding ToggleFavoriteCommand}"
-                                        Style="{StaticResource IconButton}"
-                                        VerticalOptions="Center">
-                                        <ImageButton.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding IsFavorite}"
-                                                TargetType="ImageButton"
-                                                Value="False">
-                                                <Setter Property="Source" Value="ic_heart_outline.png" />
-                                                <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
-                                            </DataTrigger>
-                                            <DataTrigger
-                                                Binding="{Binding IsFavorite}"
-                                                TargetType="ImageButton"
-                                                Value="True">
-                                                <Setter Property="Source" Value="ic_heart.png" />
-                                                <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
-                                            </DataTrigger>
-                                        </ImageButton.Triggers>
-                                    </ImageButton>
-                                </Grid>
-                                <Label
-                                    IsVisible="{Binding HasDetails}"
-                                    Style="{StaticResource SecondaryLabel}"
-                                    Text="{Binding Details}" />
+                                        IsVisible="{Binding HasDetails}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{Binding Details}" />
 
-                                <!--  Status line  -->
-                                <Label
-                                    IsVisible="{Binding HasStation}"
-                                    Style="{StaticResource ValvulasStatusLabel}"
-                                    Text="{Binding StatusText}" />
-                                <Label
-                                    IsVisible="{Binding HasNotice}"
-                                    Style="{StaticResource SecondaryLabel}"
-                                    Text="{Binding Notice}" />
-                                <Label
-                                    IsVisible="{Binding HasError}"
-                                    Style="{StaticResource ErrorLabel}"
-                                    Text="{Binding ErrorMessage}" />
-                                <Button
-                                    Command="{Binding RetryCommand}"
-                                    HorizontalOptions="Start"
-                                    IsVisible="{Binding HasError}"
-                                    Text="{loc:Translate Action_Retry}" />
-                            </VerticalStackLayout>
-                        </Border>
+                                    <!--  Status line  -->
+                                    <Label
+                                        IsVisible="{Binding HasStation}"
+                                        Style="{StaticResource ValvulasStatusLabel}"
+                                        Text="{Binding StatusText}" />
+                                    <Label
+                                        IsVisible="{Binding HasNotice}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{Binding Notice}" />
+                                    <Label
+                                        IsVisible="{Binding HasError}"
+                                        Style="{StaticResource ErrorLabel}"
+                                        Text="{Binding ErrorMessage}" />
+                                    <Button
+                                        Command="{Binding RetryCommand}"
+                                        HorizontalOptions="Start"
+                                        IsVisible="{Binding HasError}"
+                                        Text="{loc:Translate Action_Retry}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </controls:SizeLimit>
                     </ScrollView>
                 </ContentView>
             </Grid>
@@ -1153,9 +1157,10 @@
                     Columns="5"
                     EmptySlotTemplate="{StaticResource PresetBlankTemplate}"
                     EmptyText="{loc:Translate Favoritos_Empty}"
-                    HeightRequest="68"
                     IsLoggedIn="{Binding IsLoggedIn}"
                     ItemDescriptionFormat="{loc:Translate Fmt_Preset}"
+                    MaximumHeightRequest="{DynamicResource KeyMaxHeight}"
+                    MinimumHeightRequest="{DynamicResource KeyMinHeight}"
                     ItemDisplayPath="Station.Name"
                     ItemIsCurrentPath="IsSelected"
                     ItemTemplate="{StaticResource PresetKeyTemplate}"

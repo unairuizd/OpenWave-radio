@@ -38,6 +38,8 @@ public class BottomBar : ContentView
                 new RowDefinition(GridLength.Auto)),
         };
         grid.SetDynamicResource(BackgroundColorProperty, "TabBarBackgroundColor");
+        grid.SetDynamicResource(MinimumHeightRequestProperty, "ChromeMinHeight");
+        grid.SetDynamicResource(MaximumHeightRequestProperty, "ChromeMaxHeight");
 
         var divider = new BoxView { HeightRequest = 1 };
         divider.SetDynamicResource(BoxView.ColorProperty, "DividerColor");

@@ -3,39 +3,42 @@
     x:Class="OpenWave.App.Views.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:OpenWave.App.Views.Controls"
     xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
     xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
     x:DataType="vm:LoginViewModel"
     Title="{loc:Translate Page_Login}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Style="{StaticResource PageTitleLabel}" Text="{loc:Translate Page_Login}" />
+        <controls:SizeLimit MinWidth="{DynamicResource FormMinWidth}" MaxWidth="{DynamicResource FormMaxWidth}">
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <Label Style="{StaticResource PageTitleLabel}" Text="{loc:Translate Page_Login}" />
 
-            <Entry
-                Keyboard="Email"
-                Placeholder="{loc:Translate Login_Email}"
-                Text="{Binding Email}" />
-            <Entry
-                IsPassword="True"
-                Placeholder="{loc:Translate Login_Password}"
-                ReturnCommand="{Binding LoginCommand}"
-                Text="{Binding Password}" />
+                <Entry
+                    Keyboard="Email"
+                    Placeholder="{loc:Translate Login_Email}"
+                    Text="{Binding Email}" />
+                <Entry
+                    IsPassword="True"
+                    Placeholder="{loc:Translate Login_Password}"
+                    ReturnCommand="{Binding LoginCommand}"
+                    Text="{Binding Password}" />
 
-            <Label
-                IsVisible="{Binding HasError}"
-                Style="{StaticResource ErrorLabel}"
-                Text="{Binding ErrorMessage}" />
+                <Label
+                    IsVisible="{Binding HasError}"
+                    Style="{StaticResource ErrorLabel}"
+                    Text="{Binding ErrorMessage}" />
 
-            <Button Command="{Binding LoginCommand}" Text="{loc:Translate Page_Login}" />
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                <Button Command="{Binding LoginCommand}" Text="{loc:Translate Page_Login}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
-            <Label
-                Margin="0,12,0,0"
-                Style="{StaticResource SecondaryLabel}"
-                Text="{loc:Translate Login_NoAccount}" />
-            <Button Command="{Binding GoToRegisterCommand}" Text="{loc:Translate Page_Register}" />
-        </VerticalStackLayout>
+                <Label
+                    Margin="0,12,0,0"
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="{loc:Translate Login_NoAccount}" />
+                <Button Command="{Binding GoToRegisterCommand}" Text="{loc:Translate Page_Register}" />
+            </VerticalStackLayout>
+        </controls:SizeLimit>
     </ScrollView>
 
 </ContentPage>

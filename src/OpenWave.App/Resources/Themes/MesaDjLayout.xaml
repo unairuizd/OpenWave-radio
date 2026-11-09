@@ -139,6 +139,8 @@
     -->
     <ControlTemplate x:Key="HeaderTemplate">
         <Grid
+            MinimumHeightRequest="{DynamicResource ChromeMinHeight}"
+            MaximumHeightRequest="{DynamicResource ChromeMaxHeight}"
             Padding="8,0"
             BackgroundColor="{DynamicResource TabBarBackgroundColor}"
             ColumnDefinitions="Auto,*,Auto"
@@ -151,8 +153,8 @@
                 Grid.Column="1"
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="Center"
-                LineBreakMode="WordWrap"
-                MaxLines="2"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
                 SemanticProperties.HeadingLevel="Level1"
                 Style="{StaticResource HeaderTitleLabel}"
                 Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
@@ -186,6 +188,7 @@
     <!--  Reproductor's header: the same, with the house on the left that opens Inicio (this page has no bottom bar)  -->
     <ControlTemplate x:Key="ReproductorHeaderTemplate">
         <Grid
+            MinimumHeightRequest="{DynamicResource ChromeMinHeight}"
             Padding="8,0"
             BackgroundColor="{DynamicResource TabBarBackgroundColor}"
             ColumnDefinitions="Auto,*,Auto"
@@ -204,8 +207,8 @@
                 Grid.Column="1"
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="Center"
-                LineBreakMode="WordWrap"
-                MaxLines="2"
+                LineBreakMode="TailTruncation"
+                MaxLines="1"
                 SemanticProperties.HeadingLevel="Level1"
                 Style="{StaticResource HeaderTitleLabel}"
                 Text="{Binding Title, Source={RelativeSource AncestorType={x:Type ContentPage}}, x:DataType=ContentPage}"
@@ -573,106 +576,105 @@
                 Padding="10,6"
                 IsVisible="{Binding ShowFilterBar}"
                 Style="{StaticResource MesaDjScreen}">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <FlexLayout AlignItems="Center" JustifyContent="SpaceBetween" Wrap="Wrap">
                     <VerticalStackLayout
-                        Grid.Column="0"
+                        FlexLayout.Grow="1"
                         IsVisible="{Binding FiltersApplied}"
                         VerticalOptions="Center">
                         <Label Style="{StaticResource StationNameLabel}" Text="{loc:Translate Inicio_FiltersOn}" />
                         <Label Style="{StaticResource SecondaryLabel}" Text="{Binding FilterSummary}" />
                     </VerticalStackLayout>
                     <Label
-                        Grid.Column="0"
+                        FlexLayout.Grow="1"
                         IsVisible="{Binding FiltersNotApplied}"
                         Style="{StaticResource StationNameLabel}"
                         Text="{loc:Translate Inicio_FiltersOff}"
                         VerticalOptions="Center" />
                     <Button
-                        Grid.Column="1"
                         Command="{Binding DeactivateFiltersCommand}"
                         IsVisible="{Binding FiltersApplied}"
                         Text="{loc:Translate Action_Disable}"
                         VerticalOptions="Center" />
                     <Button
-                        Grid.Column="1"
                         Command="{Binding ActivateFiltersCommand}"
                         IsVisible="{Binding FiltersNotApplied}"
                         Text="{loc:Translate Action_Enable}"
                         VerticalOptions="Center" />
-                </Grid>
+                </FlexLayout>
             </Border>
 
             <!--  The track browser: headings and rows (the states replace the rows)  -->
-            <Border
-                Grid.Row="3"
-                Margin="12,8,12,10"
-                Style="{StaticResource MesaDjScreen}">
-                <Grid RowDefinitions="Auto,Auto,*">
-                    <ContentView Grid.Row="0" ControlTemplate="{StaticResource BrowserHeadingsTemplate}" />
-                    <BoxView
-                        Grid.Row="1"
-                        HeightRequest="1"
-                        Color="{DynamicResource DividerColor}" />
-                    <controls:CursorList
-                        Grid.Row="2"
-                        ActivateCommand="{Binding PlayHereCommand}"
-                        FocusOnReset="First"
-                        ItemTemplate="{StaticResource StationCardTemplate}"
-                        ItemsSource="{Binding Stations}"
-                        TapActivates="True" />
+            <controls:SizeLimit FillHeight="True" MaxWidth="{DynamicResource StationRowMaxWidth}" MinWidth="{DynamicResource StationRowMinWidth}" Grid.Row="3">
+                <Border
+                    Margin="12,8,12,10"
+                    Style="{StaticResource MesaDjScreen}">
+                    <Grid RowDefinitions="Auto,Auto,*">
+                        <ContentView Grid.Row="0" ControlTemplate="{StaticResource BrowserHeadingsTemplate}" />
+                        <BoxView
+                            Grid.Row="1"
+                            HeightRequest="1"
+                            Color="{DynamicResource DividerColor}" />
+                        <controls:CursorList
+                            Grid.Row="2"
+                            ActivateCommand="{Binding PlayHereCommand}"
+                            FocusOnReset="First"
+                            ItemTemplate="{StaticResource StationCardTemplate}"
+                            ItemsSource="{Binding Stations}"
+                            TapActivates="True" />
 
-                    <VerticalStackLayout
-                        Grid.Row="2"
-                        HorizontalOptions="Center"
-                        IsVisible="{Binding IsLoading}"
-                        Spacing="8"
-                        VerticalOptions="Center">
-                        <ActivityIndicator IsRunning="{Binding IsLoading}" />
-                        <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Inicio_Loading}" />
-                    </VerticalStackLayout>
+                        <VerticalStackLayout
+                            Grid.Row="2"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding IsLoading}"
+                            Spacing="8"
+                            VerticalOptions="Center">
+                            <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                            <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Inicio_Loading}" />
+                        </VerticalStackLayout>
 
-                    <Label
-                        Grid.Row="2"
-                        HorizontalOptions="Center"
-                        HorizontalTextAlignment="Center"
-                        IsVisible="{Binding IsEmptyPlain}"
-                        Style="{StaticResource SecondaryLabel}"
-                        Text="{loc:Translate Inicio_NoStations}"
-                        VerticalOptions="Center" />
-
-                    <VerticalStackLayout
-                        Grid.Row="2"
-                        HorizontalOptions="Center"
-                        IsVisible="{Binding IsEmptyWithPreferences}"
-                        Spacing="12"
-                        VerticalOptions="Center">
                         <Label
+                            Grid.Row="2"
+                            HorizontalOptions="Center"
                             HorizontalTextAlignment="Center"
+                            IsVisible="{Binding IsEmptyPlain}"
                             Style="{StaticResource SecondaryLabel}"
-                            Text="{loc:Translate Inicio_NoStationsFiltered}" />
-                        <Button
-                            Command="{Binding DeactivateFiltersCommand}"
-                            HorizontalOptions="Center"
-                            Text="{loc:Translate Action_Disable}" />
-                    </VerticalStackLayout>
+                            Text="{loc:Translate Inicio_NoStations}"
+                            VerticalOptions="Center" />
 
-                    <VerticalStackLayout
-                        Grid.Row="2"
-                        HorizontalOptions="Center"
-                        IsVisible="{Binding HasError}"
-                        Spacing="12"
-                        VerticalOptions="Center">
-                        <Label
-                            HorizontalTextAlignment="Center"
-                            Style="{StaticResource ErrorLabel}"
-                            Text="{Binding ErrorMessage}" />
-                        <Button
-                            Command="{Binding RetryCommand}"
+                        <VerticalStackLayout
+                            Grid.Row="2"
                             HorizontalOptions="Center"
-                            Text="{loc:Translate Action_Retry}" />
-                    </VerticalStackLayout>
-                </Grid>
-            </Border>
+                            IsVisible="{Binding IsEmptyWithPreferences}"
+                            Spacing="12"
+                            VerticalOptions="Center">
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="{loc:Translate Inicio_NoStationsFiltered}" />
+                            <Button
+                                Command="{Binding DeactivateFiltersCommand}"
+                                HorizontalOptions="Center"
+                                Text="{loc:Translate Action_Disable}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout
+                            Grid.Row="2"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding HasError}"
+                            Spacing="12"
+                            VerticalOptions="Center">
+                            <Label
+                                HorizontalTextAlignment="Center"
+                                Style="{StaticResource ErrorLabel}"
+                                Text="{Binding ErrorMessage}" />
+                            <Button
+                                Command="{Binding RetryCommand}"
+                                HorizontalOptions="Center"
+                                Text="{loc:Translate Action_Retry}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+            </controls:SizeLimit>
 
             <views:BottomBar Grid.Row="4" />
         </Grid>
@@ -722,86 +724,86 @@
             </VerticalStackLayout>
 
             <!--  Logged in: the list tab and the browser of favourites (the states replace the rows)  -->
-            <Grid
-                Grid.Row="2"
-                Padding="12,8,12,10"
-                IsVisible="{Binding IsLoggedIn}"
-                RowDefinitions="Auto,*">
-                <Border
-                    Grid.Row="0"
-                    Padding="12,6"
-                    BackgroundColor="{DynamicResource SurfaceColor}"
-                    HorizontalOptions="Start"
-                    StrokeThickness="0">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="6,6,0,0" />
-                    </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="4">
-                        <Label
-                            Style="{StaticResource MesaDjCaption}"
-                            TextColor="{DynamicResource PrimaryTextColor}">
-                            <Label.Text>
-                                <MultiBinding Converter="{x:Static loc:FormatConverter.Instance}">
-                                    <Binding Path="[Fmt_FavoritesCount]" Source="{x:Static loc:Localizer.Instance}" x:DataType="loc:Localizer" />
-                                    <Binding Path="Stations.Count" />
-                                </MultiBinding>
-                            </Label.Text>
-                        </Label>
-                        <BoxView HeightRequest="2" Color="{DynamicResource AccentColor}" />
-                    </VerticalStackLayout>
-                </Border>
-                <Border Grid.Row="1" Style="{StaticResource MesaDjScreen}">
-                    <Grid RowDefinitions="Auto,Auto,*">
-                        <ContentView Grid.Row="0" ControlTemplate="{StaticResource BrowserHeadingsTemplate}" />
-                        <BoxView
-                            Grid.Row="1"
-                            HeightRequest="1"
-                            Color="{DynamicResource DividerColor}" />
-                        <controls:CursorList
-                            Grid.Row="2"
-                            ActivateCommand="{Binding PlayHereCommand}"
-                            FocusOnReset="KeepPosition"
-                            ItemTemplate="{StaticResource StationCardTemplate}"
-                            ItemsSource="{Binding Stations}"
-                            TapActivates="True" />
-
-                        <VerticalStackLayout
-                            Grid.Row="2"
-                            HorizontalOptions="Center"
-                            IsVisible="{Binding IsLoading}"
-                            Spacing="8"
-                            VerticalOptions="Center">
-                            <ActivityIndicator IsRunning="{Binding IsLoading}" />
-                            <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Favoritos_Loading}" />
-                        </VerticalStackLayout>
-
-                        <Label
-                            Grid.Row="2"
-                            HorizontalOptions="Center"
-                            HorizontalTextAlignment="Center"
-                            IsVisible="{Binding IsEmpty}"
-                            Style="{StaticResource SecondaryLabel}"
-                            Text="{loc:Translate Favoritos_Empty}"
-                            VerticalOptions="Center" />
-
-                        <VerticalStackLayout
-                            Grid.Row="2"
-                            HorizontalOptions="Center"
-                            IsVisible="{Binding HasError}"
-                            Spacing="12"
-                            VerticalOptions="Center">
+            <controls:SizeLimit FillHeight="True" MaxWidth="{DynamicResource StationRowMaxWidth}" MinWidth="{DynamicResource StationRowMinWidth}" Grid.Row="2" IsVisible="{Binding IsLoggedIn}">
+                <Grid
+                    Padding="12,8,12,10"
+                    RowDefinitions="Auto,*">
+                    <Border
+                        Grid.Row="0"
+                        Padding="12,6"
+                        BackgroundColor="{DynamicResource SurfaceColor}"
+                        HorizontalOptions="Start"
+                        StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="6,6,0,0" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="4">
                             <Label
-                                HorizontalTextAlignment="Center"
-                                Style="{StaticResource ErrorLabel}"
-                                Text="{Binding ErrorMessage}" />
-                            <Button
-                                Command="{Binding RetryCommand}"
-                                HorizontalOptions="Center"
-                                Text="{loc:Translate Action_Retry}" />
+                                Style="{StaticResource MesaDjCaption}"
+                                TextColor="{DynamicResource PrimaryTextColor}">
+                                <Label.Text>
+                                    <MultiBinding Converter="{x:Static loc:FormatConverter.Instance}">
+                                        <Binding Path="[Fmt_FavoritesCount]" Source="{x:Static loc:Localizer.Instance}" x:DataType="loc:Localizer" />
+                                        <Binding Path="Stations.Count" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                            <BoxView HeightRequest="2" Color="{DynamicResource AccentColor}" />
                         </VerticalStackLayout>
-                    </Grid>
-                </Border>
-            </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Style="{StaticResource MesaDjScreen}">
+                        <Grid RowDefinitions="Auto,Auto,*">
+                            <ContentView Grid.Row="0" ControlTemplate="{StaticResource BrowserHeadingsTemplate}" />
+                            <BoxView
+                                Grid.Row="1"
+                                HeightRequest="1"
+                                Color="{DynamicResource DividerColor}" />
+                            <controls:CursorList
+                                Grid.Row="2"
+                                ActivateCommand="{Binding PlayHereCommand}"
+                                FocusOnReset="KeepPosition"
+                                ItemTemplate="{StaticResource StationCardTemplate}"
+                                ItemsSource="{Binding Stations}"
+                                TapActivates="True" />
+
+                            <VerticalStackLayout
+                                Grid.Row="2"
+                                HorizontalOptions="Center"
+                                IsVisible="{Binding IsLoading}"
+                                Spacing="8"
+                                VerticalOptions="Center">
+                                <ActivityIndicator IsRunning="{Binding IsLoading}" />
+                                <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Favoritos_Loading}" />
+                            </VerticalStackLayout>
+
+                            <Label
+                                Grid.Row="2"
+                                HorizontalOptions="Center"
+                                HorizontalTextAlignment="Center"
+                                IsVisible="{Binding IsEmpty}"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="{loc:Translate Favoritos_Empty}"
+                                VerticalOptions="Center" />
+
+                            <VerticalStackLayout
+                                Grid.Row="2"
+                                HorizontalOptions="Center"
+                                IsVisible="{Binding HasError}"
+                                Spacing="12"
+                                VerticalOptions="Center">
+                                <Label
+                                    HorizontalTextAlignment="Center"
+                                    Style="{StaticResource ErrorLabel}"
+                                    Text="{Binding ErrorMessage}" />
+                                <Button
+                                    Command="{Binding RetryCommand}"
+                                    HorizontalOptions="Center"
+                                    Text="{loc:Translate Action_Retry}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </controls:SizeLimit>
 
             <views:BottomBar Grid.Row="3" />
         </Grid>
@@ -817,213 +819,214 @@
             x:DataType="vm:ReproductorViewModel"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,*,Auto">
+            RowDefinitions="Auto,*">
             <ContentView Grid.Row="0" ControlTemplate="{StaticResource ReproductorHeaderTemplate}" />
 
             <ScrollView Grid.Row="1">
-                <VerticalStackLayout
-                    Padding="16,12"
-                    MaximumWidthRequest="720"
-                    Spacing="12">
+                <VerticalStackLayout Spacing="8">
+                    <controls:SizeLimit MaxWidth="{DynamicResource StationRowMaxWidth}" MinWidth="{DynamicResource StationRowMinWidth}">
+                        <VerticalStackLayout
+                            Padding="16,12"
+                            Spacing="12">
 
-                    <!--  The jog wheel and the level meter  -->
-                    <Grid
-                        ColumnDefinitions="*,Auto"
-                        ColumnSpacing="16"
-                        HorizontalOptions="Center">
-                        <controls:JogWheel
-                            Grid.Column="0"
-                            HeightRequest="240"
-                            IsBlank="{Binding HasNoStation}"
-                            IsSpinning="{Binding IsActive}"
-                            LogoSource="{Binding LogoUrl}"
-                            WidthRequest="240" />
-                        <Border
-                            Grid.Column="1"
-                            Padding="6"
-                            Style="{StaticResource MesaDjScreen}"
-                            VerticalOptions="Center">
-                            <controls:LevelMeter
-                                Bars="2"
-                                HeightRequest="200"
-                                IsActive="{Binding IsActive}"
-                                LitColor="{DynamicResource AccentColor}"
-                                PeakColor="{DynamicResource FavoriteIconColor}"
-                                Segments="16"
-                                UnlitColor="{DynamicResource InputBackgroundColor}"
-                                WidthRequest="30" />
-                        </Border>
-                    </Grid>
-
-                    <!--  The station on the deck's screen  -->
-                    <Border Padding="14" Style="{StaticResource MesaDjScreen}">
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                IsVisible="{Binding HasNoStation}"
-                                Style="{StaticResource SecondaryLabel}"
-                                Text="{loc:Translate Reproductor_Choose}" />
-
+                            <!--  The jog wheel and the level meter  -->
                             <Grid
                                 ColumnDefinitions="*,Auto"
-                                ColumnSpacing="4"
-                                IsVisible="{Binding HasStation}">
-                                <Label
+                                ColumnSpacing="16"
+                                HorizontalOptions="Center">
+                                <controls:AspectBox MaxWidth="{DynamicResource JogWheelMaxWidth}" MinWidth="{DynamicResource JogWheelMinWidth}" Ratio="{DynamicResource JogWheelRatio}" Grid.Column="0">
+                                    <controls:JogWheel
+                                        IsBlank="{Binding HasNoStation}"
+                                        IsSpinning="{Binding IsActive}"
+                                        LogoSource="{Binding LogoUrl}" />
+                                </controls:AspectBox>
+                                <Border
+                                    Grid.Column="1"
+                                    Padding="6"
+                                    Style="{StaticResource MesaDjScreen}"
+                                    VerticalOptions="Center">
+                                    <controls:AspectBox MaxWidth="{DynamicResource LevelMeterMaxWidth}" MinWidth="{DynamicResource LevelMeterMinWidth}" Ratio="{DynamicResource LevelMeterRatio}">
+                                        <controls:LevelMeter
+                                            Bars="2"
+                                            IsActive="{Binding IsActive}"
+                                            LitColor="{DynamicResource AccentColor}"
+                                            PeakColor="{DynamicResource FavoriteIconColor}"
+                                            Segments="16"
+                                            UnlitColor="{DynamicResource InputBackgroundColor}" />
+                                    </controls:AspectBox>
+                                </Border>
+                            </Grid>
+
+                            <!--  The station on the deck's screen  -->
+                            <Border Padding="14" Style="{StaticResource MesaDjScreen}">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label
+                                        IsVisible="{Binding HasNoStation}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{loc:Translate Reproductor_Choose}" />
+
+                                    <Grid
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="4"
+                                        IsVisible="{Binding HasStation}">
+                                        <Label
+                                            Grid.Column="0"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="2"
+                                            Style="{StaticResource StationNameLabel}"
+                                            Text="{Binding StationName}"
+                                            VerticalOptions="Center" />
+                                        <ImageButton
+                                            Grid.Column="1"
+                                            behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
+                                            Command="{Binding ToggleFavoriteCommand}"
+                                            Style="{StaticResource IconButton}"
+                                            VerticalOptions="Center">
+                                            <ImageButton.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsFavorite}"
+                                                    TargetType="ImageButton"
+                                                    Value="False">
+                                                    <Setter Property="Source" Value="ic_heart_outline.png" />
+                                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsFavorite}"
+                                                    TargetType="ImageButton"
+                                                    Value="True">
+                                                    <Setter Property="Source" Value="ic_heart.png" />
+                                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
+                                                </DataTrigger>
+                                            </ImageButton.Triggers>
+                                        </ImageButton>
+                                    </Grid>
+                                    <Label
+                                        IsVisible="{Binding HasDetails}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{Binding Details}" />
+
+                                    <!--  Status line  -->
+                                    <Label
+                                        IsVisible="{Binding HasStation}"
+                                        Style="{StaticResource MesaDjStatusLabel}"
+                                        Text="{Binding StatusText}" />
+                                    <Label
+                                        IsVisible="{Binding HasNotice}"
+                                        Style="{StaticResource SecondaryLabel}"
+                                        Text="{Binding Notice}" />
+                                    <Label
+                                        IsVisible="{Binding HasError}"
+                                        Style="{StaticResource ErrorLabel}"
+                                        Text="{Binding ErrorMessage}" />
+                                    <Button
+                                        Command="{Binding RetryCommand}"
+                                        HorizontalOptions="Start"
+                                        IsVisible="{Binding HasError}"
+                                        Text="{loc:Translate Action_Retry}" />
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!--  Deck transport: ATRÁS, the round play/pause button and SIGUIENTE  -->
+                            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="16">
+                                <Button
                                     Grid.Column="0"
-                                    LineBreakMode="TailTruncation"
-                                    MaxLines="2"
-                                    Style="{StaticResource StationNameLabel}"
-                                    Text="{Binding StationName}"
+                                    Command="{Binding PreviousFavoriteCommand}"
+                                    SemanticProperties.Description="{loc:Translate Favoritos_Previous}"
+                                    Style="{StaticResource MesaDjFlatButton}"
+                                    Text="{loc:Translate Dj_Back}"
                                     VerticalOptions="Center" />
                                 <ImageButton
                                     Grid.Column="1"
-                                    behaviors:IconTint.Color="{DynamicResource FavoriteIconColor}"
-                                    Command="{Binding ToggleFavoriteCommand}"
-                                    Style="{StaticResource IconButton}"
-                                    VerticalOptions="Center">
+                                    Padding="18"
+                                    behaviors:IconTint.Color="{DynamicResource AccentTextColor}"
+                                    BackgroundColor="{DynamicResource AccentColor}"
+                                    Command="{Binding ToggleCommand}"
+                                    CornerRadius="32"
+                                    HeightRequest="64"
+                                    IsEnabled="{Binding HasStation}"
+                                    WidthRequest="64">
                                     <ImageButton.Triggers>
                                         <DataTrigger
-                                            Binding="{Binding IsFavorite}"
+                                            Binding="{Binding IsActive}"
                                             TargetType="ImageButton"
                                             Value="False">
-                                            <Setter Property="Source" Value="ic_heart_outline.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_AddFavorite}" />
+                                            <Setter Property="Source" Value="ic_play.png" />
+                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Play}" />
                                         </DataTrigger>
                                         <DataTrigger
-                                            Binding="{Binding IsFavorite}"
+                                            Binding="{Binding IsActive}"
                                             TargetType="ImageButton"
                                             Value="True">
-                                            <Setter Property="Source" Value="ic_heart.png" />
-                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_RemoveFavorite}" />
+                                            <Setter Property="Source" Value="ic_stop.png" />
+                                            <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Stop}" />
                                         </DataTrigger>
                                     </ImageButton.Triggers>
                                 </ImageButton>
+                                <Button
+                                    Grid.Column="2"
+                                    Command="{Binding NextFavoriteCommand}"
+                                    SemanticProperties.Description="{loc:Translate Favoritos_Next}"
+                                    Style="{StaticResource MesaDjFlatButton}"
+                                    Text="{loc:Translate Dj_Next}"
+                                    VerticalOptions="Center" />
                             </Grid>
-                            <Label
-                                IsVisible="{Binding HasDetails}"
-                                Style="{StaticResource SecondaryLabel}"
-                                Text="{Binding Details}" />
-
-                            <!--  Status line  -->
-                            <Label
-                                IsVisible="{Binding HasStation}"
-                                Style="{StaticResource MesaDjStatusLabel}"
-                                Text="{Binding StatusText}" />
-                            <Label
-                                IsVisible="{Binding HasNotice}"
-                                Style="{StaticResource SecondaryLabel}"
-                                Text="{Binding Notice}" />
-                            <Label
-                                IsVisible="{Binding HasError}"
-                                Style="{StaticResource ErrorLabel}"
-                                Text="{Binding ErrorMessage}" />
-                            <Button
-                                Command="{Binding RetryCommand}"
-                                HorizontalOptions="Start"
-                                IsVisible="{Binding HasError}"
-                                Text="{loc:Translate Action_Retry}" />
                         </VerticalStackLayout>
-                    </Border>
-
-                    <!--  Deck transport: ATRÁS, the round play/pause button and SIGUIENTE  -->
-                    <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="16">
-                        <Button
-                            Grid.Column="0"
-                            Command="{Binding PreviousFavoriteCommand}"
-                            SemanticProperties.Description="{loc:Translate Favoritos_Previous}"
-                            Style="{StaticResource MesaDjFlatButton}"
-                            Text="{loc:Translate Dj_Back}"
-                            VerticalOptions="Center" />
+                    </controls:SizeLimit>
+                    <!--  The pads: eight favourites per page, arrows and the page indicator when there are more  -->
+                    <Grid
+                        Padding="12,10,12,12"
+                        BackgroundColor="{DynamicResource TabBarBackgroundColor}"
+                        ColumnDefinitions="Auto,*,Auto"
+                        ColumnSpacing="8"
+                        RowDefinitions="Auto,Auto"
+                        RowSpacing="4">
                         <ImageButton
-                            Grid.Column="1"
-                            Padding="18"
-                            behaviors:IconTint.Color="{DynamicResource AccentTextColor}"
-                            BackgroundColor="{DynamicResource AccentColor}"
-                            Command="{Binding ToggleCommand}"
-                            CornerRadius="32"
-                            HeightRequest="64"
-                            IsEnabled="{Binding HasStation}"
-                            WidthRequest="64">
-                            <ImageButton.Triggers>
-                                <DataTrigger
-                                    Binding="{Binding IsActive}"
-                                    TargetType="ImageButton"
-                                    Value="False">
-                                    <Setter Property="Source" Value="ic_play.png" />
-                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Play}" />
-                                </DataTrigger>
-                                <DataTrigger
-                                    Binding="{Binding IsActive}"
-                                    TargetType="ImageButton"
-                                    Value="True">
-                                    <Setter Property="Source" Value="ic_stop.png" />
-                                    <Setter Property="SemanticProperties.Description" Value="{loc:Translate Action_Stop}" />
-                                </DataTrigger>
-                            </ImageButton.Triggers>
-                        </ImageButton>
-                        <Button
-                            Grid.Column="2"
-                            Command="{Binding NextFavoriteCommand}"
-                            SemanticProperties.Description="{loc:Translate Favoritos_Next}"
-                            Style="{StaticResource MesaDjFlatButton}"
-                            Text="{loc:Translate Dj_Next}"
+                            Grid.Column="0"
+                            behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                            Command="{Binding PreviousPageCommand, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
+                            IsVisible="{Binding HasPages, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
+                            SemanticProperties.Description="{loc:Translate Dj_PreviousPads}"
+                            Source="ic_previous.png"
+                            Style="{StaticResource IconButton}"
                             VerticalOptions="Center" />
+                        <controls:AspectBox MaxWidth="{DynamicResource PadsGridMaxWidth}" MinWidth="{DynamicResource PadsGridMinWidth}" Ratio="{DynamicResource PadsGridRatio}" Grid.Column="1">
+                            <controls:PagedSlots
+                                x:Name="Pads"
+                                ArrowKeysMoveFocus="True"
+                                Columns="4"
+                                EmptySlotTemplate="{StaticResource PadBlankTemplate}"
+                                EmptyText="{loc:Translate Favoritos_Empty}"
+                                IsLoggedIn="{Binding IsLoggedIn}"
+                                ItemDescriptionFormat="Pad {1}: {0}"
+                                ItemDisplayPath="Station.Name"
+                                ItemIsCurrentPath="IsSelected"
+                                ItemTemplate="{StaticResource PadTemplate}"
+                                ItemsSource="{Binding Favorites}"
+                                LogInCommand="{Binding LogInCommand}"
+                                LoggedOutText="{loc:Translate Favoritos_LogInHint}"
+                                Rows="2"
+                                SelectCommand="{Binding SelectFavoriteCommand}" />
+                        </controls:AspectBox>
+                        <ImageButton
+                            Grid.Column="2"
+                            behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
+                            Command="{Binding NextPageCommand, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
+                            IsVisible="{Binding HasPages, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
+                            SemanticProperties.Description="{loc:Translate Dj_NextPads}"
+                            Source="ic_next.png"
+                            Style="{StaticResource IconButton}"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding HasPages, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
+                            Style="{StaticResource SecondaryLabel}"
+                            Text="{Binding PageText, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}" />
                     </Grid>
                 </VerticalStackLayout>
             </ScrollView>
 
-            <!--  The pads: eight favourites per page, arrows and the page indicator when there are more  -->
-            <Grid
-                Grid.Row="2"
-                Padding="12,10,12,12"
-                BackgroundColor="{DynamicResource TabBarBackgroundColor}"
-                ColumnDefinitions="Auto,*,Auto"
-                ColumnSpacing="8"
-                RowDefinitions="Auto,Auto"
-                RowSpacing="4">
-                <ImageButton
-                    Grid.Column="0"
-                    behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
-                    Command="{Binding PreviousPageCommand, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
-                    IsVisible="{Binding HasPages, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
-                    SemanticProperties.Description="{loc:Translate Dj_PreviousPads}"
-                    Source="ic_previous.png"
-                    Style="{StaticResource IconButton}"
-                    VerticalOptions="Center" />
-                <controls:PagedSlots
-                    x:Name="Pads"
-                    Grid.Column="1"
-                    ArrowKeysMoveFocus="True"
-                    Columns="4"
-                    EmptySlotTemplate="{StaticResource PadBlankTemplate}"
-                    EmptyText="{loc:Translate Favoritos_Empty}"
-                    HeightRequest="128"
-                    IsLoggedIn="{Binding IsLoggedIn}"
-                    ItemDescriptionFormat="Pad {1}: {0}"
-                    ItemDisplayPath="Station.Name"
-                    ItemIsCurrentPath="IsSelected"
-                    ItemTemplate="{StaticResource PadTemplate}"
-                    ItemsSource="{Binding Favorites}"
-                    LogInCommand="{Binding LogInCommand}"
-                    LoggedOutText="{loc:Translate Favoritos_LogInHint}"
-                    Rows="2"
-                    SelectCommand="{Binding SelectFavoriteCommand}" />
-                <ImageButton
-                    Grid.Column="2"
-                    behaviors:IconTint.Color="{DynamicResource PrimaryTextColor}"
-                    Command="{Binding NextPageCommand, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
-                    IsVisible="{Binding HasPages, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
-                    SemanticProperties.Description="{loc:Translate Dj_NextPads}"
-                    Source="ic_next.png"
-                    Style="{StaticResource IconButton}"
-                    VerticalOptions="Center" />
-                <Label
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    HorizontalOptions="Center"
-                    IsVisible="{Binding HasPages, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}"
-                    Style="{StaticResource SecondaryLabel}"
-                    Text="{Binding PageText, Source={x:Reference Pads}, x:DataType=controls:PagedSlots}" />
-            </Grid>
         </Grid>
     </ControlTemplate>
 

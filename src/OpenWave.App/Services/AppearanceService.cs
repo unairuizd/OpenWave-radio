@@ -35,6 +35,9 @@ public partial class AppearanceService : ObservableObject
     // True while a theme is being applied.
     private bool _applying;
 
+    // The window width, for the component minimums (unknown until the window is shown).
+    private double _windowWidth = double.PositiveInfinity;
+
     [ObservableProperty]
     public partial string ThemeId { get; private set; } = ThemeCatalog.DefaultId;
 
@@ -251,7 +254,24 @@ public partial class AppearanceService : ObservableObject
         resources["FontSizeTitle"] = Math.Round(AppearanceOptions.TitleSize * scale, 1);
         // Icons are as wide as a title letter is high, plus their padding, so they scale with the text.
         resources["IconButtonSize"] = Math.Max(MinTouchTarget, Math.Round(AppearanceOptions.TitleSize * scale, 1) + 2 * IconPadding);
+        // The size limits of components with text follow the text size too.
+        ComponentSizes.Apply(resources, scale, _windowWidth);
         FontScale = scale;
+    }
+
+    /// <summary>
+    /// Called when the window is resized: component minimum widths never exceed the window, so nothing scrolls
+    /// sideways at a large text size.
+    /// </summary>
+    public void SetWindowWidth(double width)
+    {
+        if (width <= 0 || Math.Abs(width - _windowWidth) < 0.5)
+        {
+            return;
+        }
+
+        _windowWidth = width;
+        ComponentSizes.Apply(Application.Current!.Resources, FontScale, width);
     }
 
     private static string? FindFont(string? name) =>

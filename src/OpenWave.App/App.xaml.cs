@@ -22,7 +22,13 @@ public partial class App : Application
 	protected override Window CreateWindow(IActivationState? activationState)
 	{
 		var shell = new AppShell(_appearance);
-		var window = new Window(shell);
+		var window = new Window(shell)
+		{
+			// Windows only (Android keeps its screen): the window is never smaller than a small phone.
+			MinimumWidth = 360,
+			MinimumHeight = 600,
+		};
+		window.SizeChanged += (_, _) => _appearance.SetWindowWidth(window.Width);
 		// The single audio element lives with the window, not with a page, so audio survives page and theme changes.
 		// It is created once the window shows its content.
 		shell.Loaded += (_, _) => _audioPlayer.CreateElement(window);

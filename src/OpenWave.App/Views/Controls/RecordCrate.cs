@@ -50,8 +50,9 @@ public class RecordCrate : PageAwareView
     private readonly ImageButton _previous;
     private readonly ImageButton _next;
     private readonly Label _indicator = new() { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.End };
-    private readonly Label _message = new() { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center };
-    private readonly Button _logInCover = new() { BorderWidth = 0, Padding = 0, BackgroundColor = Colors.Transparent };
+    // Text inside a drawn piece wraps instead of making the piece wider.
+    private readonly Label _message = new() { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, HorizontalTextAlignment = TextAlignment.Center, LineBreakMode = LineBreakMode.WordWrap, Margin = new Thickness(8, 0) };
+    private readonly Button _logInCover = new() { BorderWidth = 0, Padding = new Thickness(8, 0), BackgroundColor = Colors.Transparent, LineBreakMode = LineBreakMode.WordWrap };
     private int _page;
 
     public RecordCrate()
