@@ -29,6 +29,9 @@
   <data name="Personalizacion_Language" xml:space="preserve"><value>Idioma</value></data>
   <data name="Personalizacion_Reset" xml:space="preserve"><value>Restablecer valores por defecto</value></data>
   <data name="Personalizacion_MoreFonts" xml:space="preserve"><value>{0} tipos de letra más</value></data>
+  <data name="Welcome_Title" xml:space="preserve"><value>Bienvenido a OpenWave</value></data>
+  <data name="Welcome_Intro" xml:space="preserve"><value>Elige el idioma de la aplicación (podrás cambiarlo en Personalización). Solo necesitas una cuenta para guardar favoritas.</value></data>
+  <data name="Welcome_Continue" xml:space="preserve"><value>Continuar sin cuenta</value></data>
   <data name="Action_Play" xml:space="preserve"><value>Reproducir</value></data>
   <data name="Action_AddFavorite" xml:space="preserve"><value>Añadir a favoritas</value></data>
   <data name="Theme_moderno" xml:space="preserve"><value>Moderno</value></data>

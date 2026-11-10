@@ -240,6 +240,21 @@ Messages on the `Iniciar sesión` and `Crear cuenta` pages:
 | `No se pudo acceder a la base de datos.` | The API cannot reach the database |
 | `Ha ocurrido un error inesperado.` | Any other failure |
 
+## Welcome pop-up
+
+The first time the app starts on a device, a `Bienvenido a OpenWave` pop-up opens over `Inicio` while the station list loads behind it. It offers:
+
+- **Idioma:** the same `Español` / `English` choice as `Personalización`. Tapping a language re-labels the pop-up and the whole app at once and stores it like a choice made in `Personalización`.
+- **`Iniciar sesión`** and **`Crear cuenta`:** close the pop-up and open the existing pages. On success, or with the back arrow, the app returns to `Inicio`.
+- **`Continuar sin cuenta`:** closes the pop-up; the app stays logged out.
+
+The pop-up is shown **once per device**: closing it in any way (one of its buttons, the Android back button or a tap outside it) stores a `welcome_seen` flag, kept apart from the appearance and the station filters, so neither `Restablecer valores por defecto` nor logging out brings it back. Closing the app while the pop-up is still open does not store the flag. The pop-up follows the theme, font and text size, is as wide as a form and scrolls inside when it is taller than the window.
+
+To see it again while testing, remove the flag:
+
+- **Windows:** close the app and delete `%LOCALAPPDATA%\User Name\com.openwave.app\Settings\preferences.dat` (this also forgets the other preferences; it is a small JSON file, so you can instead delete only the `welcome_seen` entry).
+- **Android:** uninstall the app and deploy it again. Do not use "Clear storage" on a Debug build: it also removes the fast-deployed assemblies and the app no longer starts until it is deployed again.
+
 ## Favourites in the app
 
 Each station card and the station in `Reproductor` show a heart: filled (`Quitar de favoritas`) when it is one of your favourites, outline (`Añadir a favoritas`) when it is not or when nobody is logged in.
@@ -696,6 +711,10 @@ Nothing else changes: the language appears in `Idioma` at once.
 66. Language: in `Personalización` choose `English` while a station plays: the page reads `Personalization`, the other pages `HOME`, `PLAYER` and `FAVOURITES`, and the station keeps playing. Restart the app: it opens in English. With the app in English, an invalid email in `Log in` reads `The email address is not valid.`, and `Preferencias` shows the content types `Music`, `News`, `Talk`, `Sports` (from the API). Country names stay as Radio Browser gives them. Choose `Español`: every text is Spanish again.
 67. Component sizes: in every theme, drag the Windows window to its smallest size (it stops at about 360 × 600), then maximise it, at `Pequeño`, `Normal` and `Enorme`. Drawn pieces (the turntable, crate, cassette, J-cards, dial, speakers, jog wheel, pads, LCD and click wheel) keep their shape and stop at their limits; panels and rows stop at their maximum width and are centred; nothing overlaps and nothing scrolls sideways; every control can be reached by scrolling between the fixed header and bar. Repeat on the Android phone in portrait at `Enorme`.
 68. Casete portátil Reproductor in the smallest window and maximised: the cassette is always cassette-shaped (1.6 : 1) and side A of the J-card is a 2 : 1 card; neither is stretched.
+69. Welcome pop-up, first start: remove the `welcome_seen` flag (see "Welcome pop-up"), start the app: `Inicio` shows the `Bienvenido a OpenWave` pop-up over the loading list, in the theme's colours and font. Tap a station behind it: the pop-up closes and no station is selected. Restart: no pop-up.
+70. Welcome pop-up, language: remove the flag, start the app and tap `English`: the pop-up reads `Welcome to OpenWave` and the page behind it `HOME`. Tap `Continue without an account`, restart: the app opens in English with no pop-up and `Personalization` shows `English` selected. Choose `Español` again and press `Restablecer valores por defecto`, restart: Spanish, default theme, still no pop-up.
+71. Welcome pop-up, account: remove the flag, start the app and tap `Iniciar sesión`: the login page opens; the back arrow returns to `Inicio` with no pop-up. Remove the flag again and tap `Crear cuenta`: the register page opens; the back arrow goes to `Iniciar sesión`, then to `Inicio`. Logging in or registering from either page returns to `Inicio`, logged in.
+72. Welcome pop-up, sizes: with `Enorme`, remove the flag and start the app in the smallest Windows window and on the Android phone: every control of the pop-up can be reached by scrolling inside it and nothing is cut. Maximise the window: the pop-up is centred and no wider than a form. On Android, press the system back button with the pop-up open: it closes, `Inicio` stays, and it is not shown on the next start.
 
 ## Notes
 

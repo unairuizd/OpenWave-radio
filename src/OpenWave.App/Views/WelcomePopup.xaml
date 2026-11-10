@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  Shown once over Inicio on the first start (see WelcomeService). Everything comes from the semantic keys, so the
+      pop-up follows the theme, font and text size; it is as wide as a form and scrolls inside when it is taller than
+      the window.  -->
+<toolkit:Popup
+    x:Class="OpenWave.App.Views.WelcomePopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:OpenWave.App.Views.Controls"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
+    x:DataType="vm:WelcomeViewModel"
+    x:TypeArguments="vm:WelcomeChoice"
+    Margin="16"
+    Padding="0"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    HorizontalOptions="Center"
+    VerticalOptions="Center">
+
+    <Border Style="{StaticResource StationCard}">
+        <controls:SizeLimit MinWidth="{DynamicResource FormMinWidth}" MaxWidth="{DynamicResource FormMaxWidth}">
+            <ScrollView x:Name="Scroll">
+                <VerticalStackLayout Padding="8" Spacing="12">
+                    <Label Style="{StaticResource PageTitleLabel}" Text="{loc:Translate Welcome_Title}" />
+                    <Label Style="{StaticResource SecondaryLabel}" Text="{loc:Translate Welcome_Intro}" />
+
+                    <!--  Language: the same chips as Personalización  -->
+                    <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Personalizacion_Language}" />
+                    <Border Padding="4" Style="{StaticResource Chip}">
+                        <FlexLayout BindableLayout.ItemsSource="{Binding Languages}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ChoiceItem">
+                                    <Grid FlexLayout.Basis="0" FlexLayout.Grow="1">
+                                        <Border Padding="8,6" Style="{StaticResource Chip}">
+                                            <Border.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsSelected}"
+                                                    TargetType="Border"
+                                                    Value="True">
+                                                    <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                                    <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsSelected}"
+                                                    TargetType="Border"
+                                                    Value="False">
+                                                    <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceColor}" />
+                                                    <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Label Style="{StaticResource ChipLabel}" Text="{Binding Name}">
+                                                <Label.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding IsSelected}"
+                                                        TargetType="Label"
+                                                        Value="True">
+                                                        <Setter Property="TextColor" Value="{DynamicResource AccentTextColor}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger
+                                                        Binding="{Binding IsSelected}"
+                                                        TargetType="Label"
+                                                        Value="False">
+                                                        <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+                                        <Button
+                                            Command="{Binding SelectLanguageCommand, Source={RelativeSource AncestorType={x:Type vm:WelcomeViewModel}}, x:DataType=vm:WelcomeViewModel}"
+                                            CommandParameter="{Binding .}"
+                                            SemanticProperties.Description="{Binding AccessibleName}"
+                                            Style="{StaticResource RowButton}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                    </Border>
+
+                    <!--  Account: the existing pages, or nothing  -->
+                    <Button
+                        Margin="0,12,0,0"
+                        Command="{Binding LoginCommand}"
+                        Style="{StaticResource AccentButton}"
+                        Text="{loc:Translate Page_Login}" />
+                    <Button
+                        Command="{Binding RegisterCommand}"
+                        Style="{StaticResource OutlineButton}"
+                        Text="{loc:Translate Page_Register}" />
+                    <Button
+                        Command="{Binding ContinueCommand}"
+                        Style="{StaticResource OutlineButton}"
+                        Text="{loc:Translate Welcome_Continue}" />
+                </VerticalStackLayout>
+            </ScrollView>
+        </controls:SizeLimit>
+    </Border>
+
+</toolkit:Popup>

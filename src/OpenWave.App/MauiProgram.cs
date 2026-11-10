@@ -58,6 +58,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppearanceService>();
         builder.Services.AddSingleton<PreferencesService>();
         builder.Services.AddSingleton<SessionService>();
+        builder.Services.AddSingleton<WelcomeService>();
         builder.Services.AddSingleton<FavoritesService>();
 
         builder.Services.AddSingleton<MediaElementAudioPlayer>();
@@ -88,6 +89,10 @@ public static class MauiProgram
         builder.Services.AddTransient<RegisterViewModel>();
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<RegisterPage>();
+
+        // The welcome pop-up is shown once per device, from Inicio (WelcomeService keeps the flag).
+        builder.Services.AddTransient<WelcomeViewModel>();
+        builder.Services.AddTransient<WelcomePopup>();
 
 #if DEBUG
         builder.Logging.AddDebug();

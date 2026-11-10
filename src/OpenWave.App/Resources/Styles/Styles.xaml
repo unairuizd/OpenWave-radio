@@ -18,6 +18,9 @@
     <x:Double x:Key="FontSizeSubtitle">18</x:Double>
     <x:Double x:Key="FontSizeTitle">24</x:Double>
 
+    <!-- The dimmed page behind the welcome pop-up; a palette may override it -->
+    <Color x:Key="ScrimColor">#99000000</Color>
+
     <!-- Layout sizes, not font sizes: they do not scale with the text -->
     <!-- Smallest width and height of every interactive control (48 dp on Android, 48 px on Windows) -->
     <x:Double x:Key="MinTouchTarget">48</x:Double>
