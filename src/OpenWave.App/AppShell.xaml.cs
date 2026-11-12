@@ -19,7 +19,8 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("filtro", typeof(FiltroPage));
 		Routing.RegisterRoute("curiosidades", typeof(CuriosidadesPage));
 
-		// The login pages keep the platform header: re-apply its font and size when they change.
+		// The native radio circles are painted once by the platform: repaint them after a theme change and after
+		// each navigation (a page may be (re)built then).
 		appearance.PropertyChanged += OnAppearanceChanged;
 		Loaded += (_, _) => RefreshChrome();
 	}
@@ -37,11 +38,6 @@ public partial class AppShell : Shell
 
 	private void RefreshChrome()
 	{
-		if (CurrentPage is { } page)
-		{
-			ShellChrome.EnsureTitleView(page);
-		}
-
 		// Let the platform finish (re)building the page's views first.
 		Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), ShellChrome.ApplyRadioColors);
 	}

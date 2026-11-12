@@ -7,9 +7,13 @@ namespace OpenWave.App.Views;
 /// <summary>
 /// The header of the settings pages, the same in every theme: the back arrow on the left, the page title as written
 /// (not in upper case), centred, and the gear on the right. Colours, font and size come from the palette and Styles.xaml.
+/// The account pages hide the gear (<see cref="ShowGear"/>); its column stays, so the title keeps its place.
 /// </summary>
 public class SettingsHeader : ContentView
 {
+    public static readonly BindableProperty ShowGearProperty = BindableProperty.Create(
+        nameof(ShowGear), typeof(bool), typeof(SettingsHeader), true, propertyChanged: OnShowGearChanged);
+
     private readonly ImageButton _back;
     private readonly ImageButton _gear;
     private readonly Label _title;
@@ -83,6 +87,21 @@ public class SettingsHeader : ContentView
             Localizer.Instance.LanguageChanged += OnLanguageChanged;
         };
         Unloaded += (_, _) => Localizer.Instance.LanguageChanged -= OnLanguageChanged;
+    }
+
+    /// <summary>Whether the gear is shown; the account pages set it to false.</summary>
+    public bool ShowGear
+    {
+        get => (bool)GetValue(ShowGearProperty);
+        set => SetValue(ShowGearProperty, value);
+    }
+
+    private static void OnShowGearChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        var header = (SettingsHeader)bindable;
+        // Hidden, not removed: the gear's column keeps its width so the title stays centred on the page.
+        header._gear.IsVisible = (bool)newValue;
+        header._gear.Opacity = (bool)newValue ? 1 : 0;
     }
 
     private void OnLanguageChanged(object? sender, EventArgs e) => UpdateTexts();
