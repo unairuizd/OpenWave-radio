@@ -17,6 +17,7 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("personalizacion", typeof(PersonalizacionPage));
 		Routing.RegisterRoute("preferencias", typeof(PreferenciasPage));
 		Routing.RegisterRoute("filtro", typeof(FiltroPage));
+		Routing.RegisterRoute("curiosidades", typeof(CuriosidadesPage));
 
 		// The login pages keep the platform header: re-apply its font and size when they change.
 		appearance.PropertyChanged += OnAppearanceChanged;

@@ -121,6 +121,23 @@ Each user's favourite stations are stored in the database as a copy of the stati
 
 **Known limitation:** these endpoints are not authorised. Anyone who knows a user id can read or change that user's favourites; the session exists only in the app. This is accepted for this course project.
 
+### Daily facts API
+
+`GET /api/facts/daily?days=15` returns the music fact of today and of the previous `days − 1` days (UTC), newest first, in the language of `Accept-Language` (Spanish by default), plus what happened on today's date in music:
+
+```json
+{
+  "date": "2026-11-10",
+  "facts": [ { "date": "2026-11-10", "text": "…" }, { "date": "2026-11-09", "text": "…" } ],
+  "onThisDay": [ { "year": 1862, "text": "…", "articleUrl": "https://es.wikipedia.org/wiki/…" } ]
+}
+```
+
+- `days` goes from 1 to 31 (15 by default); any other value answers `400` with a localized `detail`.
+- **The facts** live in `src/OpenWave.Api/Resources/Facts.es.json` and `Facts.en.json`: the same facts, with the same ids in the same order, in each language. The API reads them once at startup and refuses to start if the files disagree. The fact of a day is the one at position `(days since 2026-01-01) mod (number of facts)`, so everyone gets the same fact on the same day, and a past day's fact can be recomputed. To add facts, append them to both files with a new id; the rotation grows with the list.
+- **The day changes at 00:00 UTC**, not at local midnight: a simplification accepted for the project.
+- **`onThisDay`** comes from the public Wikimedia Feed API ("On this day", `events` and `births` of today in the request language), filtered with music keywords and limited to three items with a link to the Wikipedia article. The base URL is `Wikimedia:BaseUrl` in `appsettings.json`. The result, even an empty one, is cached until midnight UTC, so Wikipedia is asked once per language per day. If Wikipedia does not answer within 5 seconds or has no music item, `onThisDay` is empty and the facts are returned anyway. Wikipedia texts are CC BY-SA; the app shows the attribution.
+
 ## Run the app on Windows
 
 With the API running:
@@ -254,6 +271,14 @@ To see it again while testing, remove the flag:
 
 - **Windows:** close the app and delete `%LOCALAPPDATA%\User Name\com.openwave.app\Settings\preferences.dat` (this also forgets the other preferences; it is a small JSON file, so you can instead delete only the `welcome_seen` entry).
 - **Android:** uninstall the app and deploy it again. Do not use "Clear storage" on a Debug build: it also removes the fast-deployed assemblies and the app no longer starts until it is deployed again.
+
+## Daily fact and Curiosidades
+
+An account feature: logged out, the app shows `Inicia sesión para ver el dato del día.` where the fact would be, and never asks the API for it.
+
+- **`Dato del día` strip in `Inicio`**, in every theme, under the search and filter area: a bulb, the caption `DATO DEL DÍA`, the first line of today's fact (cut with `…`) and `›`. It is one shared control (`Views/FunFactStrip.cs`) that every theme layout includes as a row of its `InicioTemplate`, so it takes the theme's colours, font and text size and follows the station row size limits. Tapping it opens `Curiosidades`; logged out it opens `Iniciar sesión`. While loading it reads `Cargando…`, and `Sin conexión` when the API cannot be reached.
+- **`Curiosidades` page**, also the third entry of `Ajustes`: today's fact with its date, `Tal día como hoy en la música` (up to three Wikipedia items with year, text and `Ver en Wikipedia`, plus the attribution `Fuente: Wikipedia (CC BY-SA)`, or `Hoy no tenemos ninguna efeméride musical.`), and `Días anteriores` with the 14 previous facts, newest first. Dates follow the app language. Errors show `No hay conexión con el servidor.` and `Reintentar`.
+- **One request per login** (`Services/FactsService.cs`, shared by the strip and the page), repeated on `Reintentar`, when the UTC day changes, and when the language changes; logging out forgets the facts. See "Daily facts API" for how the fact of a day is chosen and where the texts live.
 
 ## Favourites in the app
 
@@ -715,6 +740,10 @@ Nothing else changes: the language appears in `Idioma` at once.
 70. Welcome pop-up, language: remove the flag, start the app and tap `English`: the pop-up reads `Welcome to OpenWave` and the page behind it `HOME`. Tap `Continue without an account`, restart: the app opens in English with no pop-up and `Personalization` shows `English` selected. Choose `Español` again and press `Restablecer valores por defecto`, restart: Spanish, default theme, still no pop-up.
 71. Welcome pop-up, account: remove the flag, start the app and tap `Iniciar sesión`: the login page opens; the back arrow returns to `Inicio` with no pop-up. Remove the flag again and tap `Crear cuenta`: the register page opens; the back arrow goes to `Iniciar sesión`, then to `Inicio`. Logging in or registering from either page returns to `Inicio`, logged in.
 72. Welcome pop-up, sizes: with `Enorme`, remove the flag and start the app in the smallest Windows window and on the Android phone: every control of the pop-up can be reached by scrolling inside it and nothing is cut. Maximise the window: the pop-up is centred and no wider than a form. On Android, press the system back button with the pop-up open: it closes, `Inicio` stays, and it is not shown on the next start.
+73. Daily fact, logged out: start the app logged out. In `Inicio` the strip under the filters reads `Inicia sesión para ver el dato del día.`; tapping it opens `Iniciar sesión` and the back arrow returns to `Inicio`. `Ajustes` has `Curiosidades` as its third entry; opening it shows the same hint and an `Iniciar sesión` button. The API log shows no request to `/api/facts/daily`.
+74. Daily fact, logged in: log in. The strip shows `DATO DEL DÍA` and today's fact in one line; tapping it opens `Curiosidades` with today's fact and date, the `Tal día como hoy en la música` block (items with year, text and `Ver en Wikipedia`, which opens the article in the browser, plus the attribution; or `Hoy no tenemos ninguna efeméride musical.`), and `Días anteriores` with 14 facts, newest first, with their dates. Press `Cerrar sesión` in `Favoritos`: the strip and the page show the hint again.
+75. Daily fact, states: logged in, stop the API and restart the app: the strip reads `Sin conexión` and `Curiosidades` shows `No hay conexión con el servidor.` and `Reintentar`; start the API and press `Reintentar`: the facts load. Choose `English` in `Personalización`: the strip reads `FACT OF THE DAY` with the English text of the same fact, and the page shows English facts, dates and Wikipedia items.
+76. Daily fact, every theme and size: the strip appears in each of the eight themes with that theme's colours and font. In the smallest Windows window at `Enorme` the strip is one line cut with `…` and every block of `Curiosidades` can be reached by scrolling; maximised, the strip and the page are centred within their limits. Repeat the strip and the page on the Android phone.
 
 ## Notes
 

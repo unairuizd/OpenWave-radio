@@ -30,6 +30,11 @@
                         Detail="{loc:Translate Ajustes_PreferenciasDescription}"
                         Icon="ic_tune.png"
                         Title="{loc:Translate Page_Preferencias}" />
+                    <views:SettingsRow
+                        Command="{Binding OpenCuriosidadesCommand}"
+                        Detail="{loc:Translate Ajustes_CuriosidadesDescription}"
+                        Icon="ic_bulb.png"
+                        Title="{loc:Translate Page_Curiosidades}" />
                 </VerticalStackLayout>
             </controls:SizeLimit>
         </ScrollView>

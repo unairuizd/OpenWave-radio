@@ -5,6 +5,25 @@ Accept: application/json
 
 ###
 
+# Today's music fact, the 14 previous days and what happened today in music (Spanish)
+GET {{OpenWave.Api_HostAddress}}/api/facts/daily?days=15
+Accept: application/json
+
+###
+
+# The same in English
+GET {{OpenWave.Api_HostAddress}}/api/facts/daily
+Accept: application/json
+Accept-Language: en
+
+###
+
+# days outside 1-31: 400 with a localized detail
+GET {{OpenWave.Api_HostAddress}}/api/facts/daily?days=0
+Accept: application/json
+
+###
+
 # Top 50 stations by popularity
 GET {{OpenWave.Api_HostAddress}}/api/stations
 Accept: application/json

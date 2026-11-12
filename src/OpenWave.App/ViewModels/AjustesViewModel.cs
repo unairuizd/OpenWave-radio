@@ -11,4 +11,7 @@ public partial class AjustesViewModel : ObservableObject
 
     [RelayCommand]
     private Task OpenPersonalizacionAsync() => Shell.Current.GoToAsync("personalizacion");
+
+    [RelayCommand]
+    private Task OpenCuriosidadesAsync() => Shell.Current.GoToAsync("curiosidades");
 }

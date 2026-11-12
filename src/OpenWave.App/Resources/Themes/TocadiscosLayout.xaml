@@ -238,7 +238,7 @@
             x:DataType="vm:InicioViewModel"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,Auto,Auto,*,Auto">
+            RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
             <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
 
             <!--  Search row  -->
@@ -307,9 +307,12 @@
                 </FlexLayout>
             </Border>
 
+            <!--  Dato del día: the same shared strip in every theme (Views/FunFactStrip)  -->
+            <views:FunFactStrip Grid.Row="3" Margin="16,0,16,8" />
+
             <!--  Main area: the sleeve stack and the information panel  -->
             <Grid
-                Grid.Row="3">
+                Grid.Row="4">
                 <!--  The stack and the panel side by side when they fit, one under the other when not  -->
                 <ScrollView>
                     <FlexLayout
@@ -432,7 +435,7 @@
                 </VerticalStackLayout>
             </Grid>
 
-            <views:BottomBar Grid.Row="4" />
+            <views:BottomBar Grid.Row="5" />
         </Grid>
     </ControlTemplate>
 

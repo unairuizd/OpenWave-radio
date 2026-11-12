@@ -50,6 +50,11 @@ public static class MauiProgram
             client.BaseAddress = new Uri(apiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(10);
         }).AddHttpMessageHandler<AcceptLanguageHandler>();
+        builder.Services.AddHttpClient<FactsApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(10);
+        }).AddHttpMessageHandler<AcceptLanguageHandler>();
         builder.Services.AddHttpClient<CatalogApiClient>(client =>
         {
             client.BaseAddress = new Uri(apiSettings.BaseUrl);
@@ -60,6 +65,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<SessionService>();
         builder.Services.AddSingleton<WelcomeService>();
         builder.Services.AddSingleton<FavoritesService>();
+        // The daily facts, shared by the Inicio strip and Curiosidades; loaded only while logged in.
+        builder.Services.AddSingleton<FactsService>();
 
         builder.Services.AddSingleton<MediaElementAudioPlayer>();
         builder.Services.AddSingleton<IAudioPlayer>(services => services.GetRequiredService<MediaElementAudioPlayer>());
@@ -83,6 +90,8 @@ public static class MauiProgram
         builder.Services.AddTransient<PreferenciasPage>();
         builder.Services.AddTransient<FiltroViewModel>();
         builder.Services.AddTransient<FiltroPage>();
+        builder.Services.AddTransient<CuriosidadesViewModel>();
+        builder.Services.AddTransient<CuriosidadesPage>();
 
         // A fresh login or registration form each time the flow opens.
         builder.Services.AddTransient<LoginViewModel>();

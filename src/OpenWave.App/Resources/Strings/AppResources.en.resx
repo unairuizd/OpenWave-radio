@@ -32,6 +32,20 @@
   <data name="Welcome_Title" xml:space="preserve"><value>Welcome to OpenWave</value></data>
   <data name="Welcome_Intro" xml:space="preserve"><value>Choose the app language (you can change it later in Personalization). You only need an account to save favourites.</value></data>
   <data name="Welcome_Continue" xml:space="preserve"><value>Continue without an account</value></data>
+  <data name="Page_Curiosidades" xml:space="preserve"><value>Fun facts</value></data>
+  <data name="Ajustes_CuriosidadesDescription" xml:space="preserve"><value>A music fact every day and what happened on this day.</value></data>
+  <data name="Facts_Caption" xml:space="preserve"><value>FACT OF THE DAY</value></data>
+  <data name="Facts_Today" xml:space="preserve"><value>Today</value></data>
+  <data name="Facts_OnThisDay" xml:space="preserve"><value>On this day in music</value></data>
+  <data name="Facts_OnThisDayEmpty" xml:space="preserve"><value>No music anniversary today.</value></data>
+  <data name="Facts_Previous" xml:space="preserve"><value>Previous days</value></data>
+  <data name="Facts_ViewOnWikipedia" xml:space="preserve"><value>View on Wikipedia</value></data>
+  <data name="Facts_Attribution" xml:space="preserve"><value>Source: Wikipedia (CC BY-SA)</value></data>
+  <data name="Facts_Offline" xml:space="preserve"><value>No connection</value></data>
+  <data name="Facts_Loading" xml:space="preserve"><value>Loading…</value></data>
+  <data name="Facts_LogInHint" xml:space="preserve"><value>Log in to see the fact of the day.</value></data>
+  <data name="Facts_DateFormat" xml:space="preserve"><value>d MMMM yyyy</value></data>
+  <data name="Facts_Accessible" xml:space="preserve"><value>Fact of the day: {0}</value></data>
   <data name="Action_Play" xml:space="preserve"><value>Play</value></data>
   <data name="Action_AddFavorite" xml:space="preserve"><value>Add to favourites</value></data>
   <data name="Theme_moderno" xml:space="preserve"><value>Modern</value></data>

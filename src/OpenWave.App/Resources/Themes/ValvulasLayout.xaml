@@ -508,7 +508,7 @@
             x:DataType="vm:InicioViewModel"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,Auto,Auto,*,Auto">
+            RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
             <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
 
             <!--  Search row  -->
@@ -577,8 +577,11 @@
                 </FlexLayout>
             </Border>
 
+            <!--  Dato del día: the same shared strip in every theme (Views/FunFactStrip)  -->
+            <views:FunFactStrip Grid.Row="3" Margin="16,0,16,8" />
+
             <!--  The dial and the panel scroll together as the page; the header, filters and bar stay fixed  -->
-            <ScrollView Grid.Row="3">
+            <ScrollView Grid.Row="4">
                 <VerticalStackLayout>
                     <!--  The tuning dial: printed scale, the stations under a fixed needle, the knob, and the position caption  -->
                     <VerticalStackLayout
@@ -726,7 +729,7 @@
 
             <!--  States, in place of the dial and the panel  -->
             <VerticalStackLayout
-                Grid.Row="3"
+                Grid.Row="4"
 
                 HorizontalOptions="Center"
                 IsVisible="{Binding IsLoading}"
@@ -737,7 +740,7 @@
             </VerticalStackLayout>
 
             <Label
-                Grid.Row="3"
+                Grid.Row="4"
 
                 HorizontalOptions="Center"
                 HorizontalTextAlignment="Center"
@@ -747,7 +750,7 @@
                 VerticalOptions="Center" />
 
             <VerticalStackLayout
-                Grid.Row="3"
+                Grid.Row="4"
 
                 HorizontalOptions="Center"
                 IsVisible="{Binding IsEmptyWithPreferences}"
@@ -764,7 +767,7 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout
-                Grid.Row="3"
+                Grid.Row="4"
 
                 HorizontalOptions="Center"
                 IsVisible="{Binding HasError}"
@@ -780,7 +783,7 @@
                     Text="{loc:Translate Action_Retry}" />
             </VerticalStackLayout>
 
-            <views:BottomBar Grid.Row="4" />
+            <views:BottomBar Grid.Row="5" />
         </Grid>
     </ControlTemplate>
 

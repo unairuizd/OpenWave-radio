@@ -534,7 +534,7 @@
             x:DataType="vm:InicioViewModel"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,Auto,Auto,*,Auto">
+            RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
             <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
 
             <!--  Search row (the browser's search box)  -->
@@ -603,8 +603,11 @@
                 </FlexLayout>
             </Border>
 
+            <!--  Dato del día: the same shared strip in every theme (Views/FunFactStrip)  -->
+            <views:FunFactStrip Grid.Row="3" Margin="16,0,16,8" />
+
             <!--  The track browser: headings and rows (the states replace the rows)  -->
-            <controls:SizeLimit FillHeight="True" MaxWidth="{DynamicResource StationRowMaxWidth}" MinWidth="{DynamicResource StationRowMinWidth}" Grid.Row="3">
+            <controls:SizeLimit FillHeight="True" MaxWidth="{DynamicResource StationRowMaxWidth}" MinWidth="{DynamicResource StationRowMinWidth}" Grid.Row="4">
                 <Border
                     Margin="12,8,12,10"
                     Style="{StaticResource MesaDjScreen}">
@@ -676,7 +679,7 @@
                 </Border>
             </controls:SizeLimit>
 
-            <views:BottomBar Grid.Row="4" />
+            <views:BottomBar Grid.Row="5" />
         </Grid>
     </ControlTemplate>
 

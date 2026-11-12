@@ -352,7 +352,7 @@
             x:DataType="vm:InicioViewModel"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,Auto,Auto,*,Auto">
+            RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
             <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
 
             <!--  Search row  -->
@@ -421,8 +421,11 @@
                 </FlexLayout>
             </Border>
 
+            <!--  Dato del día: the same shared strip in every theme (Views/FunFactStrip)  -->
+            <views:FunFactStrip Grid.Row="3" Margin="16,0,16,8" />
+
             <!--  The LCD keeps its shape; it and the pad scroll as the page when they do not fit  -->
-            <ScrollView Grid.Row="3">
+            <ScrollView Grid.Row="4">
                 <VerticalStackLayout Spacing="8">
                     <!--  The LCD browser: path, lines and counter (the states replace the lines)  -->
                     <controls:AspectBox MaxWidth="{DynamicResource LcdScreenMaxWidth}" MinWidth="{DynamicResource LcdScreenMinWidth}" Ratio="{DynamicResource LcdScreenRatio}">
@@ -508,7 +511,7 @@
                 </VerticalStackLayout>
             </ScrollView>
 
-            <views:BottomBar Grid.Row="4" />
+            <views:BottomBar Grid.Row="5" />
         </Grid>
     </ControlTemplate>
 

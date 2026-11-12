@@ -459,7 +459,7 @@
             x:DataType="vm:InicioViewModel"
             BackgroundColor="{DynamicResource PageBackgroundColor}"
             BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}, x:DataType=ContentPage}"
-            RowDefinitions="Auto,Auto,Auto,*,Auto">
+            RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
             <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
 
             <!--  Search row  -->
@@ -528,8 +528,11 @@
                 </FlexLayout>
             </Border>
 
+            <!--  Dato del día: the same shared strip in every theme (Views/FunFactStrip)  -->
+            <views:FunFactStrip Grid.Row="3" Margin="16,0,16,8" />
+
             <!--  The shoebox of cassettes, and the states in its place  -->
-            <Grid Grid.Row="3" Padding="12,10,12,10">
+            <Grid Grid.Row="4" Padding="12,10,12,10">
                 <controls:SizeLimit FillHeight="True" MaxWidth="{DynamicResource StationRowMaxWidth}" MinWidth="{DynamicResource StationRowMinWidth}">
                     <Border
                         Padding="0,6"
@@ -621,7 +624,7 @@
                 </VerticalStackLayout>
             </Grid>
 
-            <views:BottomBar Grid.Row="4" />
+            <views:BottomBar Grid.Row="5" />
         </Grid>
     </ControlTemplate>
 

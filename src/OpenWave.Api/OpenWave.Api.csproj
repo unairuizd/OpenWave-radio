@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <!-- Spanish texts live in the neutral Resources/Messages.resx; other languages are satellite assemblies. -->
+    <Nullable>enable</Nullable>
+    <!-- Spanish texts live in the neutral Resources/Messages.resx; other languages are satellite assemblies. -->
     <NeutralLanguage>es</NeutralLanguage>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>bdfcf5f9-ed90-45fc-ba9d-9cd82bdcde78</UserSecretsId>
@@ -16,6 +16,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenWave.Contracts\OpenWave.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The daily music facts, one file per language (same ids in every file), read at startup by FactsCatalog. -->
+    <Content Update="Resources\Facts.*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

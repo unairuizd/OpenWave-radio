@@ -172,7 +172,7 @@
             <Grid
                 Grid.Row="1"
                 Padding="16,12,16,0"
-                RowDefinitions="Auto,Auto,*"
+                RowDefinitions="Auto,Auto,Auto,*"
                 RowSpacing="12">
 
                 <Grid
@@ -238,7 +238,10 @@
                     </FlexLayout>
                 </Border>
 
-                <Grid Grid.Row="2">
+                <!--  Dato del día: the same shared strip in every theme (Views/FunFactStrip)  -->
+                <views:FunFactStrip Grid.Row="2" />
+
+                <Grid Grid.Row="3">
                     <CollectionView
                         ItemTemplate="{StaticResource StationCardTemplate}"
                         ItemsSource="{Binding Stations}"

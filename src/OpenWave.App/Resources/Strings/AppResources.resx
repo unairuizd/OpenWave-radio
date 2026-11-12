@@ -32,6 +32,20 @@
   <data name="Welcome_Title" xml:space="preserve"><value>Bienvenido a OpenWave</value></data>
   <data name="Welcome_Intro" xml:space="preserve"><value>Elige el idioma de la aplicación (podrás cambiarlo en Personalización). Solo necesitas una cuenta para guardar favoritas.</value></data>
   <data name="Welcome_Continue" xml:space="preserve"><value>Continuar sin cuenta</value></data>
+  <data name="Page_Curiosidades" xml:space="preserve"><value>Curiosidades</value></data>
+  <data name="Ajustes_CuriosidadesDescription" xml:space="preserve"><value>Un dato musical cada día y lo que pasó tal día como hoy.</value></data>
+  <data name="Facts_Caption" xml:space="preserve"><value>DATO DEL DÍA</value></data>
+  <data name="Facts_Today" xml:space="preserve"><value>Hoy</value></data>
+  <data name="Facts_OnThisDay" xml:space="preserve"><value>Tal día como hoy en la música</value></data>
+  <data name="Facts_OnThisDayEmpty" xml:space="preserve"><value>Hoy no tenemos ninguna efeméride musical.</value></data>
+  <data name="Facts_Previous" xml:space="preserve"><value>Días anteriores</value></data>
+  <data name="Facts_ViewOnWikipedia" xml:space="preserve"><value>Ver en Wikipedia</value></data>
+  <data name="Facts_Attribution" xml:space="preserve"><value>Fuente: Wikipedia (CC BY-SA)</value></data>
+  <data name="Facts_Offline" xml:space="preserve"><value>Sin conexión</value></data>
+  <data name="Facts_Loading" xml:space="preserve"><value>Cargando…</value></data>
+  <data name="Facts_LogInHint" xml:space="preserve"><value>Inicia sesión para ver el dato del día.</value></data>
+  <data name="Facts_DateFormat" xml:space="preserve"><value>d 'de' MMMM 'de' yyyy</value></data>
+  <data name="Facts_Accessible" xml:space="preserve"><value>Dato del día: {0}</value></data>
   <data name="Action_Play" xml:space="preserve"><value>Reproducir</value></data>
   <data name="Action_AddFavorite" xml:space="preserve"><value>Añadir a favoritas</value></data>
   <data name="Theme_moderno" xml:space="preserve"><value>Moderno</value></data>

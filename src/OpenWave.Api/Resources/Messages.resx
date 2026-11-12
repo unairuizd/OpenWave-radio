@@ -5,6 +5,7 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="InvalidRequest" xml:space="preserve"><value>La solicitud no es válida.</value></data>
+  <data name="InvalidDays" xml:space="preserve"><value>El número de días debe estar entre 1 y 31.</value></data>
   <data name="InvalidStation" xml:space="preserve"><value>Los datos de la emisora no son válidos.</value></data>
   <data name="CatalogueUnavailable" xml:space="preserve"><value>No se pudo obtener el catálogo de emisoras.</value></data>
   <data name="DatabaseUnavailable" xml:space="preserve"><value>No se pudo acceder a la base de datos.</value></data>

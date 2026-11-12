@@ -61,9 +61,21 @@ builder.Services.AddHttpClient<IRadioBrowserClient, RadioBrowserClient>(client =
 
 builder.Services.AddScoped<IStationService, StationService>();
 
-// Only the catalogue option lists are cached (60 minutes, see CatalogService).
+// The catalogue option lists (60 minutes, see CatalogService) and the "on this day" items (until midnight UTC,
+// see FactsService) are cached in memory.
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
+
+// Daily music facts: the curated lists are read once; Wikipedia is asked for today's music events with its own timeout.
+builder.Services.AddSingleton(new FactsCatalog(builder.Environment.ContentRootPath, supportedLanguages));
+builder.Services.Configure<WikimediaOptions>(builder.Configuration.GetSection(WikimediaOptions.SectionName));
+builder.Services.AddHttpClient<IWikimediaClient, WikimediaClient>(client =>
+{
+    client.Timeout = WikimediaClient.RequestTimeout;
+    client.DefaultRequestHeaders.UserAgent.ParseAdd(WikimediaClient.UserAgent);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+builder.Services.AddScoped<IFactsService, FactsService>();
 
 // The schema is created only by database/schema.sql: no migrations and no EnsureCreated.
 var connectionString = builder.Configuration.GetConnectionString("Default")

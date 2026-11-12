@@ -244,7 +244,7 @@
                         <!--  The screen: title bar, search and filter rows, then the Emisoras menu (the states replace it)  -->
                         <controls:AspectBox MaxWidth="{DynamicResource DeviceScreenMaxWidth}" MinWidth="{DynamicResource DeviceScreenMinWidth}" Ratio="{DynamicResource DeviceScreenRatio}">
                             <Border Style="{StaticResource RuedaScreen}">
-                                <Grid RowDefinitions="Auto,Auto,Auto,*">
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
                                     <ContentView Grid.Row="0" ControlTemplate="{StaticResource HeaderTemplate}" />
                                     <Grid
                                         Grid.Row="1"
@@ -305,9 +305,12 @@
                                             VerticalOptions="Center" />
                                     </FlexLayout>
 
+                                    <!--  Dato del día: the same shared strip in every theme (Views/FunFactStrip)  -->
+                                    <views:FunFactStrip Grid.Row="3" />
+
                                     <controls:CursorList
                                         x:Name="Menu"
-                                        Grid.Row="3"
+                                        Grid.Row="4"
                                         ActivateCommand="{Binding PlayHereCommand}"
                                         FocusOnReset="First"
                                         ItemIsCurrentPath="IsSelected"
@@ -315,7 +318,7 @@
                                         ItemsSource="{Binding Stations}" />
 
                                     <VerticalStackLayout
-                                        Grid.Row="3"
+                                        Grid.Row="4"
                                         HorizontalOptions="Center"
                                         IsVisible="{Binding IsLoading}"
                                         Spacing="8"
@@ -325,7 +328,7 @@
                                     </VerticalStackLayout>
 
                                     <Label
-                                        Grid.Row="3"
+                                        Grid.Row="4"
                                         HorizontalOptions="Center"
                                         HorizontalTextAlignment="Center"
                                         IsVisible="{Binding IsEmptyPlain}"
@@ -334,7 +337,7 @@
                                         VerticalOptions="Center" />
 
                                     <VerticalStackLayout
-                                        Grid.Row="3"
+                                        Grid.Row="4"
                                         HorizontalOptions="Center"
                                         IsVisible="{Binding IsEmptyWithPreferences}"
                                         Spacing="12"
@@ -350,7 +353,7 @@
                                     </VerticalStackLayout>
 
                                     <VerticalStackLayout
-                                        Grid.Row="3"
+                                        Grid.Row="4"
                                         HorizontalOptions="Center"
                                         IsVisible="{Binding HasError}"
                                         Spacing="12"

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  Today's music fact, what happened today in music (Wikipedia) and the previous days. The same in every theme:
+      only the palette colours change. Logged out it only invites to log in. Opened from the Inicio strip and from
+      Ajustes, pushed on the current section so the back arrow returns there.  -->
+<ContentPage
+    x:Class="OpenWave.App.Views.CuriosidadesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:OpenWave.App.Views.Controls"
+    xmlns:loc="clr-namespace:OpenWave.App.Services.Localization"
+    xmlns:views="clr-namespace:OpenWave.App.Views"
+    xmlns:vm="clr-namespace:OpenWave.App.ViewModels"
+    x:DataType="vm:CuriosidadesViewModel"
+    Title="{loc:Translate Page_Curiosidades}"
+    BackgroundColor="{DynamicResource PageBackgroundColor}"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <views:SettingsHeader Grid.Row="0" />
+
+        <ScrollView Grid.Row="1">
+            <controls:SizeLimit MinWidth="{DynamicResource SettingsColumnMinWidth}" MaxWidth="{DynamicResource SettingsColumnMaxWidth}">
+                <VerticalStackLayout Padding="16" Spacing="12">
+
+                    <!--  Logged out: the same invitation as Favoritos  -->
+                    <VerticalStackLayout IsVisible="{Binding IsLoggedOut}" Spacing="12">
+                        <Label Style="{StaticResource SettingsRowTitle}" Text="{loc:Translate Facts_LogInHint}" />
+                        <Button
+                            Command="{Binding LogInCommand}"
+                            Style="{StaticResource AccentButton}"
+                            Text="{loc:Translate Page_Login}" />
+                    </VerticalStackLayout>
+
+                    <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" />
+
+                    <!--  The API could not be reached  -->
+                    <VerticalStackLayout IsVisible="{Binding HasError}" Spacing="12">
+                        <Label Style="{StaticResource ErrorLabel}" Text="{Binding ErrorMessage}" />
+                        <Button
+                            Command="{Binding RetryCommand}"
+                            Style="{StaticResource OutlineButton}"
+                            Text="{loc:Translate Action_Retry}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout IsVisible="{Binding ShowContent}" Spacing="12">
+                        <!--  Today  -->
+                        <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Facts_Today}" />
+                        <Border Style="{StaticResource StationCard}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Style="{StaticResource SettingsRowDescription}" Text="{Binding Today.DateText}" />
+                                <Label Style="{StaticResource SettingsRowTitle}" Text="{Binding Today.Text}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!--  On this day in music, from Wikipedia  -->
+                        <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Facts_OnThisDay}" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding OnThisDay}" Spacing="12">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:MusicEventItem">
+                                    <Border Style="{StaticResource StationCard}">
+                                        <VerticalStackLayout Spacing="6">
+                                            <Label Style="{StaticResource SettingsRowTitle}" Text="{Binding Year}" />
+                                            <Label Style="{StaticResource SettingsRowDescription}" Text="{Binding Text}" />
+                                            <Button
+                                                Command="{Binding OpenArticleCommand, Source={RelativeSource AncestorType={x:Type vm:CuriosidadesViewModel}}, x:DataType=vm:CuriosidadesViewModel}"
+                                                CommandParameter="{Binding ArticleUrl}"
+                                                HorizontalOptions="Start"
+                                                IsVisible="{Binding HasArticle}"
+                                                Style="{StaticResource OutlineButton}"
+                                                Text="{loc:Translate Facts_ViewOnWikipedia}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <Label
+                            IsVisible="{Binding ShowOnThisDayEmpty}"
+                            Style="{StaticResource SettingsRowDescription}"
+                            Text="{loc:Translate Facts_OnThisDayEmpty}" />
+                        <Label
+                            IsVisible="{Binding HasOnThisDay}"
+                            Style="{StaticResource SecondaryLabel}"
+                            Text="{loc:Translate Facts_Attribution}" />
+
+                        <!--  The previous days, newest first  -->
+                        <Label Style="{StaticResource SettingsGroupLabel}" Text="{loc:Translate Facts_Previous}" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding PreviousFacts}" Spacing="12">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FactItem">
+                                    <Border Style="{StaticResource StationCard}">
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Style="{StaticResource SettingsRowDescription}" Text="{Binding DateText}" />
+                                            <Label Style="{StaticResource SettingsRowTitle}" Text="{Binding Text}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </controls:SizeLimit>
+        </ScrollView>
+
+        <views:BottomBar Grid.Row="2" />
+    </Grid>
+</ContentPage>
